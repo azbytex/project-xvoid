@@ -1,0 +1,18 @@
+{
+  "home": "Beranda",
+  "xvoid_ai": "XVoid AI",
+  "osint_hub": "OSINT Hub",
+  "phone_sms": "Phone & SMS",
+  "github_suite": "GitHub Suite",
+  "network_recon": "Network Recon",
+  "media_lab": "Media Lab",
+  "dev_suite": "Dev Suite",
+  "pentest": "Pentest",
+  "strix_title": "Strix Pentest Scanner",
+  "target_url": "Target URL",
+  "scan": "Mulai Scan",
+  "loading_strix": "Memindai target dengan Strix... mohon tunggu.",
+  "loading": "Memuat…",
+  "success": "Berhasil",
+  "error": "Terjadi kesalahan"
+}
