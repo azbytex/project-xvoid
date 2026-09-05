@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+_tools/
+vault.py
+scratch/
+.system_generated/
+
