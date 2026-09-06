@@ -11,7 +11,12 @@ from pathlib import Path
 import dashboard
 
 PORT = int(os.environ.get("PORT", 3000))
-WEB_DIR = Path(__file__).parent / "web"
+_ROOT_CANDIDATES = [
+    Path(__file__).resolve().parent,
+    Path(__file__).resolve().parent.parent,
+    Path(os.getcwd()),
+]
+WEB_DIR = next((p / "web" for p in _ROOT_CANDIDATES if (p / "web").exists()), Path(__file__).resolve().parent / "web")
 service = dashboard.LeviathanService()
 
 STATIC_MIME_TYPES = {
@@ -47,8 +52,10 @@ class BaseApiHandler(BaseHTTPRequestHandler):
 
     def _serve_static_file(self, req_path: str):
         rel = req_path.lstrip("/")
-        if not rel or rel == "index.html":
+        if not rel or rel in ("index.html", "web", "web/"):
             target = (WEB_DIR / "index.html").resolve()
+        elif rel.startswith("web/"):
+            target = (WEB_DIR / rel[4:]).resolve()
         else:
             target = (WEB_DIR / rel).resolve()
 
@@ -533,6 +540,103 @@ class BaseApiHandler(BaseHTTPRequestHandler):
                 return self._send_json(200, result)
             except Exception as exc:
                 return self._send_json(400, {"error": str(exc), "message": str(exc), "status": "error"})
+
+        # 12. OSINT: USERNAME SHERLOCK
+        elif path == "/api/osint/sherlock":
+            username = body.get("username", "").strip()
+            if not username:
+                return self._send_json(400, {"error": "Username tidak boleh kosong"})
+            try:
+                res = service.sherlock_username(username)
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(500, {"error": str(exc)})
+
+        # 13. OSINT: DISCORD USER LOOKUP
+        elif path == "/api/osint/discord":
+            user_id = str(body.get("userId") or body.get("user_id") or "").strip()
+            if not user_id:
+                return self._send_json(400, {"error": "Discord User ID tidak boleh kosong"})
+            try:
+                res = service.discord_lookup(user_id)
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(400, {"error": str(exc)})
+
+        # 14. OSINT: BREACH & PASSWORD LEAK CHECK
+        elif path == "/api/osint/breach":
+            query = body.get("query", "").strip()
+            q_type = body.get("type", "auto").strip()
+            if not query:
+                return self._send_json(400, {"error": "Query (email / password) tidak boleh kosong"})
+            try:
+                res = service.check_breach(query, query_type=q_type)
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(400, {"error": str(exc)})
+
+        # 15. PHONE: TEMP VIRTUAL SMS NUMBERS
+        elif path == "/api/phone/tempsms/numbers":
+            try:
+                res = service.get_temp_sms_numbers()
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(500, {"error": str(exc)})
+
+        # 16. PHONE: TEMP VIRTUAL SMS INBOX
+        elif path == "/api/phone/tempsms/inbox":
+            number = str(body.get("number", "")).strip()
+            if not number:
+                return self._send_json(400, {"error": "Nomor telepon virtual tidak boleh kosong"})
+            try:
+                res = service.get_temp_sms_inbox(number)
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(500, {"error": str(exc)})
+
+        # 17. RECON: SUBDOMAIN SCANNER
+        elif path == "/api/recon/subdomains":
+            domain = body.get("domain", "").strip() or body.get("url", "").strip()
+            if not domain:
+                return self._send_json(400, {"error": "Domain target tidak boleh kosong"})
+            try:
+                res = service.scan_subdomains(domain)
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(400, {"error": str(exc)})
+
+        # 18. RECON: ONLINE PORT SCANNER
+        elif path == "/api/recon/ports":
+            host = body.get("host", "").strip() or body.get("target", "").strip()
+            if not host:
+                return self._send_json(400, {"error": "Host atau IP target tidak boleh kosong"})
+            try:
+                res = service.scan_ports(host)
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(400, {"error": str(exc)})
+
+        # 19. RECON: IP INTELLIGENCE & THREAT SCORE
+        elif path == "/api/recon/ipintel":
+            ip = body.get("ip", "").strip() or body.get("target", "").strip()
+            if not ip:
+                return self._send_json(400, {"error": "Alamat IP tidak boleh kosong"})
+            try:
+                res = service.ip_intelligence(ip)
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(400, {"error": str(exc)})
+
+        # 20. GITHUB: USER DEEP PROFILER & EMAIL LEAK
+        elif path == "/api/github/profiler":
+            username = body.get("username", "").strip()
+            if not username:
+                return self._send_json(400, {"error": "Username GitHub tidak boleh kosong"})
+            try:
+                res = service.github_user_profiler(username)
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(400, {"error": str(exc)})
 
         self.send_error(404, "Endpoint not found")
 

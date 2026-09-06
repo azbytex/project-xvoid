@@ -7,4 +7,7 @@ _tools/
 vault.py
 scratch/
 .system_generated/
-
+node_modules/
+package-lock.json
+.package-lock.json
+.vscode/

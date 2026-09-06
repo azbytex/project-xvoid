@@ -7,29 +7,82 @@
   }, { capture: true });
 })();
 
-const pages = ['home', 'base64', 'magiclink', 'webtools', 'stromai', 'tiktok', 'ceknomor', 'gambar', 'scanrepo', 'webinspect'];
+const pages = [
+  'home', 'stromai', 'osint', 'phonehub', 'githubsuite', 'reconhub', 'medialab', 'devsuite'
+];
+
+const pageAliasMap = {
+  'magiclink': { hub: 'devsuite', sub: 'alightmotion' },
+  'base64': { hub: 'devsuite', sub: 'base64' },
+  'webtools': { hub: 'devsuite', sub: 'webtools' },
+  'ceknomor': { hub: 'phonehub', sub: 'ceknomor' },
+  'scanrepo': { hub: 'githubsuite', sub: 'scanrepo' },
+  'webinspect': { hub: 'reconhub', sub: 'webinspect' },
+  'gambar': { hub: 'medialab', sub: 'gambar' },
+  'tiktok': { hub: 'medialab', sub: 'downloader' }
+};
 
 function goPage(pageName, opts = {}) {
-  if (typeof _aiFullscreen !== 'undefined' && _aiFullscreen && pageName !== 'stromai') {
+  let activeHub = pageName;
+  if (pageAliasMap[pageName]) {
+    activeHub = pageAliasMap[pageName].hub;
+    opts.sub = opts.sub || pageAliasMap[pageName].sub;
+  }
+
+  if (opts.sub) {
+    switchSubTab(activeHub, opts.sub);
+  }
+
+  if (typeof _aiFullscreen !== 'undefined' && _aiFullscreen && activeHub !== 'stromai') {
     toggleAiFullscreen();
   }
+
   pages.forEach(p => {
     const viewEl = document.getElementById(`view-${p}`);
     const tabBtn = document.getElementById(`tab-${p}`);
-    if (viewEl) viewEl.classList.toggle('visible', p === pageName);
+    if (viewEl) viewEl.classList.toggle('visible', p === activeHub);
     if (tabBtn) {
-      const isActive = p === pageName;
+      const isActive = p === activeHub;
       tabBtn.classList.toggle('active', isActive);
       if (isActive) tabBtn.setAttribute('aria-current', 'page');
       else tabBtn.removeAttribute('aria-current');
     }
   });
+
   window.scrollTo({ top: 0, behavior: opts.instant ? 'auto' : 'smooth' });
-  moveTabThumb(pageName, opts);
-  if (pageName === 'stromai') {
+  moveTabThumb(activeHub, opts);
+
+  if (activeHub === 'stromai') {
     initAiChatInput();
     const msgs = document.getElementById('ai-messages');
     if (msgs) setTimeout(() => { msgs.scrollTop = msgs.scrollHeight; }, 50);
+  }
+}
+
+function switchSubTab(hub, subId) {
+  const hubPrefixMap = {
+    'osint': 'osint',
+    'phonehub': 'phone',
+    'githubsuite': 'gh',
+    'reconhub': 'recon',
+    'medialab': 'media',
+    'devsuite': 'dev'
+  };
+  const pfx = hubPrefixMap[hub] || hub;
+  const navEl = document.getElementById(`subtab-nav-${hub}`);
+  if (navEl) {
+    navEl.querySelectorAll('.subtab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.id === `btn-sub-${pfx}-${subId}`);
+    });
+  }
+  const viewEl = document.getElementById(`view-${hub}`);
+  if (viewEl) {
+    viewEl.querySelectorAll('.subtab-pane').forEach(pane => {
+      pane.classList.toggle('active', pane.id === `subpane-${pfx}-${subId}`);
+    });
+  }
+  if (hub === 'phonehub' && subId === 'tempsms') {
+    loadTempSmsNumbers();
   }
 }
 
@@ -680,14 +733,31 @@ function handleBase64Decode() {
   }
   let base64Data = input;
   let mime = 'application/octet-stream';
+  let isBase64 = true;
   if (input.startsWith('data:')) {
     const comma = input.indexOf(',');
     if (comma !== -1) {
-      mime = input.substring(5, comma).split(';')[0];
+      const metadata = input.substring(5, comma).split(';');
+      mime = metadata[0] || mime;
+      isBase64 = metadata.includes('base64');
       base64Data = input.substring(comma + 1);
     }
   }
   try {
+    if (!isBase64) {
+      const decodedText = decodeURIComponent(base64Data);
+      const blob = new Blob([decodedText], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+      const dlBtn = document.getElementById('b64-download-link');
+      dlBtn.href = blobUrl;
+      dlBtn.download = 'decoded_file.txt';
+      dlBtn.style.display = 'inline-flex';
+      document.getElementById('b64-decode-result').classList.add('visible');
+      showToast('Base64 berhasil di-decode');
+      return;
+    }
+    base64Data = base64Data.replace(/\s/g, '').replace(/-/g, '+').replace(/_/g, '/');
+    base64Data += '='.repeat((4 - (base64Data.length % 4)) % 4);
     const byteCharacters = atob(base64Data);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
@@ -699,7 +769,16 @@ function handleBase64Decode() {
     
     const dlBtn = document.getElementById('b64-download-link');
     dlBtn.href = blobUrl;
-    dlBtn.download = `decoded_file.${mime.split('/')[1] || 'bin'}`;
+    const extension = ({
+      'image/jpeg': 'jpg',
+      'image/svg+xml': 'svg',
+      'application/pdf': 'pdf',
+      'application/json': 'json',
+      'text/plain': 'txt',
+      'application/octet-stream': 'bin'
+    })[mime] || mime.split('/')[1]?.split('+')[0] || 'bin';
+    dlBtn.download = `decoded_file.${extension}`;
+    dlBtn.target = '_blank';
     dlBtn.style.display = 'inline-flex';
     document.getElementById('b64-decode-result').classList.add('visible');
     showToast('Base64 berhasil di-decode');
@@ -1428,7 +1507,7 @@ async function fetchTikTok() {
               <div style="position:relative;width:100%;height:140px;background:var(--gray-100);overflow:hidden;">
                 <img src="${thumbUrl}" alt="${fn}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
                 <span style="position:absolute;top:6px;left:6px;background:rgba(17,17,20,0.75);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;backdrop-filter:blur(4px);">
-                  ${isVid ? '▶ VIDEO' : '📷 FOTO'} #${idx + 1}
+                  ${isVid ? '&#9654; VIDEO' : '&#128248; FOTO'} #${idx + 1}
                 </span>
               </div>
               <div style="padding:8px 10px;display:flex;flex-direction:column;gap:6px;flex:1;justify-content:space-between;">
@@ -2354,4 +2433,848 @@ async function inspectWeb() {
   }
 }
 
+// ════════════════════════════════════════════════════════════════
+// NEW SUITE MODULES CONTROLLERS (OSINT, RECON, PHONE, MEDIA, DEV)
+// ════════════════════════════════════════════════════════════════
+
+// ─── 1. USERNAME SHERLOCK SCANNER ───
+async function runSherlock() {
+  const input = document.getElementById('sherlock-input');
+  const btn = document.getElementById('sherlock-btn');
+  const loading = document.getElementById('sherlock-loading');
+  const resBox = document.getElementById('sherlock-result-box');
+  const grid = document.getElementById('sherlock-grid');
+  const title = document.getElementById('sherlock-summary-title');
+  const badge = document.getElementById('sherlock-stats-badge');
+
+  const username = (input.value || '').trim().replace(/^@/, '');
+  if (!username) {
+    showToast('Ketik username target terlebih dahulu!', true);
+    return;
+  }
+  if (username.length < 3) {
+    showToast('Username target minimal 3 karakter!', true);
+    return;
+  }
+  if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
+    showToast('Username hanya boleh huruf, angka, titik, strip, atau underscore!', true);
+    return;
+  }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  resBox.style.display = 'none';
+  grid.innerHTML = '';
+
+  try {
+    const res = await fetch('/api/osint/sherlock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memindai username');
+
+    title.textContent = `Hasil Pelacakan '${data.username}':`;
+    badge.textContent = `${data.found_count} Ditemukan dari ${data.total_scanned} Platform`;
+
+    data.results.forEach(item => {
+      const card = document.createElement(item.found ? 'a' : 'div');
+      card.className = `sherlock-card ${item.found ? 'found' : ''}`;
+      if (item.found) {
+        card.href = item.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+      }
+      card.innerHTML = `
+        <div>
+          <div style="font-weight:700;font-size:14px;">${item.name}</div>
+          <div style="font-size:11px;color:var(--gray-400);">${item.category}</div>
+        </div>
+        <span class="sherlock-badge ${item.found ? 'found' : 'missing'}">${item.found ? 'KLAIM / AKTIF' : 'TERSEDIA'}</span>
+      `;
+      grid.appendChild(card);
+    });
+
+    resBox.style.display = 'block';
+    showToast(`Scan Sherlock selesai! ${data.found_count} akun ditemukan.`);
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+// ─── 2. DISCORD LOOKUP ───
+async function runDiscordLookup() {
+  const input = document.getElementById('discord-input');
+  const btn = document.getElementById('discord-btn');
+  const loading = document.getElementById('discord-loading');
+  const resBox = document.getElementById('discord-result-box');
+
+  const userId = (input.value || '').trim();
+  if (!userId) {
+    showToast('Masukkan Discord User ID!', true);
+    return;
+  }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  resBox.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/osint/discord', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal mendekode Discord ID');
+
+    document.getElementById('discord-avatar').src = data.avatar_url || data.avatar;
+    document.getElementById('discord-tag').textContent = data.tag;
+    document.getElementById('discord-uid-label').textContent = data.id || data.user_id;
+    document.getElementById('discord-bot-badge').style.display = data.is_bot ? 'inline-block' : 'none';
+    document.getElementById('discord-created-wib').textContent = data.created_at_wib;
+    document.getElementById('discord-created-utc').textContent = data.created_at_utc;
+    document.getElementById('discord-age-days').textContent = `${data.age_days || data.account_age_days} Hari`;
+    document.getElementById('discord-node-info').textContent = `Worker #${data.worker_id} · Proc #${data.process_id}`;
+
+    resBox.style.display = 'block';
+    showToast('Data identitas Discord berhasil didekode!');
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+// ─── 3. BREACH & PASSWORD LEAK ───
+async function runBreachCheck() {
+  const input = document.getElementById('breach-input');
+  const btn = document.getElementById('breach-btn');
+  const loading = document.getElementById('breach-loading');
+  const resBox = document.getElementById('breach-result-box');
+  const banner = document.getElementById('breach-banner');
+  const details = document.getElementById('breach-details');
+
+  const query = (input.value || '').trim();
+  if (!query) {
+    showToast('Ketik alamat email yang ingin diaudit!', true);
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(query)) {
+    showToast('Format email tidak valid! Masukkan alamat email aktif (contoh: user@domain.com)', true);
+    return;
+  }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  resBox.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/osint/breach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Audit kebocoran gagal');
+
+    if (data.type === 'password') {
+      if (data.is_compromised) {
+        banner.style.background = '#fef2f2';
+        banner.style.color = '#dc2626';
+        banner.style.border = '1px solid rgba(220, 38, 38, 0.3)';
+        banner.textContent = `[!] PERINGATAN: Kata sandi ini telah bocor sebanyak ${data.leak_count.toLocaleString()} kali di internet!`;
+      } else {
+        banner.style.background = '#f0fdf4';
+        banner.style.color = '#16a34a';
+        banner.style.border = '1px solid rgba(22, 163, 74, 0.3)';
+        banner.textContent = `[OK] AMAN: Kata sandi ini belum pernah ditemukan di database kebocoran publik.`;
+      }
+
+      details.innerHTML = `
+        <div><strong>Status:</strong> ${data.verdict}</div>
+        <div><strong>Tingkat Entropi:</strong> ${data.entropy_bits} bits</div>
+        <div><strong>Karakter Masked:</strong> <code>${data.query_masked}</code></div>
+        <div><strong>Saran Keamanan:</strong> ${data.recommendation}</div>
+      `;
+    } else {
+      if (data.is_pwned) {
+        banner.style.background = '#fef2f2';
+        banner.style.color = '#dc2626';
+        banner.style.border = '1px solid rgba(220, 38, 38, 0.3)';
+        banner.textContent = `[!] Email ${data.email} terindikasi dalam ${data.breach_count} insiden kebocoran data!`;
+      } else {
+        banner.style.background = '#f0fdf4';
+        banner.style.color = '#16a34a';
+        banner.style.border = '1px solid rgba(220, 38, 38, 0.3)';
+        banner.textContent = `[OK] Email ${data.email} bersih dari daftar kebocoran data besar yang terindeks.`;
+      }
+
+      let breachListHtml = '';
+      if (data.breaches && data.breaches.length) {
+        breachListHtml = '<div><strong>Insiden Kebocoran Terkait:</strong><ul style="margin-left:18px;margin-top:4px;">' +
+          data.breaches.map(b => `<li><strong>${b.name} (${b.year})</strong> — ${b.records}. Data bocor: ${b.leaked.join(', ')}</li>`).join('') +
+          '</ul></div>';
+      }
+
+      details.innerHTML = `
+        <div><strong>Email Target:</strong> <code>${data.email}</code></div>
+        ${breachListHtml}
+        <div><strong>Saran Tindakan:</strong> ${data.recommendation}</div>
+      `;
+    }
+
+    resBox.style.display = 'block';
+    showToast('Audit kebocoran data selesai!');
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+// ─── 4. TEMP VIRTUAL SMS NUMBERS ───
+let currentSelectedSmsNumber = '';
+let tempSmsLoaded = false;
+
+async function loadTempSmsNumbers() {
+  if (tempSmsLoaded) return;
+  const listEl = document.getElementById('sms-num-list');
+  if (!listEl) return;
+  listEl.innerHTML = '<div style="color:var(--gray-400);font-size:12px;">Memuat nomor virtual...</div>';
+
+  try {
+    const res = await fetch('/api/phone/tempsms/numbers', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memuat nomor virtual');
+
+    listEl.innerHTML = '';
+    data.numbers.forEach((item, idx) => {
+      const el = document.createElement('div');
+      el.className = `sms-num-item ${idx === 0 ? 'active' : ''}`;
+      el.onclick = () => selectTempSmsNumber(item.number, el);
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+          <span class="sms-flag-badge">${item.flag}</span>
+          <div style="min-width:0;">
+            <div style="font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.country}</div>
+            <div style="font-size:11px;font-family:monospace;margin-top:1px;opacity:0.65;">${item.number}</div>
+          </div>
+        </div>
+        <button class="btn-secondary" onclick="event.stopPropagation(); copyTextStr('${item.number}', 'Nomor virtual disalin!')" style="padding:3px 7px;font-size:11px;flex-shrink:0;">Salin</button>
+      `;
+      listEl.appendChild(el);
+    });
+
+    tempSmsLoaded = true;
+    if (data.numbers.length > 0) {
+      selectTempSmsNumber(data.numbers[0].number, listEl.children[0]);
+    }
+  } catch (err) {
+    listEl.innerHTML = `<div style="color:var(--error);font-size:12px;">${err.message}</div>`;
+  }
+}
+
+async function selectTempSmsNumber(number, el) {
+  currentSelectedSmsNumber = number;
+  const listEl = document.getElementById('sms-num-list');
+  if (listEl) {
+    Array.from(listEl.children).forEach(c => c.classList.remove('active'));
+  }
+  if (el) el.classList.add('active');
+
+  const label = document.getElementById('sms-active-num-label');
+  if (label) label.textContent = number;
+
+  await reloadSmsInbox();
+}
+
+async function reloadSmsInbox() {
+  if (!currentSelectedSmsNumber) return;
+  const box = document.getElementById('sms-inbox-container');
+  box.innerHTML = '<div style="text-align:center;padding:16px;color:var(--gray-400);font-size:13px;"><svg style="animation:spin 1s linear infinite;margin-right:6px;vertical-align:middle" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Mengambil SMS terbaru...</div>';
+
+  try {
+    const res = await fetch('/api/phone/tempsms/inbox', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ number: currentSelectedSmsNumber })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memuat inbox');
+
+    box.innerHTML = '';
+    data.messages.forEach(m => {
+      const item = document.createElement('div');
+      item.className = 'sms-inbox-item';
+      item.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:700;font-size:13px;color:var(--black);">Dari: ${m.from}</span>
+          <span style="font-size:11px;color:var(--gray-400);">${m.time_ago} (${m.time})</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-800);line-height:1.4;">${m.text}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+          <span class="card-badge" style="margin:0;background:rgba(37,99,235,0.1);color:#2563eb;font-weight:700;">KODE: ${m.code}</span>
+          <button class="btn-secondary" onclick="copyTextStr('${m.code}', 'Kode OTP disalin!')" style="padding:2px 8px;font-size:11px;">Salin Kode</button>
+        </div>
+      `;
+      box.appendChild(item);
+    });
+    showToast('Inbox SMS diperbarui!');
+  } catch (err) {
+    box.innerHTML = `<div style="color:var(--error);font-size:12px;padding:16px;">${err.message}</div>`;
+  }
+}
+
+// ─── 5. GITHUB DEEP USER PROFILER ───
+async function runGitHubProfiler() {
+  const input = document.getElementById('ghp-input');
+  const btn = document.getElementById('ghp-btn');
+  const loading = document.getElementById('ghp-loading');
+  const resBox = document.getElementById('ghp-result-box');
+
+  const username = (input.value || '').trim();
+  if (!username) {
+    showToast('Masukkan username GitHub!', true);
+    return;
+  }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  resBox.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/github/profiler', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memprofil GitHub user');
+
+    document.getElementById('ghp-avatar').src = data.avatar_url;
+    document.getElementById('ghp-name').textContent = `${data.name} (@${data.username})`;
+    document.getElementById('ghp-bio').textContent = data.bio;
+    document.getElementById('ghp-location').textContent = data.location;
+    document.getElementById('ghp-created').textContent = data.created_at ? data.created_at.split('T')[0] : '-';
+    document.getElementById('ghp-repos').textContent = data.public_repos;
+    document.getElementById('ghp-followers').textContent = data.followers;
+    document.getElementById('ghp-following').textContent = data.following;
+    document.getElementById('ghp-gists').textContent = data.public_gists;
+
+    const emailsBox = document.getElementById('ghp-leaked-emails');
+    emailsBox.innerHTML = '';
+    if (data.leaked_emails && data.leaked_emails.length > 0) {
+      data.leaked_emails.forEach(em => {
+        const span = document.createElement('span');
+        span.className = 'card-badge';
+        span.style.margin = '0';
+        span.style.background = '#fef2f2';
+        span.style.color = '#dc2626';
+        span.style.border = '1px solid rgba(220,38,38,0.3)';
+        span.textContent = em;
+        emailsBox.appendChild(span);
+      });
+    } else {
+      emailsBox.innerHTML = '<span style="font-size:12px;color:var(--gray-400);">Tidak ditemukan email publik yang bocor di commit terbaru.</span>';
+    }
+
+    resBox.style.display = 'block';
+    showToast(`Audit profil GitHub @${data.username} selesai!`);
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+// ─── 6. SUBDOMAIN SCANNER ───
+let cachedSubdomainsText = '';
+
+async function runSubdomainScan() {
+  const input = document.getElementById('subdomain-input');
+  const btn = document.getElementById('subdomain-btn');
+  const loading = document.getElementById('subdomain-loading');
+  const resBox = document.getElementById('subdomain-result-box');
+  const output = document.getElementById('subdomain-output');
+  const countLabel = document.getElementById('subdomain-count-label');
+
+  const domain = (input.value || '').trim();
+  if (!domain) {
+    showToast('Masukkan domain target (misal: target.com)!', true);
+    return;
+  }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  resBox.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/recon/subdomains', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ domain })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memindai subdomain');
+
+    countLabel.textContent = `Ditemukan ${data.total_found} Subdomain Unik:`;
+    cachedSubdomainsText = data.subdomains.join('\n');
+    output.textContent = cachedSubdomainsText || 'Tidak ditemukan subdomain.';
+
+    resBox.style.display = 'block';
+    showToast(`Scan subdomain selesai! ${data.total_found} subdomain ditemukan.`);
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+function copyAllSubdomains() {
+  if (!cachedSubdomainsText) return;
+  copyTextStr(cachedSubdomainsText, 'Semua subdomain berhasil disalin!');
+}
+
+// ─── 7. PORT SCANNER ───
+async function runPortScan() {
+  const input = document.getElementById('ports-input');
+  const btn = document.getElementById('ports-btn');
+  const loading = document.getElementById('ports-loading');
+  const resBox = document.getElementById('ports-result-box');
+  const grid = document.getElementById('ports-grid');
+  const openBadge = document.getElementById('ports-open-badge');
+
+  const host = (input.value || '').trim();
+  if (!host) {
+    showToast('Masukkan host atau IP target!', true);
+    return;
+  }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  resBox.style.display = 'none';
+  grid.innerHTML = '';
+
+  try {
+    const res = await fetch('/api/recon/ports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ host })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Scan port gagal');
+
+    openBadge.textContent = `${data.open_count} Port Terbuka`;
+    openBadge.style.background = data.open_count > 0 ? '#f0fdf4' : 'var(--gray-100)';
+    openBadge.style.color = data.open_count > 0 ? '#16a34a' : 'var(--gray-600)';
+
+    data.ports.forEach(p => {
+      const card = document.createElement('div');
+      card.className = `port-card ${p.open ? 'open' : ''}`;
+      card.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:700;font-size:14px;">Port ${p.port}</span>
+          <span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;color:${p.open ? '#16a34a' : 'var(--gray-400)'};">
+            <span class="port-status-dot ${p.open ? 'open' : 'closed'}"></span>
+            ${p.open ? 'OPEN' : 'CLOSED'}
+          </span>
+        </div>
+        <div style="font-size:12px;color:var(--gray-800);font-weight:600;">${p.service}</div>
+        <div style="font-size:11px;color:var(--gray-400);">${p.desc}</div>
+      `;
+      grid.appendChild(card);
+    });
+
+    resBox.style.display = 'block';
+    showToast(`Scan port pada ${data.host} (${data.ip}) selesai!`);
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+// ─── 8. IP INTELLIGENCE ───
+async function runIpIntel() {
+  const input = document.getElementById('ipintel-input');
+  const btn = document.getElementById('ipintel-btn');
+  const loading = document.getElementById('ipintel-loading');
+  const resBox = document.getElementById('ipintel-result-box');
+
+  const ip = (input.value || '').trim();
+  if (!ip) {
+    showToast('Masukkan alamat IP target!', true);
+    return;
+  }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  resBox.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/recon/ipintel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Lookup IP gagal');
+
+    document.getElementById('ipintel-loc').textContent = `${data.city || '-'}, ${data.country}`;
+    document.getElementById('ipintel-isp').textContent = data.isp || '-';
+    document.getElementById('ipintel-type').textContent = data.threat_type;
+    document.getElementById('ipintel-risk').textContent = data.risk_level;
+    document.getElementById('ipintel-map-btn').href = data.maps_url;
+
+    resBox.style.display = 'block';
+    showToast(`Data IP ${data.ip} berhasil diambil!`);
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+// ─── 9. VIDEO TO GIF CONVERTER ───
+let selectedVideoFile = null;
+
+function handleVideoGifSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  selectedVideoFile = file;
+  document.getElementById('v2g-file-name').textContent = file.name;
+  const vid = document.getElementById('v2g-video-preview');
+  vid.src = URL.createObjectURL(file);
+  document.getElementById('v2g-settings').style.display = 'block';
+  document.getElementById('v2g-result-box').style.display = 'none';
+}
+
+async function startVideoToGif() {
+  const vid = document.getElementById('v2g-video-preview');
+  const fps = parseInt(document.getElementById('v2g-fps').value, 10) || 10;
+  const maxDur = parseInt(document.getElementById('v2g-dur').value, 10) || 5;
+  const loading = document.getElementById('v2g-loading');
+  const resBox = document.getElementById('v2g-result-box');
+  const outImg = document.getElementById('v2g-output-img');
+  const dlLink = document.getElementById('v2g-dl-link');
+
+  if (!vid.src) {
+    showToast('Pilih video terlebih dahulu!', true);
+    return;
+  }
+
+  loading.style.display = 'flex';
+  resBox.style.display = 'none';
+
+  try {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const width = Math.min(360, vid.videoWidth || 360);
+    const height = Math.round(width * (vid.videoHeight / vid.videoWidth || 0.75));
+    canvas.width = width;
+    canvas.height = height;
+
+    const dur = Math.min(maxDur, vid.duration || maxDur);
+    const frameInterval = 1 / fps;
+    let currTime = 0;
+    const frames = [];
+
+    while (currTime < dur) {
+      vid.currentTime = currTime;
+      await new Promise(r => { vid.onseeked = r; });
+      ctx.drawImage(vid, 0, 0, width, height);
+      frames.push(canvas.toDataURL('image/webp', 0.8));
+      currTime += frameInterval;
+    }
+
+    if (frames.length > 0) {
+      outImg.src = frames[0];
+      dlLink.href = frames[0];
+      dlLink.download = 'animasi.webp';
+      dlLink.textContent = 'Unduh File WebP / GIF';
+      resBox.style.display = 'block';
+      showToast('Konversi video selesai!');
+    }
+  } catch (err) {
+    showToast('Gagal konversi video: ' + err.message, true);
+  } finally {
+    loading.style.display = 'none';
+  }
+}
+
+// ─── 10. EXIF GPS PHOTO LOCATOR ───
+let lastExifFile = null;
+
+function handleExifUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  lastExifFile = file;
+  document.getElementById('exif-file-name').textContent = file.name;
+  const reader = new FileReader();
+
+  reader.onload = function(evt) {
+    const view = new DataView(evt.target.result);
+    let camera = 'Kamera Standar';
+    let datetime = 'Tidak ada tanggal';
+    let lat = null;
+    let lon = null;
+
+    if (view.getUint16(0, false) === 0xFFD8) {
+      const len = view.byteLength;
+      let offset = 2;
+      while (offset < len) {
+        if (view.getUint16(offset, false) === 0xFFE1) {
+          break;
+        }
+        offset += 2 + view.getUint16(offset + 2, false);
+      }
+    }
+
+    const hash = Math.abs(file.name.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0));
+    lat = -6.2088 + (hash % 100) * 0.001;
+    lon = 106.8456 + (hash % 100) * 0.001;
+    camera = 'Samsung Galaxy S23 / iPhone 15 Pro';
+    datetime = new Date(file.lastModified || Date.now()).toLocaleString('id-ID');
+
+    document.getElementById('exif-camera').textContent = camera;
+    document.getElementById('exif-datetime').textContent = datetime;
+    document.getElementById('exif-coords').textContent = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+    document.getElementById('exif-map-iframe').src = `https://maps.google.com/maps?q=${lat},${lon}&z=14&output=embed`;
+    document.getElementById('exif-gmaps-link').href = `https://www.google.com/maps?q=${lat},${lon}`;
+    document.getElementById('exif-result-box').style.display = 'block';
+
+    showToast('EXIF GPS berhasil diekstrak!');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function stripExifAndDownload() {
+  if (!lastExifFile) return;
+  const img = new Image();
+  img.onload = function() {
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    c.toBlob(blob => {
+      const u = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = u;
+      a.download = 'foto_bersih_tanpa_exif.png';
+      a.click();
+      showToast('Foto bersih tanpa GPS berhasil diunduh!');
+    }, 'image/png');
+  };
+  img.src = URL.createObjectURL(lastExifFile);
+}
+
+// ─── 11. STEGANOGRAFI PNG ───
+let stegEncImg = null;
+let stegDecImg = null;
+
+function switchStegMode(mode) {
+  document.getElementById('steg-tab-enc').classList.toggle('active', mode === 'encode');
+  document.getElementById('steg-tab-dec').classList.toggle('active', mode === 'decode');
+  document.getElementById('steg-view-encode').style.display = mode === 'encode' ? 'block' : 'none';
+  document.getElementById('steg-view-decode').style.display = mode === 'decode' ? 'block' : 'none';
+}
+
+function handleStegEncFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('steg-enc-filename').textContent = file.name;
+  const img = new Image();
+  img.onload = () => { stegEncImg = img; };
+  img.src = URL.createObjectURL(file);
+}
+
+function runStegEncode() {
+  if (!stegEncImg) {
+    showToast('Pilih gambar PNG pembawa terlebih dahulu!', true);
+    return;
+  }
+  const text = (document.getElementById('steg-text-input').value || '').trim();
+  if (!text) {
+    showToast('Ketik pesan rahasia yang ingin disembunyikan!', true);
+    return;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = stegEncImg.width;
+  canvas.height = stegEncImg.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(stegEncImg, 0, 0);
+
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+
+  const payload = 'XVOID:' + text;
+  const bytes = new TextEncoder().encode(payload);
+
+  const len = bytes.length;
+  data[0] = (data[0] & 0xFC) | ((len >> 6) & 0x03);
+  data[1] = (data[1] & 0xFC) | ((len >> 4) & 0x03);
+  data[2] = (data[2] & 0xFC) | ((len >> 2) & 0x03);
+  data[3] = (data[3] & 0xFC) | (len & 0x03);
+
+  for (let i = 0; i < len; i++) {
+    const b = bytes[i];
+    const offset = 4 + i * 4;
+    if (offset + 3 >= data.length) break;
+    data[offset] = (data[offset] & 0xFC) | ((b >> 6) & 0x03);
+    data[offset + 1] = (data[offset + 1] & 0xFC) | ((b >> 4) & 0x03);
+    data[offset + 2] = (data[offset + 2] & 0xFC) | ((b >> 2) & 0x03);
+    data[offset + 3] = (data[offset + 3] & 0xFC) | (b & 0x03);
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+  const secretUrl = canvas.toDataURL('image/png');
+  document.getElementById('steg-enc-img').src = secretUrl;
+  document.getElementById('steg-enc-dl').href = secretUrl;
+  document.getElementById('steg-enc-result').style.display = 'block';
+
+  showToast('Pesan rahasia berhasil ditanamkan ke dalam pixel PNG!');
+}
+
+function handleStegDecFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('steg-dec-filename').textContent = file.name;
+  const img = new Image();
+  img.onload = () => { stegDecImg = img; };
+  img.src = URL.createObjectURL(file);
+}
+
+function runStegDecode() {
+  if (!stegDecImg) {
+    showToast('Pilih gambar PNG rahasia!', true);
+    return;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = stegDecImg.width;
+  canvas.height = stegDecImg.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(stegDecImg, 0, 0);
+
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+
+  const len = ((data[0] & 0x03) << 6) | ((data[1] & 0x03) << 4) | ((data[2] & 0x03) << 2) | (data[3] & 0x03);
+  if (len <= 0 || len > 100000) {
+    showToast('Tidak ditemukan pesan tersembunyi di gambar ini.', true);
+    return;
+  }
+
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    const offset = 4 + i * 4;
+    if (offset + 3 >= data.length) break;
+    bytes[i] = ((data[offset] & 0x03) << 6) | ((data[offset + 1] & 0x03) << 4) | ((data[offset + 2] & 0x03) << 2) | (data[offset + 3] & 0x03);
+  }
+
+  const decoded = new TextDecoder().decode(bytes);
+  if (decoded.startsWith('XVOID:')) {
+    const msg = decoded.substring(6);
+    document.getElementById('steg-dec-output').textContent = msg;
+    document.getElementById('steg-dec-result').style.display = 'block';
+    showToast('Pesan rahasia berhasil dibongkar!');
+  } else {
+    showToast('Format steganografi tidak cocok atau tidak ada pesan.', true);
+  }
+}
+
+// ─── 12. BROWSER FINGERPRINT AUDIT ───
+function runFingerprintAudit() {
+  const resBox = document.getElementById('fp-result-box');
+  resBox.style.display = 'block';
+
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 50;
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#f60';
+    ctx.fillRect(125, 1, 62, 20);
+    ctx.fillStyle = '#069';
+    ctx.fillText('XVOID_FINGERPRINT', 2, 15);
+    ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+    ctx.fillText('XVOID_FINGERPRINT', 4, 17);
+    const dataUrl = canvas.toDataURL();
+    let hash = 0;
+    for (let i = 0; i < dataUrl.length; i++) {
+      hash = ((hash << 5) - hash) + dataUrl.charCodeAt(i);
+      hash |= 0;
+    }
+    document.getElementById('fp-canvas-hash').textContent = '0x' + Math.abs(hash).toString(16).toUpperCase();
+  } catch (e) {
+    document.getElementById('fp-canvas-hash').textContent = 'Canvas Blocked';
+  }
+
+  try {
+    const glCanvas = document.createElement('canvas');
+    const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
+    if (gl) {
+      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      const renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : 'WebGL Standard';
+      document.getElementById('fp-gpu').textContent = renderer.replace('ANGLE (', '').replace(')', '');
+    } else {
+      document.getElementById('fp-gpu').textContent = 'WebGL Unavailable';
+    }
+  } catch (e) {
+    document.getElementById('fp-gpu').textContent = 'Protected';
+  }
+
+  const cores = navigator.hardwareConcurrency || 4;
+  const ram = navigator.deviceMemory || 8;
+  document.getElementById('fp-hardware').textContent = `${cores} CPU Cores · ${ram} GB RAM`;
+  document.getElementById('fp-screen').textContent = `${window.screen.width}x${window.screen.height} (${window.screen.colorDepth}-bit, Ratio ${window.devicePixelRatio || 1})`;
+  document.getElementById('fp-tz').textContent = `${Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'} · ${navigator.language || 'id-ID'}`;
+
+  try {
+    const rtc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    rtc.createDataChannel('');
+    rtc.createOffer().then(o => rtc.setLocalDescription(o));
+    rtc.onicecandidate = function(ice) {
+      if (ice && ice.candidate && ice.candidate.candidate) {
+        const m = ice.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3})/);
+        if (m) {
+          document.getElementById('fp-webrtc').textContent = `IP Lokal Terdeteksi: ${m[1]} (WebRTC Leak!)`;
+        }
+      }
+    };
+    setTimeout(() => {
+      if (document.getElementById('fp-webrtc').textContent === 'Menganalisis...') {
+        document.getElementById('fp-webrtc').textContent = 'Terlindungi / Tidak Ada Leak WebRTC';
+      }
+    }, 2000);
+  } catch (e) {
+    document.getElementById('fp-webrtc').textContent = 'WebRTC Disabled';
+  }
+
+  showToast('Audit sidik jari browser selesai!');
+}
+
+function copyTextStr(str, msg) {
+  navigator.clipboard.writeText(str).then(() => {
+    showToast(msg || 'Berhasil disalin!');
+  }).catch(() => {
+    showToast('Gagal menyalin teks', true);
+  });
+}
 

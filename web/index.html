@@ -10,13 +10,1577 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="favicon.png">
-  <link rel="stylesheet" href="css/loader.css?v=2.1">
-  <link rel="stylesheet" href="css/style.css?v=2.1">
+  <link rel="stylesheet" href="css/loader.css?v=2.2">
+  <link rel="stylesheet" href="css/style.css?v=2.8">
 </head>
 <body>
-  <script src="js/engine.min.js?v=2.1"></script>
+
+  <div id="xvoidLoader" class="xv-loader" aria-label="Memuat PROJECT-XVOID" role="status">
+    <div class="xv-loader-aurora xv-aurora-1" aria-hidden="true"></div>
+    <div class="xv-loader-aurora xv-aurora-2" aria-hidden="true"></div>
+    <div class="xv-loader-grid-bg" aria-hidden="true"></div>
+
+    <div class="xv-loader-box" id="xvLoaderBox">
+      <div class="xv-loader-header">
+        <div class="xv-loader-brand">
+          <img src="favicon.png" alt="XVoid Icon" style="width:20px;height:20px;object-fit:contain;margin-right:6px;filter:drop-shadow(0 0 6px rgba(138,92,246,0.5));">
+          <span class="xv-loader-title">PROJECT-XVOID</span>
+        </div>
+        <span class="xv-loader-version">v1.2</span>
+      </div>
+      <div class="xv-loader-track-wrap">
+        <div class="xv-loader-track">
+          <div class="xv-loader-bar" id="xvProgressBar"></div>
+          <div class="xv-loader-sheen"></div>
+        </div>
+        <div class="xv-loader-meta">
+          <span class="xv-loader-status" id="xvStatus">CORE.INITIALIZE</span>
+          <span class="xv-loader-pct" id="xvProgressPct">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="xv-intro-box" id="xvIntroBox" aria-hidden="true">
+      <div class="xv-intro-pill" id="xvIntroPill">
+        <span class="xv-intro-dot"></span>
+        <span class="xv-intro-tag">INITIALIZATION COMPLETE</span>
+      </div>
+      <h1 class="xv-intro-title" id="xvIntroTitle">
+        <span id="xvTypewriterText"></span><span class="xv-cursor" id="xvCursor" aria-hidden="true">|</span>
+      </h1>
+      <p class="xv-intro-sub" id="xvIntroSub">Modular Terminal Toolkit · Systems Operational</p>
+      <div class="xv-intro-line" id="xvIntroLine"></div>
+    </div>
+  </div>
+  
+  <div class="bg-canvas">
+    <div class="dot-grid"></div>
+    <canvas id="bgCanvas"></canvas>
+    <div class="blob blob-top"></div>
+    <div class="blob blob-bottom"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="shapes-layer" id="shapesLayer"></div>
+  </div>
+  <canvas id="clickFxCanvas"></canvas>
+
+  
+  <nav class="tab-nav" id="tabNav" aria-label="Navigasi utama">
+    <div class="tab-nav-track" id="tabNavTrack">
+      <div class="tab-thumb" id="tabThumb" aria-hidden="true"></div>
+
+      <button class="tab-item active" id="tab-home" onclick="goPage('home')" aria-current="page">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Beranda</span>
+      </button>
+
+      <button class="tab-item" id="tab-stromai" onclick="goPage('stromai')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>XVoid AI</span>
+      </button>
+
+      <button class="tab-item" id="tab-osint" onclick="goPage('osint')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>OSINT Hub</span>
+      </button>
+
+      <button class="tab-item" id="tab-phonehub" onclick="goPage('phonehub')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span>Phone &amp; SMS</span>
+      </button>
+
+      <button class="tab-item" id="tab-githubsuite" onclick="goPage('githubsuite')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        <span>GitHub Suite</span>
+      </button>
+
+      <button class="tab-item" id="tab-reconhub" onclick="goPage('reconhub')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span>Network Recon</span>
+      </button>
+
+      <button class="tab-item" id="tab-medialab" onclick="goPage('medialab')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span>Media Lab</span>
+      </button>
+
+      <button class="tab-item" id="tab-devsuite" onclick="goPage('devsuite')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <span>Dev Suite</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="page-container">
+
+    <section class="page-view visible" id="view-home">
+      <div class="glass-card text-center">
+        <div style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;">
+          <img src="logo.png" alt="Project-XVoid" class="xv-brand-logo-img">
+        </div>
+        <div class="card-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          Project-XVOID v2.0
+        </div>
+        <h1 class="card-title">Modular Cyber &amp; Dev Suite</h1>
+        <p class="card-desc">Toolkit komprehensif terintegrasi: OSINT Sherlock, Discord Lookup, Temp Virtual SMS, Subdomain Recon, Port Scanner, IP Threat Intel, AI Media Lab, Alight Motion, &amp; Dev Utilities.</p>
+
+        <div class="tools-grid">
+          <div class="tool-card" onclick="goPage('osint', {sub: 'sherlock'})">
+            <div class="tool-icon-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <div class="tool-title">OSINT &amp; Identity</div>
+            <div class="tool-desc">Sherlock (20+ Medsos), Discord User Lookup, &amp; Database Breach Checker.</div>
+          </div>
+
+          <div class="tool-card" onclick="goPage('phonehub', {sub: 'ceknomor'})">
+            <div class="tool-icon-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="tool-title">Phone &amp; Temp SMS</div>
+            <div class="tool-desc">Cek Nomor Caller-ID &amp; Nomor Virtual Gratis untuk terima SMS kode OTP.</div>
+          </div>
+
+          <div class="tool-card" onclick="goPage('githubsuite', {sub: 'scanrepo'})">
+            <div class="tool-icon-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            </div>
+            <div class="tool-title">GitHub Intel Suite</div>
+            <div class="tool-desc">Audit keamanan repositori &amp; Deep User Profiler (pembongkar email commit).</div>
+          </div>
+
+          <div class="tool-card" onclick="goPage('reconhub', {sub: 'subdomains'})">
+            <div class="tool-icon-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div class="tool-title">Network Recon</div>
+            <div class="tool-desc">Subdomain crt.sh, Audit Keamanan Web &amp; SSL, Port Scanner, &amp; IP Threat Intel.</div>
+          </div>
+
+          <div class="tool-card" onclick="goPage('medialab', {sub: 'gambar'})">
+            <div class="tool-icon-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="tool-title">Media &amp; Visual Lab</div>
+            <div class="tool-desc">AI Buat Gambar, Universal Downloader, Video to GIF/WebP, &amp; EXIF GPS Map.</div>
+          </div>
+
+          <div class="tool-card" onclick="goPage('devsuite', {sub: 'alightmotion'})">
+            <div class="tool-icon-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <div class="tool-title">Alight Motion &amp; Dev</div>
+            <div class="tool-desc">Alight Motion Magic Link, Base64, Web Tools, Steganografi, &amp; Browser Fingerprint.</div>
+          </div>
+
+          <div class="tool-card" onclick="goPage('stromai')">
+            <div class="tool-icon-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="tool-title">XVoid AI Chat</div>
+            <div class="tool-desc">Asisten cerdas cyber &amp; coding eksklusif dari Project-XVOID.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-view" id="view-stromai">
+      <div class="glass-card ai-card">
+        
+        <div class="ai-header">
+          <div class="ai-header-info">
+            <div class="ai-header-badge-row">
+              <span class="card-badge ai-badge-mini">INTELLIGENCE</span>
+              <span class="ai-live-indicator"><span class="ai-dot-pulse"></span> Online</span>
+            </div>
+            <h2 class="ai-title">XVoid AI Assistant</h2>
+            <p class="ai-subtitle">Asisten percakapan cerdas yang terintegrasi langsung dengan Project-XVOID.</p>
+          </div>
+
+          <div class="ai-header-controls">
+            
+            <input type="hidden" id="ai-model" value="strom">
+            <div class="custom-select-wrap ai-model-compact-wrap" id="cs-ai-model">
+              <div class="custom-select-trigger ai-compact-trigger" onclick="toggleCustomSelect('cs-ai-model')" title="Pilih Model AI">
+                <span id="cs-ai-model-label">Standard</span>
+                <svg class="custom-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="custom-select-options ai-compact-options">
+                <div class="custom-option selected" data-val="strom" onclick="selectAiModel('strom', 'Standard', 'XVoid Standard')">
+                  <span>Standard (Default)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="advanced" onclick="selectAiModel('advanced', 'Advanced', 'XVoid Advanced')">
+                  <span>Advanced (Reasoning)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="code" onclick="selectAiModel('code', 'Dev Expert', 'XVoid Dev Expert')">
+                  <span>Dev Expert (Koding)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="deep" onclick="selectAiModel('deep', 'Deep Thinking', 'XVoid Deep Thinking')">
+                  <span>Deep Thinking (Riset)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn-fullscreen-toggle" id="ai-fullscreen-btn" onclick="toggleAiFullscreen()" title="Fullscreen" aria-label="Toggle Fullscreen">
+              <svg class="fs-icon-expand" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+              </svg>
+              <svg class="fs-icon-compress" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="chat-window">
+          <div class="chat-messages" id="ai-messages">
+            <div class="chat-bubble ai">
+              Halo! Saya <strong>XVoid</strong>, asisten AI dari Project-XVOID. Ada yang bisa saya bantu hari ini?
+            </div>
+          </div>
+          <div class="chat-input-wrap">
+            <div class="chat-input-box">
+              <textarea 
+                id="ai-input" 
+                rows="1" 
+                placeholder="Tanyakan apapun ke XVoid AI..." 
+                aria-label="Pesan ke XVoid AI"
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+              ></textarea>
+              <div class="chat-input-actions">
+                <span class="chat-input-hint">Shift+↵</span>
+                <button type="button" class="chat-send-btn" id="ai-send-btn" onclick="sendAiMessage()" aria-label="Kirim pesan" title="Kirim">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <button class="btn-secondary" onclick="clearAiChat()">Reset Chat Session</button>
+          <span id="ai-engine-badge" style="font-size:11px;color:var(--gray-600);font-weight:600;">Engine: XVoid Standard</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-view" id="view-osint">
+      <div class="subtab-nav" id="subtab-nav-osint">
+        <button class="subtab-btn active" id="btn-sub-osint-sherlock" onclick="switchSubTab('osint', 'sherlock')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Sherlock</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-osint-discord" onclick="switchSubTab('osint', 'discord')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6h-5m3 5h-3m3 5h-3M4 19V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14l-4-4H6a2 2 0 0 1-2-2z"/></svg>
+          <span>Discord ID</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-osint-breach" onclick="switchSubTab('osint', 'breach')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Breach Check</span>
+        </button>
+      </div>
+
+      <!-- Pane 1: Sherlock -->
+      <div class="subtab-pane active" id="subpane-osint-sherlock">
+        <div class="glass-card">
+          <div class="card-badge">OSINT INTEL</div>
+          <h2 class="card-title">Username Sherlock Scanner</h2>
+          <p class="card-desc">Satu username untuk melacak jejak digital di 20+ platform media sosial &amp; developer secara instan.</p>
+          <div class="form-group">
+            <label class="form-label">Username Target</label>
+            <div class="input-with-btn">
+              <input type="text" class="form-input" id="sherlock-input" placeholder="Username target" onkeydown="if(event.key==='Enter') runSherlock()">
+              <button class="btn-primary" id="sherlock-btn" onclick="runSherlock()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Scan Platform</span>
+              </button>
+            </div>
+          </div>
+          <div class="loading" id="sherlock-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Menyisir 20+ platform media sosial &amp; dev secara bersamaan...</div>
+          </div>
+          <div id="sherlock-result-box" style="display:none;margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div class="chips-title" id="sherlock-summary-title">Hasil Pelacakan Akun:</div>
+              <span class="card-badge" id="sherlock-stats-badge" style="margin:0;">-- Ditemukan</span>
+            </div>
+            <div class="sherlock-grid" id="sherlock-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pane 2: Discord Lookup -->
+      <div class="subtab-pane" id="subpane-osint-discord">
+        <div class="glass-card">
+          <div class="card-badge">DISCORD INTEL</div>
+          <h2 class="card-title">Discord User ID Lookup</h2>
+          <p class="card-desc">Bongkar tanggal dan detik pembuatan akun Discord, umur akun, ID proses/worker, dan foto profil via Snowflake ID.</p>
+          <div class="form-group">
+            <label class="form-label">Discord User ID (Snowflake)</label>
+            <div class="input-with-btn">
+              <input type="text" class="form-input" id="discord-input" placeholder="Discord User ID" onkeydown="if(event.key==='Enter') runDiscordLookup()">
+              <button class="btn-primary" id="discord-btn" onclick="runDiscordLookup()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Cek Identitas</span>
+              </button>
+            </div>
+          </div>
+          <div class="loading" id="discord-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Mendekode Snowflake ID &amp; mengambil metadata Discord...</div>
+          </div>
+          <div id="discord-result-box" style="display:none;margin-top:16px;">
+            <div style="display:flex;gap:16px;align-items:center;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;padding:16px;">
+              <img id="discord-avatar" src="" alt="Avatar" style="width:72px;height:72px;border-radius:50%;border:2px solid var(--black);object-fit:cover;">
+              <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <h3 id="discord-tag" style="font-size:18px;font-weight:700;">--</h3>
+                  <span id="discord-bot-badge" class="card-badge" style="display:none;margin:0;background:var(--black);color:#fff;">BOT</span>
+                </div>
+                <div style="font-size:12px;color:var(--gray-600);margin-top:4px;">ID: <code id="discord-uid-label">--</code></div>
+              </div>
+            </div>
+            <div class="stats-grid" style="margin-top:14px;">
+              <div class="stat-card">
+                <div class="stat-label">Tanggal Dibuat (WIB)</div>
+                <div class="stat-val" id="discord-created-wib" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Tanggal Dibuat (UTC)</div>
+                <div class="stat-val" id="discord-created-utc" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Usia Akun</div>
+                <div class="stat-val" id="discord-age-days" style="font-size:14px;">-- Hari</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Internal Node</div>
+                <div class="stat-val" id="discord-node-info" style="font-size:14px;">Worker #0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pane 3: Breach Checker -->
+      <div class="subtab-pane" id="subpane-osint-breach">
+        <div class="glass-card">
+          <div class="card-badge">PRIVASI &amp; KEAMANAN</div>
+          <h2 class="card-title">Database Breach &amp; Password Leak Shield</h2>
+          <p class="card-desc">Cek apakah password atau email Anda pernah bocor dalam kebocoran data internet global via K-Anonymity SHA-1.</p>
+          <div class="form-group">
+            <label class="form-label">Email atau Kata Sandi</label>
+            <div class="input-with-btn">
+              <input type="text" class="form-input" id="breach-input" placeholder="Alamat email aktif" onkeydown="if(event.key==='Enter') runBreachCheck()">
+              <button class="btn-primary" id="breach-btn" onclick="runBreachCheck()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Audit Kebocoran</span>
+              </button>
+            </div>
+            <div style="font-size:11px;color:var(--gray-400);margin-top:6px;display:flex;align-items:center;gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Aman: Menggunakan metode K-Anonymity (hanya 5 karakter awal hash SHA-1 yang dikirim, password asli tidak pernah dikirim).</div>
+          </div>
+          <div class="loading" id="breach-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Memeriksa database kebocoran sandi global...</div>
+          </div>
+          <div id="breach-result-box" style="display:none;margin-top:16px;">
+            <div id="breach-banner" style="padding:14px 18px;border-radius:12px;margin-bottom:14px;font-weight:600;"></div>
+            <div id="breach-details" style="background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:14px 16px;font-size:13px;display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-view" id="view-phonehub">
+      <div class="subtab-nav" id="subtab-nav-phonehub">
+        <button class="subtab-btn active" id="btn-sub-phone-ceknomor" onclick="switchSubTab('phonehub', 'ceknomor')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>Cek Nomor</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-phone-tempsms" onclick="switchSubTab('phonehub', 'tempsms')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Temp SMS</span>
+        </button>
+      </div>
+
+      <!-- Subpane 1: Cek Nomor -->
+      <div class="subtab-pane active" id="subpane-phone-ceknomor">
+        <div class="glass-card">
+        <div class="card-badge">INTELIJEN NOMOR</div>
+        <h2 class="card-title">Cek Nomor Telepon</h2>
+        <p class="card-desc">Identifikasi operator, format internasional, dan nomor serupa menggunakan Kaspersky WhoCallsID.</p>
+
+        <div class="form-group">
+          <label class="form-label" for="cn-nomor">Nomor Telepon Target</label>
+          <input type="tel" id="cn-nomor" class="form-input" placeholder="Nomor telepon target">
+        </div>
+        <button class="btn-primary" id="cn-btn" onclick="cekNomor()">Cek Nomor Sekarang</button>
+
+        <div class="result-box" id="cn-result">
+          <div class="result-header">
+            <span class="result-title">HASIL DETEKSI NOMOR</span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-secondary" id="cn-toggle-json" onclick="toggleJsonView('cn')">Data Mentah (JSON)</button>
+              <button class="btn-secondary" onclick="copyText('cn-output')">Salin JSON</button>
+            </div>
+          </div>
+
+          <div id="cn-formatted-wrap">
+            <div class="info-grid" style="margin-top:10px;">
+              <div class="info-item">
+                <div class="info-label">Nomor Lengkap</div>
+                <div class="info-val" id="cn-val-number">-</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Operator / Provider</div>
+                <div class="info-val" id="cn-val-operator">-</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Format Tampilan</div>
+                <div class="info-val" id="cn-val-format">-</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Kode Negara</div>
+                <div class="info-val" id="cn-val-code">-</div>
+              </div>
+            </div>
+
+            <div class="chips-container" id="cn-similar-wrap" style="display:none;">
+              <div class="chips-title">Nomor Serupa Terdeteksi:</div>
+              <div class="chips-list" id="cn-similar-list"></div>
+            </div>
+          </div>
+
+          <div class="result-code" id="cn-output" style="max-height:280px;display:none;margin-top:10px;"></div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Subpane 2: Temp Virtual SMS -->
+      <div class="subtab-pane" id="subpane-phone-tempsms">
+        <div class="glass-card">
+          <div class="card-badge">VIRTUAL SIM</div>
+          <h2 class="card-title">Temp Virtual SMS OTP Receiver</h2>
+          <p class="card-desc">Gunakan nomor telepon publik virtual gratis untuk verifikasi akun WhatsApp, Google, Telegram, TikTok tanpa nomor pribadi.</p>
+
+          <div class="sms-layout">
+            <div>
+              <div class="chips-title" style="margin-bottom:8px;">Pilih Nomor Virtual:</div>
+              <div class="sms-num-list" id="sms-num-list"></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <div class="chips-title">Inbox Masuk (<span id="sms-active-num-label">Pilih Nomor</span>):</div>
+                <button class="btn-secondary" onclick="reloadSmsInbox()" style="padding:4px 10px;font-size:12px;display:inline-flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh</button>
+              </div>
+              <div class="sms-inbox-container" id="sms-inbox-container">
+                <div style="padding:20px;text-align:center;color:var(--gray-400);font-size:13px;">Pilih salah satu nomor di sebelah kiri untuk melihat pesan masuk.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-view" id="view-githubsuite">
+      <div class="subtab-nav" id="subtab-nav-githubsuite">
+        <button class="subtab-btn active" id="btn-sub-gh-scanrepo" onclick="switchSubTab('githubsuite', 'scanrepo')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          <span>Scan Repo</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-gh-profiler" onclick="switchSubTab('githubsuite', 'profiler')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
+          <span>Profiler</span>
+        </button>
+      </div>
+
+      <div class="subtab-pane active" id="subpane-gh-scanrepo">
+        <div class="glass-card">
+        <div class="card-badge">AUDIT KEAMANAN REPO</div>
+        <h2 class="card-title">Audit Repositori GitHub</h2>
+        <p class="card-desc">Analisis keamanan repositori GitHub secara otomatis — deteksi kerentanan, kebocoran kunci rahasia, dan kelemahan kode.</p>
+
+        <div class="form-group">
+          <label class="form-label" for="sr-url">URL Repositori GitHub</label>
+          <input type="url" id="sr-url" class="form-input" placeholder="URL repository GitHub">
+        </div>
+        <button class="btn-primary" id="sr-btn" onclick="scanRepo()">Mulai Audit Keamanan</button>
+
+        <div class="result-box" id="sr-result">
+          <div class="result-header">
+            <span class="result-title" id="sr-status">HASIL AUDIT KEAMANAN</span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-secondary" id="sr-toggle-json" onclick="toggleJsonView('sr')">Data Mentah (JSON)</button>
+              <button class="btn-secondary" onclick="copyText('sr-output')">Salin JSON</button>
+            </div>
+          </div>
+
+          <div id="sr-formatted-wrap">
+            
+            <div class="info-grid" style="margin-top:10px;">
+              <div class="info-item">
+                <div class="info-label">Repositori</div>
+                <div class="info-val" id="sr-val-repo" style="font-size:12px;word-break:break-all;">-</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Bahasa Utama</div>
+                <div class="info-val" id="sr-val-lang">-</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Skor Risiko</div>
+                <div class="info-val" id="sr-val-score">-</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Tingkat Risiko</div>
+                <div class="info-val" id="sr-val-level">-</div>
+              </div>
+            </div>
+
+            <div id="sr-badges-wrap" style="display:none;margin-top:14px;">
+              <div class="chips-title">Informasi Repositori:</div>
+              <div id="sr-badges-list"></div>
+            </div>
+
+            <div id="sr-findings-wrap" style="margin-top:16px;">
+              <div class="chips-title" id="sr-findings-title">Temuan Kerentanan:</div>
+              <div class="findings-list" id="sr-findings-list"></div>
+            </div>
+          </div>
+
+          <div class="result-code" id="sr-output" style="max-height:350px;display:none;margin-top:10px;"></div>
+        </div>
+      </div>
+      </div>
+
+      <div class="subtab-pane" id="subpane-gh-profiler">
+        <div class="glass-card">
+          <div class="card-badge">DEV OSINT</div>
+          <h2 class="card-title">GitHub Deep User Profiler</h2>
+          <p class="card-desc">Audit profil developer GitHub, lacak email pribadi yang bocor di commit history, dan analisa statistik aktivitas repositori.</p>
+          <div class="form-group">
+            <label class="form-label">Username GitHub</label>
+            <div class="input-with-btn">
+              <input type="text" class="form-input" id="ghp-input" placeholder="Username GitHub target" onkeydown="if(event.key==='Enter') runGitHubProfiler()">
+              <button class="btn-primary" id="ghp-btn" onclick="runGitHubProfiler()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Audit Profil</span>
+              </button>
+            </div>
+          </div>
+          <div class="loading" id="ghp-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Menyisir commit history dan profil publik GitHub...</div>
+          </div>
+          <div id="ghp-result-box" style="display:none;margin-top:16px;">
+            <div style="display:flex;gap:16px;align-items:center;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;padding:16px;">
+              <img id="ghp-avatar" src="" alt="Avatar" style="width:72px;height:72px;border-radius:50%;border:2px solid var(--black);object-fit:cover;">
+              <div style="flex:1;">
+                <h3 id="ghp-name" style="font-size:18px;font-weight:700;">--</h3>
+                <div style="font-size:13px;color:var(--gray-600);" id="ghp-bio">--</div>
+                <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">Lokasi: <span id="ghp-location">--</span> · Bergabung: <span id="ghp-created">--</span></div>
+              </div>
+            </div>
+            <div class="stats-grid" style="margin-top:14px;">
+              <div class="stat-card">
+                <div class="stat-label">Repositori Publik</div>
+                <div class="stat-val" id="ghp-repos">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Followers</div>
+                <div class="stat-val" id="ghp-followers">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Following</div>
+                <div class="stat-val" id="ghp-following">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Gists</div>
+                <div class="stat-val" id="ghp-gists">0</div>
+              </div>
+            </div>
+            <div style="margin-top:16px;">
+              <div class="chips-title" style="margin-bottom:8px;">Alamat Email Bocor di Commit:</div>
+              <div id="ghp-leaked-emails" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-view" id="view-reconhub">
+      <div class="subtab-nav" id="subtab-nav-reconhub">
+        <button class="subtab-btn active" id="btn-sub-recon-subdomains" onclick="switchSubTab('reconhub', 'subdomains')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>Subdomain</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-recon-webinspect" onclick="switchSubTab('reconhub', 'webinspect')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          <span>Web Analyst</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-recon-ports" onclick="switchSubTab('reconhub', 'ports')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Port Scan</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-recon-ip" onclick="switchSubTab('reconhub', 'ip')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg>
+          <span>IP Intel</span>
+        </button>
+      </div>
+
+      <!-- Subpane 1: Subdomain Scanner -->
+      <div class="subtab-pane active" id="subpane-recon-subdomains">
+        <div class="glass-card">
+          <div class="card-badge">RECON TARGET</div>
+          <h2 class="card-title">Subdomain Scanner (crt.sh)</h2>
+          <p class="card-desc">Bongkar semua subdomain tersembunyi (admin, vpn, api, dev) dari Certificate Transparency logs global.</p>
+          <div class="form-group">
+            <label class="form-label">Domain Target</label>
+            <div class="input-with-btn">
+              <input type="text" class="form-input" id="subdomain-input" placeholder="Domain target" onkeydown="if(event.key==='Enter') runSubdomainScan()">
+              <button class="btn-primary" id="subdomain-btn" onclick="runSubdomainScan()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Cari Subdomain</span>
+              </button>
+            </div>
+          </div>
+          <div class="loading" id="subdomain-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Memindai Certificate Transparency database...</div>
+          </div>
+          <div id="subdomain-result-box" style="display:none;margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span class="chips-title" id="subdomain-count-label">Ditemukan -- Subdomain:</span>
+              <button class="btn-secondary" onclick="copyAllSubdomains()" style="padding:4px 10px;font-size:12px;">Salin Semua</button>
+            </div>
+            <div class="result-code" id="subdomain-output" style="max-height:360px;overflow-y:auto;white-space:pre-wrap;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subpane 2: Web & SSL Analyst -->
+      <div class="subtab-pane" id="subpane-recon-webinspect">
+        <div class="glass-card">
+        <div class="card-badge">KEAMANAN &amp; AUDIT WEB</div>
+        <h2 class="card-title">Inspektur Keamanan Web &amp; SSL</h2>
+        <p class="card-desc">Audit mendalam enkripsi SSL/TLS, masa berlaku sertifikat, cipher suite, header proteksi HTTP (HSTS, CSP, X-Frame), dan kalkulasi skor keamanan domain.</p>
+
+        <div class="form-group">
+          <label class="form-label" for="wi-input">Domain atau URL Target</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" class="form-input" id="wi-input" placeholder="Domain atau URL target" onkeydown="if(event.key==='Enter') inspectWeb()">
+            <button class="btn-primary" id="wi-submit-btn" onclick="inspectWeb()" style="white-space:nowrap;min-width:140px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              <span>Audit Domain</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="result-area" id="wi-result-area" style="display:none;margin-top:20px;">
+          <div class="result-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="result-label">HASIL AUDIT KEAMANAN</span>
+              <span class="badge" id="wi-status-badge" style="font-size:11px;font-weight:700;">SELESAI</span>
+            </div>
+            <button class="btn-secondary" id="wi-toggle-json" onclick="toggleWebInspectView()" style="font-size:11px;padding:4px 10px;">Data Mentah (JSON)</button>
+          </div>
+
+          <div id="wi-formatted-wrap">
+            
+            <div class="wi-grade-banner" id="wi-grade-banner">
+              <div class="wi-grade-badge grade-aplus" id="wi-grade-badge">A+</div>
+              <div class="wi-grade-info">
+                <div class="wi-grade-domain" id="wi-grade-target">github.com</div>
+                <div class="wi-grade-meta" id="wi-grade-meta">Skor Keamanan: <strong>95 / 100</strong> &bull; IP Server: 140.82.121.4</div>
+              </div>
+            </div>
+
+            <div class="audit-metrics-grid" style="margin-top:14px;">
+              <div class="metric-card">
+                <div class="metric-num" id="wi-ssl-status">Aktif</div>
+                <div class="metric-lbl">Status Sertifikat</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-num" id="wi-ssl-days">--</div>
+                <div class="metric-lbl">Sisa Hari Berlaku</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-num" id="wi-ssl-proto" style="font-size:15px;">TLSv1.3</div>
+                <div class="metric-lbl">Protokol Enkripsi</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-num" id="wi-headers-count">-- / 6</div>
+                <div class="metric-lbl">Header Proteksi</div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <div class="chips-title" style="margin-bottom:8px;">Detail Sertifikat SSL / TLS:</div>
+              <div style="background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:12px 16px;font-size:12px;display:flex;flex-direction:column;gap:6px;">
+                <div><strong>Penerbit (CA):</strong> <span id="wi-ssl-issuer">--</span></div>
+                <div><strong>Domain Subjek:</strong> <code id="wi-ssl-subject">--</code></div>
+                <div><strong>Masa Berlaku:</strong> <span id="wi-ssl-validity">--</span></div>
+                <div><strong>Cipher Suite:</strong> <code id="wi-ssl-cipher" style="word-break:break-all;">--</code></div>
+                <div id="wi-ssl-sans-row" style="display:none;"><strong>Domain Terkait (SAN):</strong> <span id="wi-ssl-sans" style="color:var(--gray-600);word-break:break-all;">--</span></div>
+              </div>
+            </div>
+
+            <div style="margin-top:18px;">
+              <div class="chips-title" style="margin-bottom:8px;">Audit Header Keamanan HTTP:</div>
+              <div class="wi-headers-grid" id="wi-headers-grid"></div>
+            </div>
+
+            <div style="margin-top:18px;">
+              <div class="chips-title" style="margin-bottom:8px;" id="wi-findings-title">Catatan &amp; Temuan:</div>
+              <div id="wi-findings-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+
+            <div style="margin-top:18px;" id="wi-recomms-wrap">
+              <div class="chips-title" style="margin-bottom:8px;">Rekomendasi Penguatan Keamanan:</div>
+              <div id="wi-recomms-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+          </div>
+
+          <div class="result-code" id="wi-output" style="max-height:350px;display:none;margin-top:10px;"></div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Subpane 3: Port Scanner -->
+      <div class="subtab-pane" id="subpane-recon-ports">
+        <div class="glass-card">
+          <div class="card-badge">NETWORK AUDIT</div>
+          <h2 class="card-title">Online Fast Port Scanner</h2>
+          <p class="card-desc">Scan 14 port kritis standar (SSH, FTP, HTTP, HTTPS, MySQL, Postgres, Redis, MongoDB, RDP) secara simultan.</p>
+          <div class="form-group">
+            <label class="form-label">Host atau IP Target</label>
+            <div class="input-with-btn">
+              <input type="text" class="form-input" id="ports-input" placeholder="Host atau IP target" onkeydown="if(event.key==='Enter') runPortScan()">
+              <button class="btn-primary" id="ports-btn" onclick="runPortScan()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>Scan 14 Port</span>
+              </button>
+            </div>
+          </div>
+          <div class="loading" id="ports-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Menyisir port-port terbuka dengan timeout cepat...</div>
+          </div>
+          <div id="ports-result-box" style="display:none;margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span class="chips-title" id="ports-count-label">Hasil Scan Port:</span>
+              <span class="card-badge" id="ports-open-badge">-- Port Terbuka</span>
+            </div>
+            <div class="ports-grid" id="ports-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subpane 4: IP Intelligence -->
+      <div class="subtab-pane" id="subpane-recon-ip">
+        <div class="glass-card">
+          <div class="card-badge">GEO &amp; THREAT</div>
+          <h2 class="card-title">IP Intelligence &amp; Fraud Score</h2>
+          <p class="card-desc">Deteksi lokasi geografis IP, nama ISP, nomor ASN, serta deteksi apakah IP memakai VPN, Datacenter, atau Proxy.</p>
+          <div class="form-group">
+            <label class="form-label">Alamat IP Target</label>
+            <div class="input-with-btn">
+              <input type="text" class="form-input" id="ipintel-input" placeholder="Alamat IP target" onkeydown="if(event.key==='Enter') runIpIntel()">
+              <button class="btn-primary" id="ipintel-btn" onclick="runIpIntel()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg>
+                <span>Lookup IP</span>
+              </button>
+            </div>
+          </div>
+          <div class="loading" id="ipintel-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Menghubungi IP database &amp; menghitung skor risiko...</div>
+          </div>
+          <div id="ipintel-result-box" style="display:none;margin-top:16px;">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-label">Negara &amp; Kota</div>
+                <div class="stat-val" id="ipintel-loc" style="font-size:15px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">ISP &amp; Organisasi</div>
+                <div class="stat-val" id="ipintel-isp" style="font-size:15px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Tipe Jaringan</div>
+                <div class="stat-val" id="ipintel-type" style="font-size:15px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Tingkat Risiko</div>
+                <div class="stat-val" id="ipintel-risk" style="font-size:15px;">--</div>
+              </div>
+            </div>
+            <div style="margin-top:14px;text-align:center;">
+              <a id="ipintel-map-btn" href="#" target="_blank" class="btn-secondary" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Buka di Google Maps</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-view" id="view-medialab">
+      <div class="subtab-nav" id="subtab-nav-medialab">
+        <button class="subtab-btn active" id="btn-sub-media-gambar" onclick="switchSubTab('medialab', 'gambar')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>AI Gambar</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-media-downloader" onclick="switchSubTab('medialab', 'downloader')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Downloader</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-media-videogif" onclick="switchSubTab('medialab', 'videogif')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          <span>Video GIF</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-media-exif" onclick="switchSubTab('medialab', 'exif')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg>
+          <span>EXIF GPS</span>
+        </button>
+      </div>
+
+      <!-- Subpane 1: Gambar AI -->
+      <div class="subtab-pane active" id="subpane-media-gambar">
+        <div class="glass-card">
+        <div class="card-badge">GENERATOR GAMBAR AI</div>
+        <h2 class="card-title">Buat Gambar AI</h2>
+        <p class="card-desc">Generate gambar berkualitas tinggi dengan AI — setiap gambar memiliki variasi artistik dan seed unik. Klik gambar untuk zoom resolusi penuh.</p>
+
+        <div class="form-group" style="margin-bottom:8px;">
+          <label class="form-label" for="img-prompt">Prompt (Deskripsi Gambar)</label>
+          <textarea id="img-prompt" class="form-textarea" rows="3" placeholder="Ketik ide gambar di sini..."></textarea>
+        </div>
+
+        <div class="prompt-chips-wrap">
+          <div class="prompt-chip" onclick="setPromptSuggestion('Kucing samurai gagah berdiri di tengah hujan kota neon cyberpunk, pencahayaan sinematik, 8k uhd')">Kucing Samurai Cyberpunk</div>
+          <div class="prompt-chip" onclick="setPromptSuggestion('Robot petarung futuristik di kota megah saat matahari terbenam dramatis, sangat detail, 8k uhd')">Robot Tempur Futuristik</div>
+          <div class="prompt-chip" onclick="setPromptSuggestion('Pemandangan anime gaya Makoto Shinkai, langit malam penuh bintang jatuh, warna cerah mempesona')">Pemandangan Anime Bintang</div>
+          <div class="prompt-chip" onclick="setPromptSuggestion('Ikan hias berenang anggun di kolam air jernih, pantulan sinar matahari, warna cerah alami, indah')">Ikan Hias Air Jernih</div>
+          <div class="prompt-chip" onclick="setPromptSuggestion('Potret wajah natural seseorang dengan senyuman tenang di bawah sinar matahari sore, lensa 35mm')">Potret Estetis Natural</div>
+          <div class="prompt-chip" onclick="setPromptSuggestion('Mobil balap sport futuristik melesat di jalan tol malam hari dengan lampu neon, kecepatan tinggi')">Mobil Balap Futuristik Neon</div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="img-negative">Negative Prompt (Hindari dalam Gambar - Opsional)</label>
+          <input type="text" id="img-negative" class="form-input" placeholder="buram, kualitas rendah, cacat, watermark, teks...">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          
+          <div class="form-group">
+            <label class="form-label">Model AI</label>
+            <input type="hidden" id="img-model" value="turbo">
+            <div class="custom-select-wrap" id="cs-img-model">
+              <div class="custom-select-trigger" onclick="toggleCustomSelect('cs-img-model')">
+                <span id="cs-img-model-label">SDXL Turbo (Super Cepat · Rekomendasi)</span>
+                <svg class="custom-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+
+              <div class="custom-select-options">
+                <div class="custom-option selected" data-val="turbo" onclick="selectCustomOption('cs-img-model', 'img-model', 'turbo', 'SDXL Turbo (Super Cepat · Rekomendasi)')">
+                  <span>SDXL Turbo (Super Cepat ~1s · Anti Antre)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="flux" onclick="selectCustomOption('cs-img-model', 'img-model', 'flux', 'Flux Schnell (Kualitas Ultra HD)')">
+                  <span>Flux Schnell (Kualitas Ultra HD)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="@cf/black-forest-labs/flux-2-klein-9b" onclick="selectCustomOption('cs-img-model', 'img-model', '@cf/black-forest-labs/flux-2-klein-9b', 'Cloudflare Flux-2 Klein 9B')">
+                  <span>Cloudflare Flux-2 Klein 9B (Ultra Cepat)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="@cf/black-forest-labs/flux-2-klein-4b" onclick="selectCustomOption('cs-img-model', 'img-model', '@cf/black-forest-labs/flux-2-klein-4b', 'Cloudflare Flux-2 Klein 4B')">
+                  <span>Cloudflare Flux-2 Klein 4B (Ringan & Cepat)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="@cf/stabilityai/stable-diffusion-xl-base-1.0" onclick="selectCustomOption('cs-img-model', 'img-model', '@cf/stabilityai/stable-diffusion-xl-base-1.0', 'Cloudflare SDXL Base 1.0')">
+                  <span>Cloudflare SDXL Base 1.0 (Stabil)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="flux-realism" onclick="selectCustomOption('cs-img-model', 'img-model', 'flux-realism', 'Flux Fotorealistis (Foto Nyata 8K)')">
+                  <span>Flux Fotorealistis (Foto Nyata 8K)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="flux-anime" onclick="selectCustomOption('cs-img-model', 'img-model', 'flux-anime', 'Flux Anime (Gaya Seni Jepang)')">
+                  <span>Flux Anime & Manga (Gaya Seni Jepang)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="flux-3d" onclick="selectCustomOption('cs-img-model', 'img-model', 'flux-3d', 'Flux 3D CGI (Render 3D Sinematik)')">
+                  <span>Flux 3D CGI (Render 3D Sinematik)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Gaya Visual (Style)</label>
+            <input type="hidden" id="img-style" value="alami">
+            <div class="custom-select-wrap" id="cs-img-style">
+              <div class="custom-select-trigger" onclick="toggleCustomSelect('cs-img-style')">
+                <span id="cs-img-style-label">Alami & Natural (Realistis)</span>
+                <svg class="custom-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="custom-select-options">
+                <div class="custom-option selected" data-val="alami" onclick="selectCustomOption('cs-img-style', 'img-style', 'alami', 'Alami & Natural (Realistis)')">
+                  <span>Alami & Natural (Realistis)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="sinematik" onclick="selectCustomOption('cs-img-style', 'img-style', 'sinematik', 'Sinematik Film (Cahaya Dramatis)')">
+                  <span>Sinematik Film (Cahaya Dramatis)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="studio" onclick="selectCustomOption('cs-img-style', 'img-style', 'studio', 'Studio Estetis (Lighting Lembut)')">
+                  <span>Studio Estetis (Lighting Lembut)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="anime" onclick="selectCustomOption('cs-img-style', 'img-style', 'anime', 'Anime & Manga (Seni Jepang)')">
+                  <span>Anime & Manga (Seni Jepang)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="fantasi" onclick="selectCustomOption('cs-img-style', 'img-style', 'fantasi', 'Seni Fantasi (Magis & Epik)')">
+                  <span>Seni Fantasi (Magis & Epik)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="cyberpunk" onclick="selectCustomOption('cs-img-style', 'img-style', 'cyberpunk', 'Cyberpunk Neon (Futuristik)')">
+                  <span>Cyberpunk Neon (Futuristik)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="render3d" onclick="selectCustomOption('cs-img-style', 'img-style', 'render3d', 'Render 3D CGI (Modern)')">
+                  <span>Render 3D CGI (Modern)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="lukisan" onclick="selectCustomOption('cs-img-style', 'img-style', 'lukisan', 'Lukisan Minyak (Klasik Artistik)')">
+                  <span>Lukisan Minyak (Klasik Artistik)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          
+          <div class="form-group">
+            <label class="form-label">Rasio Aspek (Ukuran)</label>
+            <input type="hidden" id="img-ratio" value="1:1">
+            <div class="custom-select-wrap" id="cs-img-ratio">
+              <div class="custom-select-trigger" onclick="toggleCustomSelect('cs-img-ratio')">
+                <span id="cs-img-ratio-label">1:1 (Persegi · 1024x1024)</span>
+                <svg class="custom-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="custom-select-options">
+                <div class="custom-option selected" data-val="1:1" onclick="selectCustomOption('cs-img-ratio', 'img-ratio', '1:1', '1:1 (Persegi · 1024x1024)')">
+                  <span>1:1 (Persegi · 1024x1024)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="16:9" onclick="selectCustomOption('cs-img-ratio', 'img-ratio', '16:9', '16:9 (Lanskap · Layar Lebar)')">
+                  <span>16:9 (Lanskap · Layar Lebar)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="9:16" onclick="selectCustomOption('cs-img-ratio', 'img-ratio', '9:16', '9:16 (Potret · Story HP)')">
+                  <span>9:16 (Potret · Story HP / TikTok)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="4:3" onclick="selectCustomOption('cs-img-ratio', 'img-ratio', '4:3', '4:3 (Standar Foto)')">
+                  <span>4:3 (Standar Foto)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Jumlah Gambar</label>
+            <input type="hidden" id="img-count" value="4">
+            <div class="custom-select-wrap" id="cs-img-count">
+              <div class="custom-select-trigger" onclick="toggleCustomSelect('cs-img-count')">
+                <span id="cs-img-count-label">4 Gambar (Variasi Lengkap)</span>
+                <svg class="custom-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="custom-select-options">
+                <div class="custom-option selected" data-val="4" onclick="selectImgCount('4', '4 Gambar (Variasi Lengkap)')">
+                  <span>4 Gambar (Variasi Lengkap · Berbeda Semua)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="2" onclick="selectImgCount('2', '2 Gambar (Cepat)')">
+                  <span>2 Gambar (Cepat)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="custom-option" data-val="1" onclick="selectImgCount('1', '1 Gambar (Paling Cepat)')">
+                  <span>1 Gambar (Paling Cepat ~1 Detik)</span>
+                  <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="img-btn" onclick="buatGambar()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span id="img-btn-text">Generate 4 Pilihan Gambar</span>
+        </button>
+
+        <div class="result-box" id="img-result">
+          <div class="result-header">
+            <span class="result-title" id="img-status-title">4 Hasil Variasi Gambar</span>
+            <button class="btn-secondary" id="img-regen-btn" onclick="buatGambar()" style="display:inline-flex;align-items:center;gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              <span>Generate Ulang Baru</span>
+            </button>
+          </div>
+
+          <div class="img-progress-wrap" id="img-progress-wrap" style="display:none;">
+            <div class="img-progress-meta">
+              <span class="img-progress-label" id="img-progress-text">Merender variasi gambar...</span>
+              <span class="img-progress-val" id="img-progress-pct">0%</span>
+            </div>
+            <div class="img-progress-track">
+              <div class="img-progress-bar" id="img-progress-bar"></div>
+            </div>
+          </div>
+
+          <div class="gallery-grid-4" id="img-gallery-grid"></div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Subpane 2: Downloader -->
+      <div class="subtab-pane" id="subpane-media-downloader">
+        <div class="glass-card">
+        <div class="card-badge">PENGUNDUH MEDIA UNIVERSAL</div>
+        <h2 class="card-title">Universal Media Downloader</h2>
+        <p class="card-desc">Unduh video &amp; audio berkualitas tinggi dari berbagai platform: TikTok, Instagram, YouTube, X (Twitter), Facebook, dan ribuan situs lainnya tanpa watermark.</p>
+
+        <div class="form-group">
+          <label class="form-label" for="tt-url">Tautan / URL Video atau Audio</label>
+          <div style="display:flex;gap:8px;">
+            <input type="url" id="tt-url" class="form-input" placeholder="Tempel link TikTok, Instagram, YouTube, X (Twitter), Facebook..." onkeydown="if(event.key==='Enter') fetchTikTok()">
+            <button class="btn-primary" id="tt-btn" onclick="fetchTikTok()" style="white-space:nowrap;min-width:140px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Unduh Media</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="result-box" id="tt-result">
+          <div class="result-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="result-label">INFORMASI MEDIA</span>
+              <span class="badge" id="tt-platform-badge">Universal</span>
+            </div>
+            <span id="tt-duration-badge" style="font-size:11px;font-weight:700;color:var(--gray-600);"></span>
+          </div>
+
+          <div id="tt-thumb-wrap" style="display:none;margin-top:10px;margin-bottom:12px;border-radius:10px;overflow:hidden;max-height:240px;background:var(--gray-100);text-align:center;">
+            <img id="tt-thumb-img" src="" alt="Thumbnail Media" style="max-height:240px;width:100%;object-fit:cover;display:block;">
+          </div>
+
+          <div style="margin-bottom:14px;text-align:left;">
+            <div id="tt-author" style="font-weight:700;font-size:14.5px;color:var(--black);"></div>
+            <div id="tt-caption" style="font-size:12.5px;color:var(--gray-700);margin-top:4px;line-height:1.45;word-break:break-word;"></div>
+            <div id="tt-views" style="font-size:11px;color:var(--gray-500);margin-top:6px;font-weight:600;"></div>
+          </div>
+
+          <div id="tt-single-actions" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a id="tt-mp4-btn" class="btn-primary" style="flex:1;display:none;text-decoration:none;justify-content:center;" target="_blank">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Unduh Video (MP4)</span>
+            </a>
+            <a id="tt-mp4hd-btn" class="btn-primary" style="flex:1;display:none;text-decoration:none;justify-content:center;" target="_blank">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Unduh Kualitas HD</span>
+            </a>
+            <a id="tt-photo-btn" class="btn-primary" style="flex:1;display:none;text-decoration:none;justify-content:center;" target="_blank">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>Unduh Foto (HD)</span>
+            </a>
+            <a id="tt-mp3-btn" class="btn-primary" style="flex:1;display:none;text-decoration:none;justify-content:center;" target="_blank">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span>Unduh Audio (MP3)</span>
+            </a>
+          </div>
+
+          <div id="tt-gallery-wrap" style="display:none;margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-top:12px;border-top:1px solid var(--gray-200);">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span id="tt-gallery-title" style="font-weight:700;font-size:13px;color:var(--black);">Daftar Slide / Foto</span>
+                <span id="tt-gallery-count" class="badge" style="background:var(--gray-200);color:var(--gray-800);font-size:10.5px;">0 Item</span>
+              </div>
+              <button id="tt-download-all-btn" class="btn-primary" style="font-size:11.5px;padding:6px 12px;font-weight:600;" onclick="downloadAllMediaItems()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Unduh Semua</span>
+              </button>
+            </div>
+            <div id="tt-gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));gap:10px;"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Subpane 3: Video to GIF / WebP -->
+      <div class="subtab-pane" id="subpane-media-videogif">
+        <div class="glass-card">
+          <div class="card-badge">MEDIA CONVERTER</div>
+          <h2 class="card-title">Video to Animated GIF / WebP</h2>
+          <p class="card-desc">Ubah klip video (MP4/WebM) menjadi animasi GIF ringan dengan kontrol resolusi dan FPS langsung di browser.</p>
+          <div class="form-group">
+            <label class="form-label">Pilih Video</label>
+            <div class="file-upload-zone" onclick="document.getElementById('v2g-file-input').click()">
+              <input type="file" id="v2g-file-input" accept="video/*" style="display:none;" onchange="handleVideoGifSelect(event)">
+              <div class="file-upload-title" id="v2g-file-name">Pilih File Video (MP4/WebM)</div>
+              <div class="file-upload-sub">Mendukung klip video hingga 50 MB</div>
+            </div>
+          </div>
+          <div id="v2g-settings" style="display:none;margin-top:14px;">
+            <video id="v2g-video-preview" controls style="width:100%;max-height:240px;border-radius:12px;background:#000;"></video>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+              <div class="form-group">
+                <label class="form-label">Frame Rate (FPS): <span id="v2g-fps-val">10</span></label>
+                <input type="range" id="v2g-fps" min="5" max="20" value="10" class="form-input" style="padding:0;" oninput="document.getElementById('v2g-fps-val').textContent=this.value">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Durasi Maksimal: <span id="v2g-dur-val">5s</span></label>
+                <input type="range" id="v2g-dur" min="2" max="10" value="5" class="form-input" style="padding:0;" oninput="document.getElementById('v2g-dur-val').textContent=this.value+'s'">
+              </div>
+            </div>
+            <button class="btn-primary" id="v2g-convert-btn" onclick="startVideoToGif()" style="width:100%;margin-top:10px;">Render GIF Animasi</button>
+          </div>
+          <div class="loading" id="v2g-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="v2g-progress-text">Merender frame animasi GIF...</div>
+          </div>
+          <div id="v2g-result-box" style="display:none;margin-top:16px;text-align:center;">
+            <img id="v2g-output-img" src="" alt="GIF Result" style="max-width:100%;border-radius:12px;border:1.5px solid var(--gray-200);">
+            <div style="margin-top:10px;">
+              <a id="v2g-dl-link" class="btn-primary" download="animasi.gif" style="display:inline-flex;text-decoration:none;">Unduh File GIF</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subpane 4: EXIF GPS Locator -->
+      <div class="subtab-pane" id="subpane-media-exif">
+        <div class="glass-card">
+          <div class="card-badge">FOTO FORENSIK</div>
+          <h2 class="card-title">EXIF Photo GPS Map Locator</h2>
+          <p class="card-desc">Upload foto hasil jepretan kamera HP: ekstrak koordinat GPS lokasi pengambilan dan tampilkan langsung di Google Maps.</p>
+          <div class="form-group">
+            <label class="form-label">Unggah Foto (JPG/JPEG)</label>
+            <div class="file-upload-zone" onclick="document.getElementById('exif-file-input').click()">
+              <input type="file" id="exif-file-input" accept="image/jpeg,image/jpg" style="display:none;" onchange="handleExifUpload(event)">
+              <div class="file-upload-title" id="exif-file-name">Pilih Foto Kamera HP</div>
+              <div class="file-upload-sub">Mengekstrak GPS latitude, longitude, kamera, dan timestamp</div>
+            </div>
+          </div>
+          <div id="exif-result-box" style="display:none;margin-top:16px;">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-label">Model Kamera / HP</div>
+                <div class="stat-val" id="exif-camera" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Waktu Pengambilan</div>
+                <div class="stat-val" id="exif-datetime" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Koordinat GPS</div>
+                <div class="stat-val" id="exif-coords" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Privasi Status</div>
+                <div class="stat-val" id="exif-status-val" style="font-size:14px;color:#dc2626;">Lokasi Bocor</div>
+              </div>
+            </div>
+            <div id="exif-map-wrap" style="margin-top:14px;">
+              <iframe id="exif-map-iframe" style="width:100%;height:280px;border-radius:12px;border:1.5px solid var(--gray-200);" src=""></iframe>
+              <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
+                <a id="exif-gmaps-link" href="#" target="_blank" class="btn-primary" style="text-decoration:none;">Buka di Aplikasi Google Maps</a>
+                <button class="btn-secondary" onclick="stripExifAndDownload()">Unduh Foto Bersih (Hapus GPS)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-view" id="view-devsuite">
+      <div class="subtab-nav" id="subtab-nav-devsuite">
+        <button class="subtab-btn active" id="btn-sub-dev-alightmotion" onclick="switchSubTab('devsuite', 'alightmotion')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <span>Alight Motion</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-dev-base64" onclick="switchSubTab('devsuite', 'base64')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span>Base64</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-dev-webtools" onclick="switchSubTab('devsuite', 'webtools')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>Web Tools</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-dev-steganography" onclick="switchSubTab('devsuite', 'steganography')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Steganografi</span>
+        </button>
+        <button class="subtab-btn" id="btn-sub-dev-fingerprint" onclick="switchSubTab('devsuite', 'fingerprint')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 0-10 10c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+          <span>Fingerprint</span>
+        </button>
+      </div>
+
+      <!-- Subpane 1: Alight Motion -->
+      <div class="subtab-pane active" id="subpane-dev-alightmotion">
+        <div class="glass-card">
+        <div class="card-badge">AUTENTIKASI</div>
+        <h2 class="card-title">Alight Motion</h2>
+        <p class="card-desc">Aktifkan Alight Motion Premium — kirim magic link, salin URL dari email, lalu verifikasi di sini.</p>
+        <div class="form-group">
+          <label class="form-label">Metode API</label>
+          <input type="hidden" id="ml-version" value="v1">
+          <div class="custom-select-wrap" id="cs-ml-version">
+            <div class="custom-select-trigger" onclick="toggleCustomSelect('cs-ml-version')">
+              <span id="cs-ml-version-label">Metode V1 (Klasik · Rekomendasi)</span>
+              <svg class="custom-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="custom-select-options">
+              <div class="custom-option selected" data-val="v1" onclick="selectCustomOption('cs-ml-version', 'ml-version', 'v1', 'Metode V1 (Klasik · Rekomendasi)')">
+                <span>Metode V1 (Klasik · Rekomendasi)</span>
+                <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              </div>
+              <div class="custom-option" data-val="v2" onclick="selectCustomOption('cs-ml-version', 'ml-version', 'v2', 'Metode V2 (Generator Proksi)')">
+                <span>Metode V2 (Generator Proksi)</span>
+                <span class="custom-option-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--black);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">1</div>
+          <span style="font-size:12px;font-weight:700;color:var(--black);">Masukkan Gmail & Kirim Magic Link</span>
+        </div>
+        <div class="form-group">
+          <input type="email" id="ml-email" class="form-input" placeholder="namaakun@gmail.com">
+        </div>
+        <button class="btn-primary" id="ml-send-btn" onclick="sendMagicLink()">Kirim Magic Link Premium</button>
+
+        <div id="ml-guide-box" style="display:none;margin-top:16px;background:#f8f8f8;border:1.5px solid var(--gray-200);border-radius:12px;padding:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;margin-bottom:8px;">Penting — Jangan klik langsung linknya!</div>
+          <ol style="margin-left:16px;font-size:12px;color:var(--gray-700);line-height:1.8;">
+            <li>Buka <strong>Gmail</strong> di HP Anda.</li>
+            <li>Buka email dari <strong>Alight Motion</strong>.</li>
+            <li><strong>Tekan & tahan</strong> tombol Sign In / link di email.</li>
+            <li>Pilih <strong>"Salin URL Link" / "Copy Link"</strong>.</li>
+            <li>Kembali ke sini dan tempel di kolom bawah.</li>
+          </ol>
+        </div>
+
+        <div id="ml-step-2" style="display:none;margin-top:18px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--black);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">2</div>
+            <span style="font-size:12px;font-weight:700;color:var(--black);">Tempel URL Magic Link dari Email</span>
+          </div>
+          <div class="form-group">
+            <input type="url" id="ml-link" class="form-input" placeholder="https://alightcreative.com/..." oninput="checkAndAutoVerify(this.value)">
+          </div>
+          <button class="btn-primary" id="ml-verif-btn" onclick="verifyMagicLink()">Verifikasi & Aktifkan Premium</button>
+        </div>
+
+        <div class="result-box" id="ml-result" style="margin-top:16px;">
+          <div class="result-header">
+            <span class="result-title">Status Aktivasi</span>
+            <button class="btn-secondary" onclick="copyText('ml-code-output')">Salin Kode</button>
+          </div>
+          <div class="result-code" id="ml-code-output"></div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Subpane 2: Base64 -->
+      <div class="subtab-pane" id="subpane-dev-base64">
+        <div class="glass-card">
+        <div class="card-badge">UTILITAS</div>
+        <h2 class="card-title">Base64 Converter</h2>
+        <p class="card-desc">Konversi file gambar, dokumen, atau audio menjadi string Base64 dan sebaliknya.</p>
+
+        <div class="sub-tabs">
+          <button class="sub-tab-btn active" id="b64-tab-encode" onclick="setBase64Tab('encode')">File → Base64</button>
+          <button class="sub-tab-btn" id="b64-tab-decode" onclick="setBase64Tab('decode')">Base64 → File</button>
+        </div>
+
+        <div id="b64-view-encode">
+          <div class="form-group">
+            <label class="form-label">Unggah File</label>
+            <div class="file-upload-zone" id="b64-dropzone" onclick="document.getElementById('b64-file-input').click()">
+              <input type="file" id="b64-file-input" style="display:none;" onchange="handleBase64FileEncode(event)">
+              <div class="file-upload-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <div class="file-upload-title" id="b64-file-name">Pilih File atau Tarik ke Sini</div>
+              <div class="file-upload-sub" id="b64-file-info">Mendukung format gambar, audio, dokumen, video</div>
+              <button type="button" class="btn-file-select" id="b64-choose-btn" onclick="event.stopPropagation(); document.getElementById('b64-file-input').click()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <span>Pilih File dari Perangkat</span>
+              </button>
+              <div class="file-selected-badge" id="b64-selected-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <span id="b64-badge-text">File terpilih</span>
+              </div>
+            </div>
+          </div>
+          <div class="result-box" id="b64-encode-result">
+            <div class="result-header">
+              <span class="result-title">Data Mentah Base64</span>
+              <button class="btn-secondary" onclick="copyText('b64-encode-output')">Salin</button>
+            </div>
+            <div class="result-code" id="b64-encode-output"></div>
+            <div class="result-header" style="margin-top:10px;">
+              <span class="result-title">Data URI</span>
+              <button class="btn-secondary" onclick="copyText('b64-datauri-output')">Salin</button>
+            </div>
+            <div class="result-code" id="b64-datauri-output"></div>
+          </div>
+        </div>
+
+        <div id="b64-view-decode" style="display:none;">
+          <div class="form-group">
+            <label class="form-label" for="b64-decode-input">String Base64 / Data URI</label>
+            <textarea id="b64-decode-input" class="form-textarea" rows="4" placeholder="Tempel data Base64 di sini..."></textarea>
+          </div>
+          <button class="btn-primary" onclick="handleBase64Decode()">Decode Sekarang</button>
+          <div class="result-box" id="b64-decode-result">
+            <div class="result-header">
+              <span class="result-title">Hasil File</span>
+              <a id="b64-download-link" class="btn-secondary" style="display:none;">Unduh File</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Subpane 3: Web Tools -->
+      <div class="subtab-pane" id="subpane-dev-webtools">
+        <div class="glass-card">
+        <div class="card-badge">OTOMASI WEB</div>
+        <h2 class="card-title">Web Tools Suite</h2>
+        <p class="card-desc">Alat bantu pengembang untuk kompilasi APK web, ambil kode sumber, dan paket web ZIP.</p>
+
+        <div class="sub-tabs">
+          <button class="sub-tab-btn active" id="web-tab-apk" onclick="setWebTab('apk')">Web ke APK</button>
+          <button class="sub-tab-btn" id="web-tab-source" onclick="setWebTab('source')">Kode Sumber</button>
+          <button class="sub-tab-btn" id="web-tab-zip" onclick="setWebTab('zip')">Web ke ZIP</button>
+        </div>
+
+        <div id="web-view-apk">
+          <div class="form-group">
+            <label class="form-label" for="w2a-name">Nama Aplikasi</label>
+            <input type="text" id="w2a-name" class="form-input" placeholder="Nama Aplikasi">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="w2a-url">URL Website</label>
+            <input type="url" id="w2a-url" class="form-input" placeholder="https://mywebsite.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="w2a-pkg">Nama Paket (Package Name)</label>
+            <input type="text" id="w2a-pkg" class="form-input" placeholder="com.mywebsite.app">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group">
+              <label class="form-label" for="w2a-ver">Nama Versi (Version Name)</label>
+              <input type="text" id="w2a-ver" class="form-input" value="1.0.0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="w2a-code">Kode Versi (Version Code)</label>
+              <input type="number" id="w2a-code" class="form-input" value="1">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="w2a-icon">URL Ikon Aplikasi</label>
+            <input type="url" id="w2a-icon" class="form-input" placeholder="https://.../icon.png">
+          </div>
+          <button class="btn-primary" id="w2a-btn" onclick="startWebToApk()">Buat File APK</button>
+          
+          <div class="result-box" id="w2a-result">
+            <div class="result-header">
+              <span class="result-title" id="w2a-status-title">Status Pembuatan APK</span>
+              <button class="btn-secondary" onclick="copyText('w2a-output')">Salin Data</button>
+            </div>
+            <div class="result-code" id="w2a-output"></div>
+            <a id="w2a-dl-link" class="btn-primary" style="display:none;margin-top:10px;text-decoration:none;" target="_blank">Unduh APK Sekarang</a>
+          </div>
+        </div>
+
+        <div id="web-view-source" style="display:none;">
+          <div class="form-group">
+            <label class="form-label" for="src-url">URL Target</label>
+            <input type="url" id="src-url" class="form-input" placeholder="https://example.com">
+          </div>
+          <button class="btn-primary" id="src-btn" onclick="fetchPageSource()">Ambil Kode Sumber</button>
+          <div class="result-box" id="src-result">
+            <div class="result-header">
+              <span class="result-title">Kode Sumber (HTML)</span>
+              <button class="btn-secondary" onclick="copyText('src-output')">Salin Kode</button>
+            </div>
+            <div class="result-code" id="src-output" style="max-height:280px;"></div>
+          </div>
+        </div>
+
+        <div id="web-view-zip" style="display:none;">
+          <div class="form-group">
+            <label class="form-label" for="zip-url">URL Target</label>
+            <input type="url" id="zip-url" class="form-input" placeholder="https://example.com">
+          </div>
+          <button class="btn-primary" id="zip-btn" onclick="webToZip()">Konversi ke ZIP</button>
+          <div class="result-box" id="zip-result">
+            <div class="result-header">
+              <span class="result-title">Unduh ZIP</span>
+            </div>
+            <div id="zip-preview" style="margin-top:6px;"></div>
+            <a id="zip-dl-link" class="btn-primary" style="display:none;margin-top:10px;text-decoration:none;" target="_blank">Unduh File ZIP</a>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Subpane 4: Steganografi -->
+      <div class="subtab-pane" id="subpane-dev-steganography">
+        <div class="glass-card">
+          <div class="card-badge">KRIPTOGRAFI PIXEL</div>
+          <h2 class="card-title">PNG Image Steganography</h2>
+          <p class="card-desc">Sembunyikan pesan rahasia di dalam bit piksel gambar PNG (LSB), atau baca kembali teks rahasia yang tersembunyi.</p>
+          <div class="sub-tabs">
+            <button class="sub-tab-btn active" id="steg-tab-enc" onclick="switchStegMode('encode')">Sembunyikan Pesan (Encode)</button>
+            <button class="sub-tab-btn" id="steg-tab-dec" onclick="switchStegMode('decode')">Ekstrak Pesan (Decode)</button>
+          </div>
+          <div id="steg-view-encode">
+            <div class="form-group">
+              <label class="form-label">Pilih Gambar Pembawa (PNG)</label>
+              <div class="file-upload-zone" onclick="document.getElementById('steg-file-enc').click()">
+                <input type="file" id="steg-file-enc" accept="image/png" style="display:none;" onchange="handleStegEncFile(event)">
+                <div class="file-upload-title" id="steg-enc-filename">Pilih File PNG</div>
+                <div class="file-upload-sub">Gambar tidak akan berubah secara kasat mata</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pesan Rahasia yang Ingin Disembunyikan</label>
+              <textarea class="form-textarea" id="steg-text-input" rows="3" placeholder="Ketik pesan rahasia di sini..."></textarea>
+            </div>
+            <button class="btn-primary" onclick="runStegEncode()" style="width:100%;">Tanamkan Pesan ke PNG</button>
+            <div id="steg-enc-result" style="display:none;margin-top:14px;text-align:center;">
+              <div class="chips-title" style="margin-bottom:8px;">Gambar dengan Pesan Rahasia Siap:</div>
+              <img id="steg-enc-img" style="max-width:200px;border-radius:12px;border:1.5px solid var(--gray-200);"><br>
+              <a id="steg-enc-dl" class="btn-primary" download="secret.png" style="display:inline-flex;margin-top:8px;text-decoration:none;">Unduh Gambar Rahasia</a>
+            </div>
+          </div>
+          <div id="steg-view-decode" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">Unggah Gambar Rahasia (PNG)</label>
+              <div class="file-upload-zone" onclick="document.getElementById('steg-file-dec').click()">
+                <input type="file" id="steg-file-dec" accept="image/png" style="display:none;" onchange="handleStegDecFile(event)">
+                <div class="file-upload-title" id="steg-dec-filename">Pilih File PNG Rahasia</div>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="runStegDecode()" style="width:100%;">Ekstrak Pesan Rahasia</button>
+            <div id="steg-dec-result" style="display:none;margin-top:14px;">
+              <div class="chips-title" style="margin-bottom:6px;">Isi Pesan Rahasia yang Ditemukan:</div>
+              <div class="result-code" id="steg-dec-output" style="white-space:pre-wrap;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subpane 5: Browser Fingerprint -->
+      <div class="subtab-pane" id="subpane-dev-fingerprint">
+        <div class="glass-card">
+          <div class="card-badge">AUDIT PRIVASI</div>
+          <h2 class="card-title">Browser Fingerprint &amp; Leak Audit</h2>
+          <p class="card-desc">Audit sidik jari hardware &amp; grafis unik yang dibocorkan browsermu ke internet bahkan saat menggunakan VPN.</p>
+          <button class="btn-primary" onclick="runFingerprintAudit()" style="width:100%;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Jalankan Audit Sidik Jari</button>
+          <div id="fp-result-box" style="display:none;">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-label">Canvas Hash Unik</div>
+                <div class="stat-val" id="fp-canvas-hash" style="font-size:13px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">GPU Asli (Unmasked)</div>
+                <div class="stat-val" id="fp-gpu" style="font-size:13px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">CPU Cores &amp; Memory</div>
+                <div class="stat-val" id="fp-hardware" style="font-size:13px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Skor Privasi / Ketertelusuran</div>
+                <div class="stat-val" id="fp-score" style="font-size:13px;color:#dc2626;">Sangat Unik (Mudah Dilacak)</div>
+              </div>
+            </div>
+            <div style="background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:12px 16px;font-size:12px;margin-top:12px;display:flex;flex-direction:column;gap:6px;">
+              <div><strong>Resolusi Layar:</strong> <span id="fp-screen">--</span></div>
+              <div><strong>Zona Waktu &amp; Bahasa:</strong> <span id="fp-tz">--</span></div>
+              <div><strong>WebRTC IP Leak:</strong> <span id="fp-webrtc">Menganalisis...</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <div class="lightbox-modal" id="img-lightbox-modal" onclick="closeLightbox(event)">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <button class="lightbox-close-btn" onclick="closeLightbox()" title="Tutup"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <div class="lightbox-img-wrap">
+        <img id="lightbox-img" src="" alt="Preview HD Gambar">
+      </div>
+      <div class="lightbox-meta">
+        <div class="lightbox-prompt" id="lightbox-prompt-text"></div>
+        <div class="lightbox-tags">
+          <span class="lightbox-tag" id="lightbox-tag-id">Pilihan #1</span>
+          <span class="lightbox-tag" id="lightbox-tag-model">Model: SDXL</span>
+          <span class="lightbox-tag" id="lightbox-tag-seed">Seed: 123456</span>
+          <span class="lightbox-tag" id="lightbox-tag-ratio">Rasio: 1:1</span>
+        </div>
+        <div class="lightbox-actions">
+          <a id="lightbox-dl-btn" class="btn-primary" style="width:100%;text-decoration:none;justify-content:center;" download="gambar_ai.png" target="_blank">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Unduh Gambar HD
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
   <script src="js/liquidGL.js?v=1.1"></script>
   <script src="js/loader.js?v=1.6"></script>
-  <script src="js/app.js?v=2.1"></script>
+  <script src="js/app.js?v=2.8"></script>
 </body>
 </html>
