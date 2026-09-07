@@ -161,41 +161,163 @@ function toggleStrixRaw() {
   }
 }
 
+// ─── Grade system helper ───────────────────────────────────────────────
+function _strixGradeInfo(score) {
+  if (score >= 95) return { letter: 'A+', label: 'Sangat Aman',   color1: '#059669', color2: '#10b981', glow: 'rgba(16,185,129,0.35)' };
+  if (score >= 85) return { letter: 'A',  label: 'Aman',          color1: '#10b981', color2: '#34d399', glow: 'rgba(16,185,129,0.28)' };
+  if (score >= 75) return { letter: 'B+', label: 'Cukup Aman',    color1: '#2563eb', color2: '#60a5fa', glow: 'rgba(37,99,235,0.32)'  };
+  if (score >= 65) return { letter: 'B',  label: 'Perlu Perbaikan',color1: '#3b82f6', color2: '#93c5fd', glow: 'rgba(59,130,246,0.28)' };
+  if (score >= 55) return { letter: 'C+', label: 'Rentan',        color1: '#d97706', color2: '#fbbf24', glow: 'rgba(217,119,6,0.32)'  };
+  if (score >= 45) return { letter: 'C',  label: 'Berisiko',      color1: '#f59e0b', color2: '#fcd34d', glow: 'rgba(245,158,11,0.28)' };
+  if (score >= 30) return { letter: 'D+', label: 'Sangat Berisiko',color1: '#ea580c', color2: '#fb923c', glow: 'rgba(234,88,12,0.32)'  };
+  return              { letter: 'D',  label: 'Kritis',           color1: '#dc2626', color2: '#f87171', glow: 'rgba(220,38,38,0.35)'  };
+}
+
 function renderStrixResult(data) {
   const container = document.getElementById('strix-visual-result');
   if (!container) return;
 
-  const score = typeof data.security_score === 'number' ? data.security_score : 100;
-  const grade = data.grade || (score >= 80 ? 'A' : score >= 60 ? 'B' : 'C');
+  const score   = typeof data.security_score === 'number' ? data.security_score : 100;
+  const gi      = _strixGradeInfo(score);
   const summary = data.summary || 'Pemindaian selesai dilakukan.';
-  const vulns = data.vulnerabilities || [];
-  const stats = (data.statistics && data.statistics.by_severity) || {
+  const vulns   = data.vulnerabilities || [];
+  const stats   = (data.statistics && data.statistics.by_severity) || {
     CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, INFO: 0
   };
 
-  const gradeColor = score >= 85 ? '#10b981' : score >= 70 ? '#3b82f6' : score >= 50 ? '#f59e0b' : '#ef4444';
+  // SVG animated ring geometry
+  const R   = 42;
+  const C   = 2 * Math.PI * R;                        // circumference ≈ 263.9
+  const pct = Math.max(0, Math.min(score, 100)) / 100;
+  const uid = 'strix_g_' + Date.now();
 
   let html = `
-    <div style="background:var(--card-bg, #ffffff);border:1.5px solid var(--gray-200, #e2e8f0);border-radius:14px;padding:18px;margin-bottom:16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="width:58px;height:58px;border-radius:50%;background:${gradeColor}18;border:2.5px solid ${gradeColor};display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <span style="font-size:20px;font-weight:800;color:${gradeColor};line-height:1;">${grade}</span>
-            <span style="font-size:10px;font-weight:600;color:${gradeColor};">${score}/100</span>
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:700;color:var(--gray-900,#0f172a);">${data.host || data.target || 'Target Host'}</div>
-            <div style="font-size:12px;color:var(--gray-500,#64748b);">IP: <strong>${data.ip || 'Tersembunyi/CDN'}</strong> | Waktu: <strong>${data.scan_time || '1.2'} detik</strong> | Engine: <strong>${data.scanner || 'Strix Engine'}</strong></div>
+    <style>
+      @keyframes ${uid}_dash {
+        from { stroke-dashoffset: ${C.toFixed(1)}; }
+        to   { stroke-dashoffset: ${(C * (1 - pct)).toFixed(1)}; }
+      }
+      @keyframes ${uid}_pop {
+        0%   { transform: scale(0.7); opacity:0; }
+        60%  { transform: scale(1.08); opacity:1; }
+        100% { transform: scale(1); }
+      }
+      @keyframes ${uid}_cnt {
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      #${uid}_ring {
+        animation: ${uid}_dash 1.3s cubic-bezier(.36,.07,.19,.97) 0.15s both;
+        stroke-dasharray: ${C.toFixed(1)};
+        stroke-dashoffset: ${(C * (1 - pct)).toFixed(1)};
+      }
+      #${uid}_badge {
+        animation: ${uid}_pop 0.55s cubic-bezier(.34,1.56,.64,1) 0.9s both;
+      }
+      #${uid}_scorenum {
+        animation: ${uid}_cnt 0.4s ease 1.35s both;
+      }
+    </style>
+
+    <div style="background:var(--gray-50,#f8fafc);border:1.5px solid var(--gray-200,#e2e8f0);border-radius:18px;padding:20px 20px 16px;margin-bottom:16px;overflow:hidden;">
+
+      <!-- TOP ROW: ring + host info + severity pills -->
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+
+        <!-- Animated grade ring -->
+        <div style="position:relative;flex-shrink:0;width:100px;height:100px;">
+          <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
+            <defs>
+              <linearGradient id="${uid}_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="${gi.color1}"/>
+                <stop offset="100%" stop-color="${gi.color2}"/>
+              </linearGradient>
+              <filter id="${uid}_glow">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <!-- Track -->
+            <circle cx="50" cy="50" r="${R}" fill="none"
+              stroke="${gi.color1}1a" stroke-width="9" stroke-linecap="round"/>
+            <!-- Progress arc -->
+            <circle id="${uid}_ring" cx="50" cy="50" r="${R}" fill="none"
+              stroke="url(#${uid}_grad)" stroke-width="9" stroke-linecap="round"
+              filter="url(#${uid}_glow)"/>
+          </svg>
+
+          <!-- Center badge -->
+          <div id="${uid}_badge" style="
+            position:absolute; inset:0;
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            pointer-events:none;">
+            <span style="
+              font-size:${gi.letter.length > 1 ? '22px' : '26px'};
+              font-weight:900;
+              line-height:1;
+              background: linear-gradient(135deg,${gi.color1},${gi.color2});
+              -webkit-background-clip:text;
+              -webkit-text-fill-color:transparent;
+              background-clip:text;
+              filter: drop-shadow(0 0 6px ${gi.glow});
+            ">${gi.letter}</span>
+            <span id="${uid}_scorenum" style="
+              font-size:11px; font-weight:700;
+              color:${gi.color1}; margin-top:2px; letter-spacing:.3px;
+            ">${score}/100</span>
           </div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:#fee2e2;color:#b91c1c;font-weight:700;">${stats.CRITICAL || 0} Critical</span>
-          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:#ffedd5;color:#c2410c;font-weight:700;">${stats.HIGH || 0} High</span>
-          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:#fef3c7;color:#b45309;font-weight:700;">${stats.MEDIUM || 0} Med</span>
-          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:#e0f2fe;color:#0369a1;font-weight:700;">${stats.LOW || 0} Low</span>
+
+        <!-- Host info + grade label -->
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <span style="
+              font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+              padding:3px 9px;border-radius:6px;
+              background:linear-gradient(135deg,${gi.color1}22,${gi.color2}22);
+              color:${gi.color1};border:1px solid ${gi.color1}44;
+            ">${gi.letter} — ${gi.label}</span>
+          </div>
+          <div style="font-size:15px;font-weight:700;color:var(--gray-900,#0f172a);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            ${data.host || data.target || 'Target Host'}
+          </div>
+          <div style="font-size:11.5px;color:var(--gray-500,#64748b);margin-top:3px;line-height:1.5;">
+            <span>IP: <strong style="color:var(--gray-700,#334155)">${data.ip || 'CDN/Hidden'}</strong></span>
+            &nbsp;·&nbsp;
+            <span>Waktu: <strong style="color:var(--gray-700,#334155)">${data.scan_time || '?'} dtk</strong></span>
+            &nbsp;·&nbsp;
+            <span style="color:var(--gray-400,#94a3b8)">${data.scanner || 'Strix Engine'}</span>
+          </div>
+        </div>
+
+        <!-- Severity pills -->
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0;">
+          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:#fee2e2;color:#b91c1c;font-weight:700;border:1px solid #fca5a5;">${stats.CRITICAL||0} Critical</span>
+          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:#ffedd5;color:#c2410c;font-weight:700;border:1px solid #fdba74;">${stats.HIGH||0} High</span>
+          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:#fef3c7;color:#b45309;font-weight:700;border:1px solid #fcd34d;">${stats.MEDIUM||0} Med</span>
+          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:#e0f2fe;color:#0369a1;font-weight:700;border:1px solid #7dd3fc;">${stats.LOW||0} Low</span>
         </div>
       </div>
-      <div style="margin-top:12px;font-size:12.5px;color:var(--gray-700,#334155);line-height:1.5;">${summary}</div>
+
+      <!-- Score bar -->
+      <div style="margin-top:14px;">
+        <div style="height:6px;border-radius:99px;background:var(--gray-200,#e2e8f0);overflow:hidden;">
+          <div style="
+            height:100%;width:${score}%;
+            background:linear-gradient(90deg,${gi.color1},${gi.color2});
+            border-radius:99px;
+            transition:width 1.4s cubic-bezier(.36,.07,.19,.97);
+            box-shadow: 0 0 8px ${gi.glow};
+          "></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray-400,#94a3b8);margin-top:4px;font-weight:600;">
+          <span>0</span><span>A+ ≥ 95</span><span>100</span>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div style="margin-top:10px;font-size:12.5px;color:var(--gray-600,#475569);line-height:1.5;padding:10px 12px;background:${gi.color1}0d;border-radius:8px;border-left:3px solid ${gi.color1};">${summary}</div>
     </div>
   `;
 
