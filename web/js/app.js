@@ -117,21 +117,34 @@ function applyTranslations() {
   });
 }
 
-// Helper to toggle loading UI for a button
-function setLoading(buttonId, show) {
-  const btn = document.getElementById(buttonId);
+// Helper to toggle active loading animation inside any action button
+function setLoading(buttonId, show, customLabel) {
+  const btn = typeof buttonId === 'string' ? document.getElementById(buttonId) : buttonId;
   if (!btn) return;
-  const loadingEl = document.getElementById(`${buttonId}-loading`);
-  if (show) {
-    if (loadingEl) loadingEl.style.display = 'flex';
-    btn.classList.add('loading');
-    btn.setAttribute('disabled', 'true');
-  } else {
+  const idStr = typeof buttonId === 'string' ? buttonId : (btn.id || '');
+  if (idStr) {
+    const loadingEl = document.getElementById(`${idStr}-loading`);
     if (loadingEl) loadingEl.style.display = 'none';
-    btn.classList.remove('loading');
-    btn.removeAttribute('disabled');
+  }
+  if (show) {
+    btn.disabled = true;
+    btn.classList.add('loading', 'is-loading');
+    if (!btn.dataset.origHtml) {
+      btn.dataset.origHtml = btn.innerHTML;
+    }
+    const textSpan = btn.querySelector('span');
+    const label = customLabel || (textSpan ? textSpan.textContent.trim() : btn.textContent.trim());
+    btn.innerHTML = `<span class="spinner" style="display:inline-block;margin-right:7px;vertical-align:middle;"></span><span>${label}</span>`;
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('loading', 'is-loading');
+    if (btn.dataset.origHtml) {
+      btn.innerHTML = btn.dataset.origHtml;
+      delete btn.dataset.origHtml;
+    }
   }
 }
+window.setLoading = setLoading;
 
 // Strix scan integration
 function toggleStrixRaw() {
@@ -2955,8 +2968,8 @@ async function runSherlock() {
     return;
   }
 
-  btn.disabled = true;
-  loading.style.display = 'flex';
+  setLoading(btn, true);
+  if (loading) loading.style.display = 'none';
   resBox.style.display = 'none';
   grid.innerHTML = '';
 
@@ -2998,8 +3011,8 @@ async function runSherlock() {
   } catch (err) {
     showToast(err.message, true);
   } finally {
-    btn.disabled = false;
-    loading.style.display = 'none';
+    setLoading(btn, false);
+    if (loading) loading.style.display = 'none';
   }
 }
 
@@ -3016,8 +3029,8 @@ async function runDiscordLookup() {
     return;
   }
 
-  btn.disabled = true;
-  loading.style.display = 'flex';
+  setLoading(btn, true);
+  if (loading) loading.style.display = 'none';
   resBox.style.display = 'none';
 
   try {
@@ -3043,8 +3056,8 @@ async function runDiscordLookup() {
   } catch (err) {
     showToast(err.message, true);
   } finally {
-    btn.disabled = false;
-    loading.style.display = 'none';
+    setLoading(btn, false);
+    if (loading) loading.style.display = 'none';
   }
 }
 
@@ -3069,8 +3082,8 @@ async function runBreachCheck() {
     return;
   }
 
-  btn.disabled = true;
-  loading.style.display = 'flex';
+  setLoading(btn, true);
+  if (loading) loading.style.display = 'none';
   resBox.style.display = 'none';
 
   try {
@@ -3133,8 +3146,8 @@ async function runBreachCheck() {
   } catch (err) {
     showToast(err.message, true);
   } finally {
-    btn.disabled = false;
-    loading.style.display = 'none';
+    setLoading(btn, false);
+    if (loading) loading.style.display = 'none';
   }
 }
 
@@ -3156,8 +3169,8 @@ async function runNikLookup() {
     return;
   }
 
-  if (btn) btn.disabled = true;
-  if (loading) loading.style.display = 'flex';
+  if (btn) setLoading(btn, true);
+  if (loading) loading.style.display = 'none';
   if (resBox) resBox.style.display = 'none';
 
   try {
@@ -3221,7 +3234,7 @@ async function runNikLookup() {
   } catch (err) {
     showToast(err.message, true);
   } finally {
-    if (btn) btn.disabled = false;
+    if (btn) setLoading(btn, false);
     if (loading) loading.style.display = 'none';
   }
 }
@@ -3333,8 +3346,8 @@ async function runGitHubProfiler() {
     return;
   }
 
-  btn.disabled = true;
-  loading.style.display = 'flex';
+  setLoading(btn, true);
+  if (loading) loading.style.display = 'none';
   resBox.style.display = 'none';
 
   try {
@@ -3378,8 +3391,8 @@ async function runGitHubProfiler() {
   } catch (err) {
     showToast(err.message, true);
   } finally {
-    btn.disabled = false;
-    loading.style.display = 'none';
+    setLoading(btn, false);
+    if (loading) loading.style.display = 'none';
   }
 }
 
@@ -3400,8 +3413,8 @@ async function runSubdomainScan() {
     return;
   }
 
-  btn.disabled = true;
-  loading.style.display = 'flex';
+  setLoading(btn, true);
+  if (loading) loading.style.display = 'none';
   resBox.style.display = 'none';
 
   try {
@@ -3422,8 +3435,8 @@ async function runSubdomainScan() {
   } catch (err) {
     showToast(err.message, true);
   } finally {
-    btn.disabled = false;
-    loading.style.display = 'none';
+    setLoading(btn, false);
+    if (loading) loading.style.display = 'none';
   }
 }
 
@@ -3447,8 +3460,8 @@ async function runPortScan() {
     return;
   }
 
-  btn.disabled = true;
-  loading.style.display = 'flex';
+  setLoading(btn, true);
+  if (loading) loading.style.display = 'none';
   resBox.style.display = 'none';
   grid.innerHTML = '';
 
@@ -3487,8 +3500,8 @@ async function runPortScan() {
   } catch (err) {
     showToast(err.message, true);
   } finally {
-    btn.disabled = false;
-    loading.style.display = 'none';
+    setLoading(btn, false);
+    if (loading) loading.style.display = 'none';
   }
 }
 
@@ -3505,8 +3518,8 @@ async function runIpIntel() {
     return;
   }
 
-  btn.disabled = true;
-  loading.style.display = 'flex';
+  setLoading(btn, true);
+  if (loading) loading.style.display = 'none';
   resBox.style.display = 'none';
 
   try {
@@ -3545,8 +3558,8 @@ async function runIpIntel() {
   } catch (err) {
     showToast(err.message, true);
   } finally {
-    btn.disabled = false;
-    loading.style.display = 'none';
+    setLoading(btn, false);
+    if (loading) loading.style.display = 'none';
   }
 }
 
@@ -3572,13 +3585,15 @@ async function startVideoToGif() {
   const resBox = document.getElementById('v2g-result-box');
   const outImg = document.getElementById('v2g-output-img');
   const dlLink = document.getElementById('v2g-dl-link');
+  const convertBtn = document.getElementById('v2g-convert-btn');
 
   if (!vid.src) {
     showToast('Pilih video terlebih dahulu!', true);
     return;
   }
 
-  loading.style.display = 'flex';
+  if (convertBtn) setLoading(convertBtn, true);
+  if (loading) loading.style.display = 'none';
   resBox.style.display = 'none';
 
   try {
@@ -3613,7 +3628,8 @@ async function startVideoToGif() {
   } catch (err) {
     showToast('Gagal konversi video: ' + err.message, true);
   } finally {
-    loading.style.display = 'none';
+    if (convertBtn) setLoading(convertBtn, false);
+    if (loading) loading.style.display = 'none';
   }
 }
 

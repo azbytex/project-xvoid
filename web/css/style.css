@@ -1700,12 +1700,48 @@ body.ai-fullscreen-active #clickFxCanvas {
 }
 
 .spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  border: 2px solid rgba(255,255,255,0.35);
   border-top-color: #ffffff;
   border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  animation: spin 0.65s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.btn-secondary .spinner {
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: var(--black, #111114);
+}
+
+.btn-primary.loading,
+.btn-primary.is-loading,
+.btn-secondary.loading,
+.btn-secondary.is-loading,
+button.loading,
+button.is-loading {
+  pointer-events: none;
+  cursor: wait !important;
+  opacity: 0.88;
+}
+
+/* Sembunyikan container teks memindai statis agar UI bersih dan feedback fokus pada tombol */
+.loading,
+.loading-text,
+.loading-spinner,
+#strix-btn-loading,
+#sherlock-loading,
+#discord-loading,
+#breach-loading,
+#nik-loading,
+#ghp-loading,
+#subdomain-loading,
+#ports-loading,
+#ipintel-loading,
+#v2g-loading {
+  display: none !important;
 }
 
 @keyframes spin {

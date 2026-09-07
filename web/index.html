@@ -132,10 +132,7 @@
             </button>
           </div>
         </div>
-        <div class="loading" id="strix-btn-loading">
-          <div class="loading-spinner"></div>
-          <div class="loading-text" data-i18n="loading_strix">Memindai target dengan Strix... mohon tunggu.</div>
-        </div>
+        <div class="loading" id="strix-btn-loading" style="display:none !important;"></div>
         <div id="strix-result-box" style="display:none;margin-top:20px;">
           <div id="strix-visual-result"></div>
           <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
@@ -350,10 +347,7 @@
               </button>
             </div>
           </div>
-          <div class="loading" id="sherlock-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Menyisir 20+ platform media sosial &amp; dev secara bersamaan...</div>
-          </div>
+          <div class="loading" id="sherlock-loading" style="display:none !important;"></div>
           <div id="sherlock-result-box" style="display:none;margin-top:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <div class="chips-title" id="sherlock-summary-title">Hasil Pelacakan Akun:</div>
@@ -380,10 +374,7 @@
               </button>
             </div>
           </div>
-          <div class="loading" id="discord-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Mendekode Snowflake ID &amp; mengambil metadata Discord...</div>
-          </div>
+          <div class="loading" id="discord-loading" style="display:none !important;"></div>
           <div id="discord-result-box" style="display:none;margin-top:16px;">
             <div style="display:flex;gap:16px;align-items:center;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;padding:16px;">
               <img id="discord-avatar" src="" alt="Avatar" style="width:72px;height:72px;border-radius:50%;border:2px solid var(--black);object-fit:cover;">
@@ -434,10 +425,7 @@
             </div>
             <div style="font-size:11px;color:var(--gray-400);margin-top:6px;display:flex;align-items:center;gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Aman: Menggunakan metode K-Anonymity (hanya 5 karakter awal hash SHA-1 yang dikirim, password asli tidak pernah dikirim).</div>
           </div>
-          <div class="loading" id="breach-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Memeriksa database kebocoran sandi global...</div>
-          </div>
+          <div class="loading" id="breach-loading" style="display:none !important;"></div>
           <div id="breach-result-box" style="display:none;margin-top:16px;">
             <div id="breach-banner" style="padding:14px 18px;border-radius:12px;margin-bottom:14px;font-weight:600;"></div>
             <div id="breach-details" style="background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:14px 16px;font-size:13px;display:flex;flex-direction:column;gap:8px;"></div>
@@ -468,10 +456,7 @@
               <span>Algoritma cerdas mengenali formula tanggal lahir perempuan (tanggal + 40) dan wilayah 38 provinsi di Indonesia.</span>
             </div>
           </div>
-          <div class="loading" id="nik-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Membedah formula NIK, memetakan kode wilayah, &amp; merangkai dork kependudukan...</div>
-          </div>
+          <div class="loading" id="nik-loading" style="display:none !important;"></div>
           <div id="nik-result-box" style="display:none;margin-top:16px;">
             <div class="phone-result-card" style="margin-bottom:16px;">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
@@ -722,10 +707,7 @@
               </button>
             </div>
           </div>
-          <div class="loading" id="ghp-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Menyisir commit history dan profil publik GitHub...</div>
-          </div>
+          <div class="loading" id="ghp-loading" style="display:none !important;"></div>
           <div id="ghp-result-box" style="display:none;margin-top:16px;">
             <div style="display:flex;gap:16px;align-items:center;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;padding:16px;">
               <img id="ghp-avatar" src="" alt="Avatar" style="width:72px;height:72px;border-radius:50%;border:2px solid var(--black);object-fit:cover;">
@@ -798,10 +780,7 @@
               </button>
             </div>
           </div>
-          <div class="loading" id="subdomain-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Memindai Certificate Transparency database...</div>
-          </div>
+          <div class="loading" id="subdomain-loading" style="display:none !important;"></div>
           <div id="subdomain-result-box" style="display:none;margin-top:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <span class="chips-title" id="subdomain-count-label">Ditemukan -- Subdomain:</span>
@@ -916,10 +895,7 @@
               </button>
             </div>
           </div>
-          <div class="loading" id="ports-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Menyisir port-port terbuka dengan timeout cepat...</div>
-          </div>
+          <div class="loading" id="ports-loading" style="display:none !important;"></div>
           <div id="ports-result-box" style="display:none;margin-top:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <span class="chips-title" id="ports-count-label">Hasil Scan Port:</span>
@@ -946,10 +922,7 @@
               </button>
             </div>
           </div>
-          <div class="loading" id="ipintel-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Menghubungi IP database &amp; menghitung skor risiko...</div>
-          </div>
+          <div class="loading" id="ipintel-loading" style="display:none !important;"></div>
           <div id="ipintel-result-box" style="display:none;margin-top:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
               <span class="card-badge" id="ipintel-engine-badge" style="margin:0;">Engine: GhostTrack (ipwho.is) + GhostIntel</span>
@@ -1321,10 +1294,7 @@
             </div>
             <button class="btn-primary" id="v2g-convert-btn" onclick="startVideoToGif()" style="width:100%;margin-top:10px;">Render GIF Animasi</button>
           </div>
-          <div class="loading" id="v2g-loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text" id="v2g-progress-text">Merender frame animasi GIF...</div>
-          </div>
+          <div class="loading" id="v2g-loading" style="display:none !important;"></div>
           <div id="v2g-result-box" style="display:none;margin-top:16px;text-align:center;">
             <img id="v2g-output-img" src="" alt="GIF Result" style="max-width:100%;border-radius:12px;border:1.5px solid var(--gray-200);">
             <div style="margin-top:10px;">
