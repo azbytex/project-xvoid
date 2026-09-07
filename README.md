@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./web/logo.png" width="650">
+<img src="https://gcdnb.pbrd.co/images/mHLigFd2_7Uf.png" width="650">
 
 <br>
 
