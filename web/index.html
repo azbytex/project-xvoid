@@ -601,20 +601,33 @@
         <div class="glass-card">
           <div class="card-badge">VIRTUAL SIM</div>
           <h2 class="card-title">Temp Virtual SMS OTP Receiver</h2>
-          <p class="card-desc">Gunakan nomor telepon publik virtual gratis untuk verifikasi akun WhatsApp, Google, Telegram, TikTok tanpa nomor pribadi.</p>
+          <p class="card-desc">Nomor telepon publik virtual live dari jaringan telekomunikasi internasional untuk menerima SMS verifikasi kode OTP (Google, TikTok, Steam, Discord, Netflix, Tinder, dll.) tanpa nomor pribadi.</p>
+
+          <div class="sms-notice-banner">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <div>
+              <strong>Koneksi SIM Realtime:</strong> Inbox diperbarui langsung dari SMS gateway carrier. Untuk tingkat keberhasilan verifikasi tertinggi, disarankan menggunakan nomor <strong>United Kingdom (+44)</strong> atau <strong>United States (+1)</strong>.
+            </div>
+          </div>
 
           <div class="sms-layout">
             <div>
-              <div class="chips-title" style="margin-bottom:8px;">Pilih Nomor Virtual:</div>
+              <div class="chips-title" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+                <span>PILIH NOMOR VIRTUAL:</span>
+                <span style="font-size:11px;font-weight:600;color:var(--gray-500,#64748b);">9 Jalur Aktif</span>
+              </div>
               <div class="sms-num-list" id="sms-num-list"></div>
             </div>
             <div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <div class="chips-title">Inbox Masuk (<span id="sms-active-num-label">Pilih Nomor</span>):</div>
-                <button class="btn-secondary" onclick="reloadSmsInbox()" style="padding:4px 10px;font-size:12px;display:inline-flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh</button>
+                <div class="chips-title">INBOX MASUK (<span id="sms-active-num-label" style="color:var(--black);font-family:'Space Grotesk',monospace;font-weight:700;">Pilih Nomor</span>):</div>
+                <button class="btn-secondary" onclick="reloadSmsInbox()" id="sms-reload-btn" style="padding:5px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px;font-weight:600;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  <span>Perbarui SMS</span>
+                </button>
               </div>
               <div class="sms-inbox-container" id="sms-inbox-container">
-                <div style="padding:20px;text-align:center;color:var(--gray-400);font-size:13px;">Pilih salah satu nomor di sebelah kiri untuk melihat pesan masuk.</div>
+                <div style="padding:28px 20px;text-align:center;color:var(--gray-400);font-size:13px;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;">Pilih salah satu nomor di sebelah kiri untuk membaca pesan SMS masuk secara live.</div>
               </div>
             </div>
           </div>

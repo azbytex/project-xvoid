@@ -3367,13 +3367,69 @@ window.runNikLookup = runNikLookup;
 
 // ─── 4. TEMP VIRTUAL SMS NUMBERS ───
 let currentSelectedSmsNumber = '';
+// ─── Brand Logo Helper for SMS Inbox ───────────────────────────
+function getSmsBrandLogo(senderName) {
+  const name = (senderName || '').toLowerCase().trim();
+
+  // Google
+  if (name.includes('google') || name.includes('g-') || name.includes('gmail')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>`;
+  }
+  // WhatsApp
+  if (name.includes('whatsapp') || name.includes('wa')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.37C9.37 7.37 9.1 7.43 8.88 7.67C8.65 7.92 8.02 8.51 8.02 9.71C8.02 10.91 8.89 12.07 9.01 12.23C9.14 12.4 10.7 14.81 13.1 15.84C15.1 16.7 15.51 16.53 15.96 16.49C16.41 16.45 17.4 15.9 17.61 15.33C17.81 14.75 17.81 14.25 17.75 14.15C17.69 14.05 17.53 13.99 17.29 13.87C17.05 13.75 15.86 13.17 15.64 13.09C15.42 13 15.26 12.96 15.1 13.2C14.94 13.45 14.48 13.99 14.34 14.15C14.2 14.31 14.06 14.33 13.82 14.21C13.58 14.09 12.8 13.83 11.88 13.01C11.16 12.37 10.67 11.58 10.53 11.34C10.39 11.1 10.51 10.97 10.63 10.85C10.74 10.74 10.88 10.55 11.01 10.41C11.14 10.27 11.18 10.17 11.26 10.01C11.34 9.85 11.3 9.71 11.24 9.59C11.18 9.47 10.72 8.35 10.53 7.89C10.35 7.45 10.16 7.51 10.02 7.51C9.89 7.5 9.72 7.37 9.53 7.37Z"/></svg>`;
+  }
+  // Telegram
+  if (name.includes('telegram') || name.includes('t.me')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#2AABEE"/><path fill="#FFF" d="M17.5 7.2L5.8 11.7c-.8.3-.8.8-.1 1l3 1 7-4.4c.3-.2.6-.1.4.1l-5.7 5.1-.2 3.1c.3 0 .5-.1.6-.3l1.5-1.5 3.2 2.4c.6.3 1 .2 1.2-.5l2.1-9.9c.2-.9-.3-1.3-1.3-.9z"/></svg>`;
+  }
+  // TikTok / ByteDance / BytePlus / 豆包
+  if (name.includes('tiktok') || name.includes('byteplus') || name.includes('bytedance') || name.includes('douyin') || name.includes('豆包')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#000000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.89 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.32 0 .62.06.9.16V9.4a6.35 6.35 0 0 0-.9-.07 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.33 6.34 6.34 0 0 0 6.34-6.33V8.84a8.18 8.18 0 0 0 4.76 1.52v-3.4c-.34 0-.69-.09-1-.27z"/></svg>`;
+  }
+  // Steam
+  if (name.includes('steam')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#171a21"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 14.819C1.942 20.063 6.75 24 12.438 24 19.07 24 24.45 18.62 24.45 11.988 24.45 5.367 19.07 0 11.979 0z"/></svg>`;
+  }
+  // Netflix
+  if (name.includes('netflix')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#E50914"><path d="M5.398 0v24c1.196-.27 2.41-.58 3.593-.89V.03L5.398 0zm9.609 0v19.467c1.18.28 2.406.52 3.595.734V0h-3.595zm-4.797 2.08l3.993 17.842c-1.18-.18-2.392-.41-3.57-.69L6.64 3.385V2.08h3.57z"/></svg>`;
+  }
+  // Discord
+  if (name.includes('discord')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
+  }
+  // Facebook / Meta
+  if (name.includes('facebook') || name.includes('meta')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
+  }
+  // Tinder
+  if (name.includes('tinder')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#FE3C72"><path d="M12.79 2.05c-.17 0-.34.05-.48.15-2.22 1.55-4.42 4.47-4.42 7.8 0 1.25.32 2.43.88 3.46C7.54 12.44 7 10.97 7 9.4c0-1.84.71-3.52 1.88-4.79.1-.11.12-.27.06-.4-.06-.13-.19-.21-.34-.21-3.66.45-6.6 3.6-6.6 7.42 0 4.19 3.4 7.58 7.59 7.58s7.59-3.39 7.59-7.58c0-3.39-2.07-6.3-4.39-9.77z"/></svg>`;
+  }
+  // PayPal
+  if (name.includes('paypal') || name.includes('22100')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#003087" d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.784.784 0 0 1 .773-.654h6.584c3.486 0 5.922 1.467 5.672 5.093-.25 3.636-2.587 5.864-5.836 5.864H9.684l-.946 5.992a.642.642 0 0 1-.633.541h-1.029z"/><path fill="#0079C1" d="M9.137 14.023h2.453c3.249 0 5.586-2.228 5.836-5.864.25-3.626-2.186-5.093-5.672-5.093H5.166a.784.784 0 0 0-.773.654L1.767 19.32a.64.64 0 0 0 .633.74h4.032l1.029-.005.946-5.992.03-.04z"/></svg>`;
+  }
+  // Apple
+  if (name.includes('apple') || name.includes('icloud')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#000000"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.85c.66-.8 1.11-1.92.99-3.04-1 .04-2.14.65-2.79 1.43-.59.69-1.08 1.8-1.01 2.9.04.01 1.13.04 2.81-1.29z"/></svg>`;
+  }
+  // Twitter / X
+  if (name.includes('twitter') || name.includes('x.com')) {
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#000000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`;
+  }
+  // Default SMS envelope
+  return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+}
+
 let tempSmsLoaded = false;
 
 async function loadTempSmsNumbers() {
   if (tempSmsLoaded) return;
   const listEl = document.getElementById('sms-num-list');
   if (!listEl) return;
-  listEl.innerHTML = '<div style="color:var(--gray-400);font-size:12px;">Memuat nomor virtual...</div>';
+  listEl.innerHTML = '<div style="color:var(--gray-400);font-size:12px;padding:12px 4px;">Menghubungkan ke jaringan SIM publik...</div>';
 
   try {
     const res = await fetch('/api/phone/tempsms/numbers', { method: 'POST' });
@@ -3382,18 +3438,29 @@ async function loadTempSmsNumbers() {
 
     listEl.innerHTML = '';
     data.numbers.forEach((item, idx) => {
+      const ccode = (item.country_code || item.flag || 'un').toLowerCase();
+      const isWarn = item.country_code === 'id';
       const el = document.createElement('div');
       el.className = `sms-num-item ${idx === 0 ? 'active' : ''}`;
       el.onclick = () => selectTempSmsNumber(item.number, el);
       el.innerHTML = `
-        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-          <span class="sms-flag-badge">${item.flag}</span>
-          <div style="min-width:0;">
-            <div style="font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.country}</div>
-            <div style="font-size:11px;font-family:monospace;margin-top:1px;opacity:0.65;">${item.number}</div>
+        <div class="sms-num-left">
+          <div class="sms-flag-box">
+            <img src="https://flagcdn.com/w40/${ccode}.png" alt="${item.country}" class="sms-flag-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <span class="sms-flag-text" style="display:none;">${item.flag}</span>
+          </div>
+          <div style="min-width:0;flex:1;">
+            <div class="sms-country-title">
+              <span>${item.country}</span>
+              <span class="sms-status-pill ${isWarn ? 'warn' : ''}">${item.status || 'Live'}</span>
+            </div>
+            <div class="sms-num-digits">${item.number}</div>
           </div>
         </div>
-        <button class="btn-secondary" onclick="event.stopPropagation(); copyTextStr('${item.number}', 'Nomor virtual disalin!')" style="padding:3px 7px;font-size:11px;flex-shrink:0;">Salin</button>
+        <button class="sms-num-copy-btn" onclick="event.stopPropagation(); copyTextStr('${item.number}', 'Nomor virtual disalin!')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span>Salin</span>
+        </button>
       `;
       listEl.appendChild(el);
     });
@@ -3403,7 +3470,7 @@ async function loadTempSmsNumbers() {
       selectTempSmsNumber(data.numbers[0].number, listEl.children[0]);
     }
   } catch (err) {
-    listEl.innerHTML = `<div style="color:var(--error);font-size:12px;">${err.message}</div>`;
+    listEl.innerHTML = `<div style="color:var(--error);font-size:12px;padding:8px;">${err.message}</div>`;
   }
 }
 
@@ -3424,7 +3491,15 @@ async function selectTempSmsNumber(number, el) {
 async function reloadSmsInbox() {
   if (!currentSelectedSmsNumber) return;
   const box = document.getElementById('sms-inbox-container');
-  box.innerHTML = '<div style="text-align:center;padding:16px;color:var(--gray-400);font-size:13px;"><svg style="animation:spin 1s linear infinite;margin-right:6px;vertical-align:middle" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Mengambil SMS terbaru...</div>';
+  const btn = document.getElementById('sms-reload-btn');
+  if (btn) setLoading(btn, true);
+
+  box.innerHTML = `
+    <div style="text-align:center;padding:32px 16px;color:var(--gray-500,#64748b);font-size:13px;">
+      <svg style="animation:spin 1s linear infinite;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+      Mengambil data SMS langsung dari SIM Gateway...
+    </div>
+  `;
 
   try {
     const res = await fetch('/api/phone/tempsms/inbox', {
@@ -3436,25 +3511,65 @@ async function reloadSmsInbox() {
     if (!res.ok) throw new Error(data.error || 'Gagal memuat inbox');
 
     box.innerHTML = '';
+    if (!data.messages || data.messages.length === 0) {
+      box.innerHTML = `
+        <div style="padding:24px;text-align:center;color:var(--gray-400);font-size:13px;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;">
+          Belum ada SMS masuk pada nomor ini dalam beberapa menit terakhir. Kirim kode OTP dari aplikasi target Anda lalu klik <strong>Perbarui SMS</strong>.
+        </div>
+      `;
+      return;
+    }
+
     data.messages.forEach(m => {
+      const brandLogo = getSmsBrandLogo(m.from);
+      const hasCode = Boolean(m.code && m.code.trim().length >= 3);
       const item = document.createElement('div');
       item.className = 'sms-inbox-item';
+
+      let otpBlock = '';
+      if (hasCode) {
+        // Space out digits for readability (e.g. 558 400 or 9 5 1 3 9 9)
+        const rawCode = m.code.trim();
+        const displayCode = rawCode.length === 6 ? `${rawCode.slice(0,3)} ${rawCode.slice(3)}` : rawCode;
+
+        otpBlock = `
+          <div class="sms-otp-hero">
+            <div class="sms-otp-left">
+              <span class="sms-otp-tag">Kode OTP</span>
+              <span class="sms-otp-number">${displayCode}</span>
+            </div>
+            <button class="sms-otp-copy-btn" onclick="copyTextStr('${rawCode}', 'Kode OTP ${rawCode} disalin!')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Salin Kode</span>
+            </button>
+          </div>
+        `;
+      }
+
       item.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-weight:700;font-size:13px;color:var(--black);">Dari: ${m.from}</span>
-          <span style="font-size:11px;color:var(--gray-400);">${m.time_ago} (${m.time})</span>
+        <div class="sms-card-header">
+          <div class="sms-sender-badge-group">
+            <div class="sms-sender-logo-box">${brandLogo}</div>
+            <div>
+              <div class="sms-sender-name">${m.from || 'Layanan SMS'}</div>
+              <div class="sms-sender-sub">${m.is_live ? 'Koneksi Gateway Realtime' : 'Pesan Verifikasi'}</div>
+            </div>
+          </div>
+          <div class="sms-time-badge">${m.time_ago || 'Baru saja'}</div>
         </div>
-        <div style="font-size:13px;color:var(--gray-800);line-height:1.4;">${m.text}</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-          <span class="card-badge" style="margin:0;background:rgba(37,99,235,0.1);color:#2563eb;font-weight:700;">KODE: ${m.code}</span>
-          <button class="btn-secondary" onclick="copyTextStr('${m.code}', 'Kode OTP disalin!')" style="padding:2px 8px;font-size:11px;">Salin Kode</button>
-        </div>
+
+        <div class="sms-msg-text">${m.text || ''}</div>
+
+        ${otpBlock}
       `;
       box.appendChild(item);
     });
-    showToast('Inbox SMS diperbarui!');
+
+    showToast('Inbox SMS berhasil diperbarui!');
   } catch (err) {
     box.innerHTML = `<div style="color:var(--error);font-size:12px;padding:16px;">${err.message}</div>`;
+  } finally {
+    if (btn) setLoading(btn, false);
   }
 }
 
