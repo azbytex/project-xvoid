@@ -1858,6 +1858,165 @@ body.ai-fullscreen-active #clickFxCanvas {
   text-transform: uppercase;
 }
 
+/* ─── Multi-Engine Phone Resource Badges & Dorks ─── */
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.resource-card {
+  background: #ffffff;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--r-md);
+  padding: 11px 13px;
+  text-align: left;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.resource-card:hover {
+  border-color: var(--black);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.resource-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.resource-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--black);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resource-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  letter-spacing: 0.04em;
+}
+
+.resource-badge.hit {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.resource-badge.partial,
+.resource-badge.applied {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.resource-badge.fallback {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4b5563;
+  border: 1px solid rgba(107, 114, 128, 0.25);
+}
+
+.resource-desc {
+  font-size: 11px;
+  color: var(--gray-600);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.direct-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.action-btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: var(--r-full);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.action-btn-pill.wa {
+  background: #25d366;
+  color: #ffffff;
+}
+
+.action-btn-pill.tg {
+  background: #0088cc;
+  color: #ffffff;
+}
+
+.action-btn-pill.viber {
+  background: #7360f2;
+  color: #ffffff;
+}
+
+.action-btn-pill.maps {
+  background: var(--black);
+  color: #ffffff;
+}
+
+.action-btn-pill:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.dork-category-group {
+  margin-top: 14px;
+  text-align: left;
+}
+
+.dork-category-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-600);
+  margin-bottom: 7px;
+}
+
+.dork-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  background: #ffffff;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-800);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dork-chip:hover {
+  border-color: var(--black);
+  background: var(--gray-50);
+  color: var(--black);
+  transform: translateY(-1px);
+}
+
 .sev-badge {
   display: inline-flex;
   align-items: center;
@@ -3060,3 +3219,31 @@ body.ai-fullscreen-active #clickFxCanvas {
   flex-direction: column;
   gap: 6px;
 }
+
+/* NIK & OSINT Dorking Grid */
+.dork-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.dork-item-btn {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--gray-200);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.dork-item-btn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--black);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+

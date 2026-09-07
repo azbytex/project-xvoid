@@ -5,6 +5,7 @@ import os
 import sys
 import urllib.parse
 from http.server import HTTPServer, SimpleHTTPRequestHandler, ThreadingHTTPServer, BaseHTTPRequestHandler
+import subprocess
 from pathlib import Path
 
 # Import dashboard service and helpers
@@ -79,7 +80,7 @@ class BaseApiHandler(BaseHTTPRequestHandler):
                 if ext in [".png", ".jpg", ".jpeg", ".ico", ".svg", ".woff2", ".ttf"]:
                     self.send_header("Cache-Control", "public, max-age=86400")
                 elif ext in [".css", ".js"]:
-                    self.send_header("Cache-Control", "public, max-age=3600")
+                    self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(data)
@@ -300,6 +301,20 @@ class BaseApiHandler(BaseHTTPRequestHandler):
                 return self._send_json(200, info)
             except Exception as exc:
                 return self._send_json(400, {"error": str(exc), "message": str(exc)})
+
+        # 9. STRIX PENTEST TOOL INTEGRATION
+        elif path == "/api/strix/scan":
+            target = body.get("url", "").strip()
+            if not target:
+                return self._send_json(400, {"error": "URL target diperlukan untuk pemindaian"})
+            try:
+                import strix_engine
+                scan_res = strix_engine.run_pentest_scan(target, timeout=45)
+                if scan_res.get("status") == "failed":
+                    return self._send_json(400, {"error": scan_res.get("error", "Pemindaian gagal")})
+                return self._send_json(200, scan_res)
+            except Exception as exc:
+                return self._send_json(500, {"error": f"Gagal menjalankan Strix Pentest: {str(exc)}"})
 
         # 8. CEK NOMOR
         elif path == "/api/ceknomor":
@@ -551,6 +566,19 @@ class BaseApiHandler(BaseHTTPRequestHandler):
                 return self._send_json(200, res)
             except Exception as exc:
                 return self._send_json(500, {"error": str(exc)})
+
+        # 12B. OSINT: BEDAH & AUDIT NIK KTP INDONESIA (Resource: osint-indonesia-v3)
+        elif path == "/api/osint/nik":
+            nik = str(body.get("nik", "")).strip()
+            if not nik:
+                return self._send_json(400, {"error": "Nomor Induk Kependudukan (NIK) tidak boleh kosong."})
+            try:
+                res = service.parse_nik_id(nik)
+                if res.get("status") == "error":
+                    return self._send_json(400, {"error": res.get("message", "Format NIK tidak valid.")})
+                return self._send_json(200, res)
+            except Exception as exc:
+                return self._send_json(400, {"error": str(exc)})
 
         # 13. OSINT: DISCORD USER LOOKUP
         elif path == "/api/osint/discord":

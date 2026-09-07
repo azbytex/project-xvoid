@@ -8,7 +8,7 @@
 })();
 
 const pages = [
-  'home', 'stromai', 'osint', 'phonehub', 'githubsuite', 'reconhub', 'medialab', 'devsuite'
+  'home', 'stromai', 'osint', 'phonehub', 'githubsuite', 'reconhub', 'medialab', 'devsuite', 'pentest'
 ];
 
 const pageAliasMap = {
@@ -86,7 +86,244 @@ function switchSubTab(hub, subId) {
   }
 }
 
-// ─── LIQUID GLASS TAB NAV — Sliding & Real-Time Draggable Bar ───
+
+// ─── INTERNATIONALIZATION (i18n) ───
+let translations = {};
+
+async function loadTranslations(lang = 'id') {
+  try {
+    const resp = await fetch(`./i18n/${lang}.json`);
+    translations = await resp.json();
+  } catch (e) {
+    console.error('Failed to load translations:', e);
+    translations = {};
+  }
+}
+
+function t(key) {
+  return translations[key] || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key) {
+      if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
+        el.placeholder = t(key);
+      } else {
+        el.textContent = t(key);
+      }
+    }
+  });
+}
+
+// Helper to toggle loading UI for a button
+function setLoading(buttonId, show) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+  const loadingEl = document.getElementById(`${buttonId}-loading`);
+  if (show) {
+    if (loadingEl) loadingEl.style.display = 'flex';
+    btn.classList.add('loading');
+    btn.setAttribute('disabled', 'true');
+  } else {
+    if (loadingEl) loadingEl.style.display = 'none';
+    btn.classList.remove('loading');
+    btn.removeAttribute('disabled');
+  }
+}
+
+// Strix scan integration
+function toggleStrixRaw() {
+  const pre = document.getElementById('strix-result');
+  const btn = document.getElementById('strix-toggle-raw');
+  if (!pre) return;
+  const isHidden = pre.style.display === 'none' || !pre.style.display;
+  pre.style.display = isHidden ? 'block' : 'none';
+  if (btn) {
+    btn.querySelector('span').textContent = isHidden ? 'Sembunyikan Raw JSON' : 'Tampilkan Raw JSON';
+  }
+}
+
+function renderStrixResult(data) {
+  const container = document.getElementById('strix-visual-result');
+  if (!container) return;
+
+  const score = typeof data.security_score === 'number' ? data.security_score : 100;
+  const grade = data.grade || (score >= 80 ? 'A' : score >= 60 ? 'B' : 'C');
+  const summary = data.summary || 'Pemindaian selesai dilakukan.';
+  const vulns = data.vulnerabilities || [];
+  const stats = (data.statistics && data.statistics.by_severity) || {
+    CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, INFO: 0
+  };
+
+  const gradeColor = score >= 85 ? '#10b981' : score >= 70 ? '#3b82f6' : score >= 50 ? '#f59e0b' : '#ef4444';
+
+  let html = `
+    <div style="background:var(--card-bg, #ffffff);border:1.5px solid var(--gray-200, #e2e8f0);border-radius:14px;padding:18px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:58px;height:58px;border-radius:50%;background:${gradeColor}18;border:2.5px solid ${gradeColor};display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <span style="font-size:20px;font-weight:800;color:${gradeColor};line-height:1;">${grade}</span>
+            <span style="font-size:10px;font-weight:600;color:${gradeColor};">${score}/100</span>
+          </div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--gray-900,#0f172a);">${data.host || data.target || 'Target Host'}</div>
+            <div style="font-size:12px;color:var(--gray-500,#64748b);">IP: <strong>${data.ip || 'Tersembunyi/CDN'}</strong> | Waktu: <strong>${data.scan_time || '1.2'} detik</strong> | Engine: <strong>${data.scanner || 'Strix Engine'}</strong></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:#fee2e2;color:#b91c1c;font-weight:700;">${stats.CRITICAL || 0} Critical</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:#ffedd5;color:#c2410c;font-weight:700;">${stats.HIGH || 0} High</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:#fef3c7;color:#b45309;font-weight:700;">${stats.MEDIUM || 0} Med</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:#e0f2fe;color:#0369a1;font-weight:700;">${stats.LOW || 0} Low</span>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:12.5px;color:var(--gray-700,#334155);line-height:1.5;">${summary}</div>
+    </div>
+  `;
+
+  // Vulnerability Cards
+  if (vulns.length > 0) {
+    html += `<div style="font-size:13.5px;font-weight:700;color:var(--gray-900,#0f172a);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Temuan Kerentanan & Celah Keamanan (${vulns.length})
+    </div>`;
+
+    vulns.forEach(v => {
+      const sev = (v.severity || 'INFO').toUpperCase();
+      let badgeStyle = 'background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;';
+      if (sev === 'CRITICAL') badgeStyle = 'background:#fee2e2;color:#991b1b;border:1px solid #f87171;';
+      else if (sev === 'HIGH') badgeStyle = 'background:#ffedd5;color:#9a3412;border:1px solid #fb923c;';
+      else if (sev === 'MEDIUM') badgeStyle = 'background:#fef3c7;color:#92400e;border:1px solid #fcd34d;';
+      else if (sev === 'LOW') badgeStyle = 'background:#e0f2fe;color:#075985;border:1px solid #7dd3fc;';
+
+      html += `
+        <div style="background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:4px;${badgeStyle}">${sev}</span>
+            <span style="font-size:13px;font-weight:700;color:var(--gray-900,#0f172a);">${v.title || 'Vulnerability'}</span>
+          </div>
+          <div style="font-size:12px;color:var(--gray-600,#475569);margin-bottom:8px;line-height:1.45;">${v.description || ''}</div>
+          ${v.remediation ? `
+            <div style="background:rgba(16,185,129,0.08);border-left:3px solid #10b981;border-radius:4px;padding:6px 10px;font-size:11.5px;color:#065f46;">
+              <strong>Rekomendasi Perbaikan:</strong> ${v.remediation}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+  } else {
+    html += `
+      <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:14px;color:#065f46;font-size:12.5px;margin-bottom:12px;">
+        ✓ Tidak ditemukan celah keamanan kritis atau tinggi pada target pemindaian.
+      </div>
+    `;
+  }
+
+  // Security Headers Grid
+  if (data.security_headers && Object.keys(data.security_headers).length > 0) {
+    html += `
+      <div style="margin-top:14px;">
+        <div style="font-size:13px;font-weight:700;color:var(--gray-900,#0f172a);margin-bottom:8px;">Audit HTTP Security Headers:</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:8px;">
+    `;
+    for (const [hdr, present] of Object.entries(data.security_headers)) {
+      if (hdr === 'CORS_Wildcard') continue;
+      const ok = Boolean(present);
+      html += `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:8px;font-size:11.5px;">
+          <span style="font-weight:600;color:var(--gray-800,#1e293b);">${hdr}</span>
+          <span style="font-weight:700;color:${ok ? '#10b981' : '#ef4444'};">${ok ? '✓ Terpasang' : '✗ Tidak Ada'}</span>
+        </div>
+      `;
+    }
+    html += `</div></div>`;
+  }
+
+  // Open Ports Recon
+  if (data.open_ports && data.open_ports.length > 0) {
+    html += `
+      <div style="margin-top:14px;">
+        <div style="font-size:13px;font-weight:700;color:var(--gray-900,#0f172a);margin-bottom:8px;">Port Layanan Aktif:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    `;
+    data.open_ports.forEach(p => {
+      html += `
+        <span style="font-size:11.5px;padding:4px 10px;border-radius:6px;background:var(--gray-100,#f1f5f9);border:1px solid var(--gray-300,#cbd5e1);color:var(--gray-800,#1e293b);font-weight:600;">
+          Port ${p.port} (${p.service})
+        </span>
+      `;
+    });
+    html += `</div></div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+async function runStrixScan() {
+  const urlInput = document.getElementById('strix-url');
+  const resultBox = document.getElementById('strix-result-box');
+  const resultPre = document.getElementById('strix-result');
+  const visualContainer = document.getElementById('strix-visual-result');
+  if (!urlInput) return;
+  const target = urlInput.value.trim();
+  if (!target) { showToast('URL target tidak boleh kosong', true); return; }
+  setLoading('strix-btn', true);
+  if (resultBox) resultBox.style.display = 'none';
+  if (visualContainer) visualContainer.innerHTML = '';
+  if (resultPre) { resultPre.textContent = ''; resultPre.style.display = 'none'; }
+
+  try {
+    const resp = await fetch('/api/strix/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: target })
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      const errMsg = data.error || 'Terjadi kesalahan di server saat menjalankan Strix Pentest';
+      if (visualContainer) {
+        visualContainer.innerHTML = `
+          <div style="background:#fee2e2;border:1px solid #f87171;border-radius:10px;padding:14px;color:#991b1b;font-size:12.5px;">
+            <strong>Error Pemindaian:</strong> ${errMsg}
+          </div>
+        `;
+      }
+      if (resultPre) resultPre.textContent = errMsg;
+      if (resultBox) resultBox.style.display = 'block';
+      showToast(errMsg, true);
+      return;
+    }
+
+    renderStrixResult(data);
+    if (resultPre) resultPre.textContent = JSON.stringify(data, null, 2);
+    if (resultBox) resultBox.style.display = 'block';
+    showToast('Pemindaian Strix selesai successfully');
+  } catch (e) {
+    console.error(e);
+    const msg = 'Server tidak dapat dihubungi. Pastikan server aktif di port 3000 (python server.py)';
+    if (visualContainer) {
+      visualContainer.innerHTML = `
+        <div style="background:#fee2e2;border:1px solid #f87171;border-radius:10px;padding:14px;color:#991b1b;font-size:12.5px;">
+          <strong>Koneksi Gagal:</strong> ${msg}
+        </div>
+      `;
+    }
+    if (resultPre) resultPre.textContent = msg;
+    if (resultBox) resultBox.style.display = 'block';
+    showToast('Koneksi server gagal', true);
+  } finally {
+    setLoading('strix-btn', false);
+  }
+}
+
+// Initialize i18n on load
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadTranslations('id');
+  applyTranslations();
+});
+
 let currentActiveThumbX = 0;
 let currentActiveThumbW = 0;
 
@@ -731,60 +968,74 @@ function handleBase64Decode() {
     showToast('Masukkan string Base64 terlebih dahulu', true);
     return;
   }
-  let base64Data = input;
-  let mime = 'application/octet-stream';
-  let isBase64 = true;
-  if (input.startsWith('data:')) {
-    const comma = input.indexOf(',');
-    if (comma !== -1) {
-      const metadata = input.substring(5, comma).split(';');
-      mime = metadata[0] || mime;
-      isBase64 = metadata.includes('base64');
-      base64Data = input.substring(comma + 1);
-    }
+  const btn = document.getElementById('b64-dec-btn');
+  const origBtn = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = `<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;margin-right:6px;"></span> Mendekode...`;
+    btn.disabled = true;
   }
-  try {
-    if (!isBase64) {
-      const decodedText = decodeURIComponent(base64Data);
-      const blob = new Blob([decodedText], { type: mime });
+
+  setTimeout(() => {
+    let base64Data = input;
+    let mime = 'application/octet-stream';
+    let isBase64 = true;
+    if (input.startsWith('data:')) {
+      const comma = input.indexOf(',');
+      if (comma !== -1) {
+        const metadata = input.substring(5, comma).split(';');
+        mime = metadata[0] || mime;
+        isBase64 = metadata.includes('base64');
+        base64Data = input.substring(comma + 1);
+      }
+    }
+    try {
+      if (!isBase64) {
+        const decodedText = decodeURIComponent(base64Data);
+        const blob = new Blob([decodedText], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        const dlBtn = document.getElementById('b64-download-link');
+        dlBtn.href = blobUrl;
+        dlBtn.download = 'decoded_file.txt';
+        dlBtn.style.display = 'inline-flex';
+        document.getElementById('b64-decode-result').classList.add('visible');
+        showToast('Base64 berhasil di-decode');
+        return;
+      }
+      base64Data = base64Data.replace(/\s/g, '').replace(/-/g, '+').replace(/_/g, '/');
+      base64Data += '='.repeat((4 - (base64Data.length % 4)) % 4);
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: mime });
       const blobUrl = URL.createObjectURL(blob);
+      
       const dlBtn = document.getElementById('b64-download-link');
       dlBtn.href = blobUrl;
-      dlBtn.download = 'decoded_file.txt';
+      const extension = ({
+        'image/jpeg': 'jpg',
+        'image/svg+xml': 'svg',
+        'application/pdf': 'pdf',
+        'application/json': 'json',
+        'text/plain': 'txt',
+        'application/octet-stream': 'bin'
+      })[mime] || mime.split('/')[1]?.split('+')[0] || 'bin';
+      dlBtn.download = `decoded_file.${extension}`;
+      dlBtn.target = '_blank';
       dlBtn.style.display = 'inline-flex';
       document.getElementById('b64-decode-result').classList.add('visible');
       showToast('Base64 berhasil di-decode');
-      return;
+    } catch (err) {
+      showToast('Base64 tidak valid: ' + err.message, true);
+    } finally {
+      if (btn) {
+        btn.innerHTML = origBtn || 'Decode Sekarang';
+        btn.disabled = false;
+      }
     }
-    base64Data = base64Data.replace(/\s/g, '').replace(/-/g, '+').replace(/_/g, '/');
-    base64Data += '='.repeat((4 - (base64Data.length % 4)) % 4);
-    const byteCharacters = atob(base64Data);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: mime });
-    const blobUrl = URL.createObjectURL(blob);
-    
-    const dlBtn = document.getElementById('b64-download-link');
-    dlBtn.href = blobUrl;
-    const extension = ({
-      'image/jpeg': 'jpg',
-      'image/svg+xml': 'svg',
-      'application/pdf': 'pdf',
-      'application/json': 'json',
-      'text/plain': 'txt',
-      'application/octet-stream': 'bin'
-    })[mime] || mime.split('/')[1]?.split('+')[0] || 'bin';
-    dlBtn.download = `decoded_file.${extension}`;
-    dlBtn.target = '_blank';
-    dlBtn.style.display = 'inline-flex';
-    document.getElementById('b64-decode-result').classList.add('visible');
-    showToast('Base64 berhasil di-decode');
-  } catch (err) {
-    showToast('Base64 tidak valid: ' + err.message, true);
-  }
+  }, 100);
 }
 
 function copyText(elemId) {
@@ -794,7 +1045,7 @@ function copyText(elemId) {
   });
 }
 
-// 2. MAGIC LINK (ALIGHT MOTION)
+
 function toggleManualVerify() {
   const step2 = document.getElementById('ml-step-2');
   if (!step2) return;
@@ -1582,6 +1833,7 @@ function toggleJsonView(prefix) {
 }
 
 // 6. CEK NOMOR
+// 6. CEK NOMOR MULTI-ENGINE
 async function cekNomor() {
   const nomor = document.getElementById('cn-nomor').value.trim();
   if (!nomor) {
@@ -1589,7 +1841,7 @@ async function cekNomor() {
     return;
   }
   const btn = document.getElementById('cn-btn');
-  btn.innerHTML = `<div class="spinner"></div> Mencari...`;
+  btn.innerHTML = `<div class="spinner"></div> Menganalisis Seluruh Resource...`;
   btn.disabled = true;
 
   try {
@@ -1604,26 +1856,211 @@ async function cekNomor() {
     const info = data.info || {};
     const similar = data.similar || [];
     const normalized = data.nomor_normalized || nomor;
+    const operator = data.operator || (Array.isArray(info.operator) ? info.operator.join(', ') : (info.operator || 'Tidak diketahui'));
+    const operatorSource = data.operator_source || 'Multi-Engine';
+    const lineType = data.line_type || 'Mobile (Seluler)';
+    const location = data.location || (info.region || 'Indonesia');
+    const timezones = (data.timezones && data.timezones.length > 0) ? data.timezones.join(', ') : '';
+    const displayFormat = data.display_format || info.display_format || `+${normalized}`;
+    const directLinks = data.direct_links || {};
+    const resources = data.resources || {};
+    const dorks = data.dorks || {};
 
-    // 1. Format operator
-    let operatorText = 'Tidak diketahui';
-    if (Array.isArray(info.operator) && info.operator.length > 0) {
-      operatorText = info.operator.join(', ');
-    } else if (info.operator) {
-      operatorText = String(info.operator);
+    // 1. Render Basic Info Cards
+    document.getElementById('cn-val-number').textContent = data.e164 || `+${normalized}`;
+    document.getElementById('cn-val-operator').textContent = operator;
+    document.getElementById('cn-val-source').textContent = `Via ${operatorSource}`;
+    document.getElementById('cn-val-type').textContent = lineType;
+    document.getElementById('cn-val-geo').textContent = timezones ? `${location} (${timezones})` : location;
+    document.getElementById('cn-val-format').textContent = displayFormat;
+
+    // 2. Render Direct Action Messaging Buttons
+    const actionsBar = document.getElementById('cn-actions-bar');
+    if (actionsBar) {
+      actionsBar.innerHTML = '';
+      let hasActions = false;
+      if (directLinks.whatsapp) {
+        hasActions = true;
+        actionsBar.innerHTML += `
+          <a href="${directLinks.whatsapp}" target="_blank" rel="noopener noreferrer" class="action-btn-pill wa" title="Chat langsung via WhatsApp">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+            Chat WhatsApp
+          </a>
+        `;
+      }
+      if (directLinks.telegram) {
+        hasActions = true;
+        actionsBar.innerHTML += `
+          <a href="${directLinks.telegram}" target="_blank" rel="noopener noreferrer" class="action-btn-pill tg" title="Buka profil Telegram">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.922z"/></svg>
+            Buka Telegram
+          </a>
+        `;
+      }
+      if (directLinks.viber) {
+        hasActions = true;
+        actionsBar.innerHTML += `
+          <a href="${directLinks.viber}" target="_blank" rel="noopener noreferrer" class="action-btn-pill viber" title="Panggil via Viber">
+            Viber Call
+          </a>
+        `;
+      }
+      if (location) {
+        hasActions = true;
+        actionsBar.innerHTML += `
+          <a href="https://www.google.com/maps/search/${encodeURIComponent(location)}" target="_blank" rel="noopener noreferrer" class="action-btn-pill maps" title="Cari lokasi di Google Maps">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            Lokasi Maps
+          </a>
+        `;
+      }
+      actionsBar.style.display = hasActions ? 'flex' : 'none';
     }
 
-    // 2. Format international code
-    const intlCode = info.international_code ? `+${info.international_code}` : '+62';
-    const displayFormat = info.display_format || '-';
+    // 3. Render Multi-Engine Resource Pipeline Grid
+    const resGrid = document.getElementById('cn-resources-grid');
+    if (resGrid) {
+      resGrid.innerHTML = '';
+      const resourceOrder = [
+        { key: 'kaspersky', title: 'Kaspersky WhoCallsID', icon: '🛡️' },
+        { key: 'ghostintel', title: 'GhostIntel v2.5', icon: '👻' },
+        { key: 'ghosttrack', title: 'GhostTrack PhoneGW', icon: '📡' },
+        { key: 'osint_id', title: 'OSINT-Indonesia-v3', icon: '🇮🇩' },
+        { key: 'phoneinfoga', title: 'PhoneInfoga Scanner', icon: '🔍' },
+        { key: 'phoneosint', title: 'PhoneOsint Master', icon: '⚡' }
+      ];
 
-    // 3. Render ke element card
-    document.getElementById('cn-val-number').textContent = `+${normalized}`;
-    document.getElementById('cn-val-operator').textContent = operatorText;
-    document.getElementById('cn-val-format').textContent = displayFormat;
-    document.getElementById('cn-val-code').textContent = intlCode;
+      resourceOrder.forEach(item => {
+        const rData = resources[item.key] || {};
+        const statusText = rData.status || (rData.operator ? 'HIT' : 'APPLIED');
+        let badgeClass = 'hit';
+        if (statusText.includes('FALLBACK') || statusText.includes('Unknown') || statusText.includes('NO_DATA')) {
+          badgeClass = 'fallback';
+        } else if (statusText.includes('PARTIAL') || statusText.includes('APPLIED')) {
+          badgeClass = 'partial';
+        }
 
-    // 4. Render similar numbers list
+        // Keterangan kontribusi
+        let detailsHtml = '';
+        if (item.key === 'kaspersky') {
+          detailsHtml = rData.operator && rData.operator !== 'Tidak diketahui' && !rData.operator.includes('Tidak ditemukan') ?
+            `Operator: <strong>${rData.operator}</strong> | Similar: ${rData.similar_count || 0}` :
+            `Database WhoCalls kosong / dialihkan ke tier fallback`;
+        } else if (item.key === 'ghostintel') {
+          detailsHtml = `Provider DB: <strong>${rData.provider_db_match || '-'}</strong> | Tipe: ${rData.line_type || 'Mobile'}`;
+        } else if (item.key === 'ghosttrack') {
+          detailsHtml = `Carrier: <strong>${rData.carrier || '-'}</strong> | Geo: ${rData.geocoder_location || '-'}`;
+        } else if (item.key === 'osint_id') {
+          detailsHtml = `Prefix: <strong>${rData.prefix_detected || '-'}</strong> (${rData.telco_provider || '-'}) | ${rData.dorks_generated || 7} Dork Nasional`;
+        } else if (item.key === 'phoneinfoga') {
+          detailsHtml = `Audit <strong>${rData.disposable_services_audited || 10} Provider SMS Virtual</strong> & Reputasi`;
+        } else if (item.key === 'phoneosint') {
+          detailsHtml = `Deep Links, Gateways & <strong>${rData.osint_dorks_count || 5} Dork Akun Publik</strong>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'resource-card';
+        card.innerHTML = `
+          <div class="resource-header">
+            <span class="resource-name"><span>${item.icon}</span> ${item.title}</span>
+            <span class="resource-badge ${badgeClass}">${statusText}</span>
+          </div>
+          <div class="resource-desc">${detailsHtml}</div>
+        `;
+        resGrid.appendChild(card);
+      });
+    }
+
+    // 4. Render OSINT Dorks & Intel Section
+    const dorksContainer = document.getElementById('cn-dorks-container');
+    if (dorksContainer) {
+      dorksContainer.innerHTML = '';
+      let hasDorks = false;
+
+      // Group 1: Dork Indonesia
+      if (dorks.indonesia && Object.keys(dorks.indonesia).length > 0) {
+        hasDorks = true;
+        let chipsHtml = '';
+        for (const [name, url] of Object.entries(dorks.indonesia)) {
+          chipsHtml += `
+            <a href="${url}" target="_blank" rel="noopener noreferrer" class="dork-chip" title="Cari di Google: ${name}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              ${name}
+            </a>
+          `;
+        }
+        dorksContainer.innerHTML += `
+          <div class="dork-category-group">
+            <div class="dork-category-title">🇮🇩 Dork Intelijen Nasional (OSINT-Indonesia-v3):</div>
+            <div class="chips-list">${chipsHtml}</div>
+          </div>
+        `;
+      }
+
+      // Group 2: Dork Akun Sosial / PhoneOsint
+      if (dorks.osint && Object.keys(dorks.osint).length > 0) {
+        hasDorks = true;
+        let chipsHtml = '';
+        for (const [name, url] of Object.entries(dorks.osint)) {
+          chipsHtml += `
+            <a href="${url}" target="_blank" rel="noopener noreferrer" class="dork-chip" title="Dork OSINT: ${name}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              ${name}
+            </a>
+          `;
+        }
+        dorksContainer.innerHTML += `
+          <div class="dork-category-group">
+            <div class="dork-category-title">⚡ Dork Jejak Akun Publik (PhoneOsint & GhostIntel):</div>
+            <div class="chips-list">${chipsHtml}</div>
+          </div>
+        `;
+      }
+
+      // Group 3: Disposable SMS Burner Checks / PhoneInfoga
+      if (Array.isArray(dorks.disposable) && dorks.disposable.length > 0) {
+        hasDorks = true;
+        let chipsHtml = '';
+        dorks.disposable.forEach(item => {
+          chipsHtml += `
+            <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="dork-chip" style="color:#d97706;" title="Cek apakah nomor terdaftar di ${item.provider}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              ${item.provider}
+            </a>
+          `;
+        });
+        dorksContainer.innerHTML += `
+          <div class="dork-category-group">
+            <div class="dork-category-title">🔥 Audit Nomor Sementara / Virtual Burner (PhoneInfoga):</div>
+            <div class="chips-list">${chipsHtml}</div>
+          </div>
+        `;
+      }
+
+      // Group 4: Reputation & Leaks
+      if (dorks.reputation && Object.keys(dorks.reputation).length > 0) {
+        hasDorks = true;
+        let chipsHtml = '';
+        for (const [name, url] of Object.entries(dorks.reputation)) {
+          chipsHtml += `
+            <a href="${url}" target="_blank" rel="noopener noreferrer" class="dork-chip" style="color:#ef4444;" title="Cek kebocoran data: ${name}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              ${name}
+            </a>
+          `;
+        }
+        dorksContainer.innerHTML += `
+          <div class="dork-category-group">
+            <div class="dork-category-title">⚠️ Cek Reputasi, Laporan Spam & Leaks:</div>
+            <div class="chips-list">${chipsHtml}</div>
+          </div>
+        `;
+      }
+
+      dorksContainer.style.display = hasDorks ? 'block' : 'none';
+    }
+
+    // 5. Render similar numbers list (Kaspersky)
     const simWrap = document.getElementById('cn-similar-wrap');
     const simList = document.getElementById('cn-similar-list');
     simList.innerHTML = '';
@@ -1652,13 +2089,8 @@ async function cekNomor() {
       simWrap.style.display = 'none';
     }
 
-    // 5. Clean indented Raw JSON
-    const cleanJson = JSON.stringify({
-      nomor: `+${normalized}`,
-      info: info,
-      similar: similar
-    }, null, 2);
-
+    // 6. Clean indented Raw JSON
+    const cleanJson = JSON.stringify(data, null, 2);
     document.getElementById('cn-output').textContent = cleanJson;
     
     // Reset view mode ke Formatted Card View
@@ -1667,7 +2099,7 @@ async function cekNomor() {
     document.getElementById('cn-toggle-json').textContent = 'Raw JSON';
     
     document.getElementById('cn-result').classList.add('visible');
-    showToast('Info nomor berhasil didapatkan!');
+    showToast(`Intelijen nomor didapatkan (${operator})!`);
   } catch (err) {
     showToast('Gagal cek nomor: ' + err.message, true);
   } finally {
@@ -2488,8 +2920,11 @@ async function runSherlock() {
       }
       card.innerHTML = `
         <div>
-          <div style="font-weight:700;font-size:14px;">${item.name}</div>
-          <div style="font-size:11px;color:var(--gray-400);">${item.category}</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-weight:700;font-size:14px;">${item.name}</span>
+            <span style="font-size:9px;font-weight:600;background:var(--gray-200);color:var(--gray-700);padding:1px 5px;border-radius:4px;">${item.source || 'GhostTrack / GhostIntel'}</span>
+          </div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${item.category}</div>
         </div>
         <span class="sherlock-badge ${item.found ? 'found' : 'missing'}">${item.found ? 'KLAIM / AKTIF' : 'TERSEDIA'}</span>
       `;
@@ -2640,6 +3075,95 @@ async function runBreachCheck() {
     loading.style.display = 'none';
   }
 }
+
+// ─── 3B. NIK KTP INDONESIA DECODER (Resource: osint-indonesia-v3) ───
+async function runNikLookup() {
+  const input = document.getElementById('nik-input');
+  const btn = document.getElementById('nik-btn');
+  const loading = document.getElementById('nik-loading');
+  const resBox = document.getElementById('nik-result-box');
+
+  const rawVal = (input ? input.value : '') || '';
+  const nik = rawVal.trim().replace(/[^0-9]/g, '');
+  if (!nik) {
+    showToast('Masukkan 16 digit NIK target!', true);
+    return;
+  }
+  if (nik.length !== 16) {
+    showToast(`NIK harus berupa tepat 16 digit angka! (Saat ini: ${nik.length} digit)`, true);
+    return;
+  }
+
+  if (btn) btn.disabled = true;
+  if (loading) loading.style.display = 'flex';
+  if (resBox) resBox.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/osint/nik', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nik })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal membedah NIK');
+
+    const numEl = document.getElementById('nik-res-number');
+    if (numEl) numEl.textContent = data.nik;
+
+    const genderBadge = document.getElementById('nik-res-gender');
+    if (genderBadge) {
+      genderBadge.textContent = data.jenis_kelamin;
+      genderBadge.className = `phone-tag-badge ${data.jenis_kelamin === 'Perempuan' ? 'neutral' : 'legit'}`;
+    }
+
+    const provEl = document.getElementById('nik-res-prov');
+    if (provEl) provEl.textContent = `${data.provinsi} (${data.provinsi_kode})`;
+
+    const kabEl = document.getElementById('nik-res-kab');
+    if (kabEl) kabEl.textContent = data.kabupaten;
+
+    const kecEl = document.getElementById('nik-res-kec');
+    if (kecEl) kecEl.textContent = `${data.kecamatan}`;
+
+    const dobEl = document.getElementById('nik-res-dob');
+    if (dobEl) dobEl.textContent = data.tanggal_lahir;
+
+    const ageEl = document.getElementById('nik-res-age');
+    if (ageEl) ageEl.textContent = data.usia;
+
+    const astroEl = document.getElementById('nik-res-astrology');
+    if (astroEl) astroEl.textContent = `${data.zodiak} / Shio ${data.shio}`;
+
+    const dorkGrid = document.getElementById('nik-dork-grid');
+    if (dorkGrid) {
+      dorkGrid.innerHTML = '';
+      (data.dorks || []).forEach(d => {
+        const a = document.createElement('a');
+        a.href = d.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'dork-item-btn';
+        a.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-weight:700;font-size:13px;color:var(--black);">${d.name}</span>
+            <span style="font-size:10px;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:2px 6px;border-radius:4px;">${d.badge}</span>
+          </div>
+          <div style="font-size:11px;color:var(--gray-500);line-height:1.4;">${d.desc}</div>
+        `;
+        dorkGrid.appendChild(a);
+      });
+    }
+
+    if (resBox) resBox.style.display = 'block';
+    showToast(`Berhasil mendekonstruksi NIK ${data.nik}!`);
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    if (btn) btn.disabled = false;
+    if (loading) loading.style.display = 'none';
+  }
+}
+window.runNikLookup = runNikLookup;
 
 // ─── 4. TEMP VIRTUAL SMS NUMBERS ───
 let currentSelectedSmsNumber = '';
@@ -2932,14 +3456,30 @@ async function runIpIntel() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Lookup IP gagal');
 
-    document.getElementById('ipintel-loc').textContent = `${data.city || '-'}, ${data.country}`;
-    document.getElementById('ipintel-isp').textContent = data.isp || '-';
-    document.getElementById('ipintel-type').textContent = data.threat_type;
-    document.getElementById('ipintel-risk').textContent = data.risk_level;
+    const flag = data.flag_emoji ? `${data.flag_emoji} ` : '';
+    document.getElementById('ipintel-loc').textContent = `${flag}${data.city ? data.city + ', ' : ''}${data.country}`;
+    document.getElementById('ipintel-isp').textContent = `${data.isp || '-'} ${data.domain ? '(' + data.domain + ')' : ''}`;
+    document.getElementById('ipintel-type').textContent = `${data.threat_type} (${data.type || 'IPv4'})`;
+    document.getElementById('ipintel-risk').textContent = `${data.risk_level} (${data.risk_score}/100)`;
     document.getElementById('ipintel-map-btn').href = data.maps_url;
 
+    const satBtn = document.getElementById('ipintel-sat-btn');
+    if (satBtn) satBtn.href = data.maps_satellite || data.maps_url;
+
+    const engineBadge = document.getElementById('ipintel-engine-badge');
+    if (engineBadge && data.engine_attribution) engineBadge.textContent = `Engine: ${data.engine_attribution}`;
+
+    const asnBadge = document.getElementById('ipintel-asn-badge');
+    if (asnBadge) asnBadge.textContent = `ASN: ${data.asn || '-'} (${data.org || '-'})`;
+
+    const tzEl = document.getElementById('ipintel-tz');
+    if (tzEl) tzEl.textContent = `${data.timezone || 'UTC'} (${data.timezone_utc || '+00:00'})`;
+
+    const extraEl = document.getElementById('ipintel-extra');
+    if (extraEl) extraEl.textContent = `${data.capital || '-'} / Calling: +${data.calling_code || '-'}`;
+
     resBox.style.display = 'block';
-    showToast(`Data IP ${data.ip} berhasil diambil!`);
+    showToast(`Data IP ${data.ip} (${data.country}) berhasil diambil!`);
   } catch (err) {
     showToast(err.message, true);
   } finally {
@@ -3113,41 +3653,59 @@ function runStegEncode() {
     return;
   }
 
-  const canvas = document.createElement('canvas');
-  canvas.width = stegEncImg.width;
-  canvas.height = stegEncImg.height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(stegEncImg, 0, 0);
-
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imgData.data;
-
-  const payload = 'XVOID:' + text;
-  const bytes = new TextEncoder().encode(payload);
-
-  const len = bytes.length;
-  data[0] = (data[0] & 0xFC) | ((len >> 6) & 0x03);
-  data[1] = (data[1] & 0xFC) | ((len >> 4) & 0x03);
-  data[2] = (data[2] & 0xFC) | ((len >> 2) & 0x03);
-  data[3] = (data[3] & 0xFC) | (len & 0x03);
-
-  for (let i = 0; i < len; i++) {
-    const b = bytes[i];
-    const offset = 4 + i * 4;
-    if (offset + 3 >= data.length) break;
-    data[offset] = (data[offset] & 0xFC) | ((b >> 6) & 0x03);
-    data[offset + 1] = (data[offset + 1] & 0xFC) | ((b >> 4) & 0x03);
-    data[offset + 2] = (data[offset + 2] & 0xFC) | ((b >> 2) & 0x03);
-    data[offset + 3] = (data[offset + 3] & 0xFC) | (b & 0x03);
+  const btn = document.getElementById('steg-enc-btn');
+  const origText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = `<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;margin-right:6px;"></span> Menanamkan Pesan...`;
+    btn.disabled = true;
   }
 
-  ctx.putImageData(imgData, 0, 0);
-  const secretUrl = canvas.toDataURL('image/png');
-  document.getElementById('steg-enc-img').src = secretUrl;
-  document.getElementById('steg-enc-dl').href = secretUrl;
-  document.getElementById('steg-enc-result').style.display = 'block';
+  setTimeout(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = stegEncImg.width;
+      canvas.height = stegEncImg.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(stegEncImg, 0, 0);
 
-  showToast('Pesan rahasia berhasil ditanamkan ke dalam pixel PNG!');
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      const payload = 'XVOID:' + text;
+      const bytes = new TextEncoder().encode(payload);
+
+      const len = bytes.length;
+      data[0] = (data[0] & 0xFC) | ((len >> 6) & 0x03);
+      data[1] = (data[1] & 0xFC) | ((len >> 4) & 0x03);
+      data[2] = (data[2] & 0xFC) | ((len >> 2) & 0x03);
+      data[3] = (data[3] & 0xFC) | (len & 0x03);
+
+      for (let i = 0; i < len; i++) {
+        const b = bytes[i];
+        const offset = 4 + i * 4;
+        if (offset + 3 >= data.length) break;
+        data[offset] = (data[offset] & 0xFC) | ((b >> 6) & 0x03);
+        data[offset + 1] = (data[offset + 1] & 0xFC) | ((b >> 4) & 0x03);
+        data[offset + 2] = (data[offset + 2] & 0xFC) | ((b >> 2) & 0x03);
+        data[offset + 3] = (data[offset + 3] & 0xFC) | (b & 0x03);
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      const secretUrl = canvas.toDataURL('image/png');
+      document.getElementById('steg-enc-img').src = secretUrl;
+      document.getElementById('steg-enc-dl').href = secretUrl;
+      document.getElementById('steg-enc-result').style.display = 'block';
+
+      showToast('Pesan rahasia berhasil ditanamkan ke dalam pixel PNG!');
+    } catch (e) {
+      showToast('Gagal memproses steganografi: ' + e.message, true);
+    } finally {
+      if (btn) {
+        btn.innerHTML = origText || 'Tanamkan Pesan ke PNG';
+        btn.disabled = false;
+      }
+    }
+  }, 100);
 }
 
 function handleStegDecFile(e) {
@@ -3164,110 +3722,151 @@ function runStegDecode() {
     showToast('Pilih gambar PNG rahasia!', true);
     return;
   }
-  const canvas = document.createElement('canvas');
-  canvas.width = stegDecImg.width;
-  canvas.height = stegDecImg.height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(stegDecImg, 0, 0);
-
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imgData.data;
-
-  const len = ((data[0] & 0x03) << 6) | ((data[1] & 0x03) << 4) | ((data[2] & 0x03) << 2) | (data[3] & 0x03);
-  if (len <= 0 || len > 100000) {
-    showToast('Tidak ditemukan pesan tersembunyi di gambar ini.', true);
-    return;
+  const btn = document.getElementById('steg-dec-btn');
+  const origText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = `<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;margin-right:6px;"></span> Mengekstrak Pesan...`;
+    btn.disabled = true;
   }
 
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    const offset = 4 + i * 4;
-    if (offset + 3 >= data.length) break;
-    bytes[i] = ((data[offset] & 0x03) << 6) | ((data[offset + 1] & 0x03) << 4) | ((data[offset + 2] & 0x03) << 2) | (data[offset + 3] & 0x03);
-  }
+  setTimeout(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = stegDecImg.width;
+      canvas.height = stegDecImg.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(stegDecImg, 0, 0);
 
-  const decoded = new TextDecoder().decode(bytes);
-  if (decoded.startsWith('XVOID:')) {
-    const msg = decoded.substring(6);
-    document.getElementById('steg-dec-output').textContent = msg;
-    document.getElementById('steg-dec-result').style.display = 'block';
-    showToast('Pesan rahasia berhasil dibongkar!');
-  } else {
-    showToast('Format steganografi tidak cocok atau tidak ada pesan.', true);
-  }
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      const len = ((data[0] & 0x03) << 6) | ((data[1] & 0x03) << 4) | ((data[2] & 0x03) << 2) | (data[3] & 0x03);
+      if (len <= 0 || len > 100000) {
+        showToast('Tidak ditemukan pesan tersembunyi di gambar ini.', true);
+        return;
+      }
+
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        const offset = 4 + i * 4;
+        if (offset + 3 >= data.length) break;
+        bytes[i] = ((data[offset] & 0x03) << 6) | ((data[offset + 1] & 0x03) << 4) | ((data[offset + 2] & 0x03) << 2) | (data[offset + 3] & 0x03);
+      }
+
+      const decoded = new TextDecoder().decode(bytes);
+      if (decoded.startsWith('XVOID:')) {
+        const msg = decoded.substring(6);
+        document.getElementById('steg-dec-output').textContent = msg;
+        document.getElementById('steg-dec-result').style.display = 'block';
+        showToast('Pesan rahasia berhasil dibongkar!');
+      } else {
+        showToast('Format steganografi tidak cocok atau tidak ada pesan.', true);
+      }
+    } catch (e) {
+      showToast('Gagal membongkar pesan: ' + e.message, true);
+    } finally {
+      if (btn) {
+        btn.innerHTML = origText || 'Ekstrak Pesan Rahasia';
+        btn.disabled = false;
+      }
+    }
+  }, 100);
 }
 
 // ─── 12. BROWSER FINGERPRINT AUDIT ───
 function runFingerprintAudit() {
+  const btn = document.getElementById('fp-btn');
+  const origContent = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = `<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;margin-right:6px;"></span> Mengaudit Sidik Jari...`;
+    btn.disabled = true;
+  }
+
   const resBox = document.getElementById('fp-result-box');
-  resBox.style.display = 'block';
+  if (resBox) resBox.style.display = 'block';
 
-  try {
-    const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 50;
-    const ctx = canvas.getContext('2d');
-    ctx.textBaseline = 'top';
-    ctx.font = '14px Arial';
-    ctx.fillStyle = '#f60';
-    ctx.fillRect(125, 1, 62, 20);
-    ctx.fillStyle = '#069';
-    ctx.fillText('XVOID_FINGERPRINT', 2, 15);
-    ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-    ctx.fillText('XVOID_FINGERPRINT', 4, 17);
-    const dataUrl = canvas.toDataURL();
-    let hash = 0;
-    for (let i = 0; i < dataUrl.length; i++) {
-      hash = ((hash << 5) - hash) + dataUrl.charCodeAt(i);
-      hash |= 0;
+  setTimeout(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 200;
+      canvas.height = 50;
+      const ctx = canvas.getContext('2d');
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillStyle = '#f60';
+      ctx.fillRect(125, 1, 62, 20);
+      ctx.fillStyle = '#069';
+      ctx.fillText('XVOID_FINGERPRINT', 2, 15);
+      ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+      ctx.fillText('XVOID_FINGERPRINT', 4, 17);
+      const dataUrl = canvas.toDataURL();
+      let hash = 0;
+      for (let i = 0; i < dataUrl.length; i++) {
+        hash = ((hash << 5) - hash) + dataUrl.charCodeAt(i);
+        hash |= 0;
+      }
+      const hashEl = document.getElementById('fp-canvas-hash');
+      if (hashEl) hashEl.textContent = '0x' + Math.abs(hash).toString(16).toUpperCase();
+    } catch (e) {
+      const hashEl = document.getElementById('fp-canvas-hash');
+      if (hashEl) hashEl.textContent = 'Canvas Blocked';
     }
-    document.getElementById('fp-canvas-hash').textContent = '0x' + Math.abs(hash).toString(16).toUpperCase();
-  } catch (e) {
-    document.getElementById('fp-canvas-hash').textContent = 'Canvas Blocked';
-  }
 
-  try {
-    const glCanvas = document.createElement('canvas');
-    const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
-    if (gl) {
-      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-      const renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : 'WebGL Standard';
-      document.getElementById('fp-gpu').textContent = renderer.replace('ANGLE (', '').replace(')', '');
-    } else {
-      document.getElementById('fp-gpu').textContent = 'WebGL Unavailable';
+    try {
+      const glCanvas = document.createElement('canvas');
+      const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
+      const gpuEl = document.getElementById('fp-gpu');
+      if (gl) {
+        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        const renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : 'WebGL Standard';
+        if (gpuEl) gpuEl.textContent = renderer.replace('ANGLE (', '').replace(')', '');
+      } else {
+        if (gpuEl) gpuEl.textContent = 'WebGL Unavailable';
+      }
+    } catch (e) {
+      const gpuEl = document.getElementById('fp-gpu');
+      if (gpuEl) gpuEl.textContent = 'Protected';
     }
-  } catch (e) {
-    document.getElementById('fp-gpu').textContent = 'Protected';
-  }
 
-  const cores = navigator.hardwareConcurrency || 4;
-  const ram = navigator.deviceMemory || 8;
-  document.getElementById('fp-hardware').textContent = `${cores} CPU Cores · ${ram} GB RAM`;
-  document.getElementById('fp-screen').textContent = `${window.screen.width}x${window.screen.height} (${window.screen.colorDepth}-bit, Ratio ${window.devicePixelRatio || 1})`;
-  document.getElementById('fp-tz').textContent = `${Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'} · ${navigator.language || 'id-ID'}`;
+    const cores = navigator.hardwareConcurrency || 4;
+    const ram = navigator.deviceMemory || 8;
+    const hwEl = document.getElementById('fp-hardware');
+    if (hwEl) hwEl.textContent = `${cores} CPU Cores · ${ram} GB RAM`;
+    const scEl = document.getElementById('fp-screen');
+    if (scEl) scEl.textContent = `${window.screen.width}x${window.screen.height} (${window.screen.colorDepth}-bit, Ratio ${window.devicePixelRatio || 1})`;
+    const tzEl = document.getElementById('fp-tz');
+    if (tzEl) tzEl.textContent = `${Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'} · ${navigator.language || 'id-ID'}`;
 
-  try {
-    const rtc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-    rtc.createDataChannel('');
-    rtc.createOffer().then(o => rtc.setLocalDescription(o));
-    rtc.onicecandidate = function(ice) {
-      if (ice && ice.candidate && ice.candidate.candidate) {
-        const m = ice.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3})/);
-        if (m) {
-          document.getElementById('fp-webrtc').textContent = `IP Lokal Terdeteksi: ${m[1]} (WebRTC Leak!)`;
+    try {
+      const rtc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      rtc.createDataChannel('');
+      rtc.createOffer().then(o => rtc.setLocalDescription(o));
+      rtc.onicecandidate = function(ice) {
+        if (ice && ice.candidate && ice.candidate.candidate) {
+          const m = ice.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3})/);
+          if (m) {
+            const rtcEl = document.getElementById('fp-webrtc');
+            if (rtcEl) rtcEl.textContent = `IP Lokal Terdeteksi: ${m[1]} (WebRTC Leak!)`;
+          }
         }
-      }
-    };
-    setTimeout(() => {
-      if (document.getElementById('fp-webrtc').textContent === 'Menganalisis...') {
-        document.getElementById('fp-webrtc').textContent = 'Terlindungi / Tidak Ada Leak WebRTC';
-      }
-    }, 2000);
-  } catch (e) {
-    document.getElementById('fp-webrtc').textContent = 'WebRTC Disabled';
-  }
+      };
+      setTimeout(() => {
+        const rtcEl = document.getElementById('fp-webrtc');
+        if (rtcEl && rtcEl.textContent === 'Menganalisis...') {
+          rtcEl.textContent = 'Terlindungi / Tidak Ada Leak WebRTC';
+        }
+      }, 2000);
+    } catch (e) {
+      const rtcEl = document.getElementById('fp-webrtc');
+      if (rtcEl) rtcEl.textContent = 'WebRTC Disabled';
+    }
 
-  showToast('Audit sidik jari browser selesai!');
+    if (btn) {
+      btn.innerHTML = origContent || 'Jalankan Audit Sidik Jari';
+      btn.disabled = false;
+    }
+    showToast('Audit sidik jari browser selesai!');
+  }, 350);
 }
 
 function copyTextStr(str, msg) {

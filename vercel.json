@@ -17,7 +17,7 @@
   ],
   "functions": {
     "api/**/*.py": {
-      "includeFiles": "web/**"
+      "includeFiles": "{web/**,*.py}"
     }
   }
 }

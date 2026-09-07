@@ -11,7 +11,7 @@
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="favicon.png">
   <link rel="stylesheet" href="css/loader.css?v=2.2">
-  <link rel="stylesheet" href="css/style.css?v=2.8">
+  <link rel="stylesheet" href="css/style.css?v=3.0">
 </head>
 <body>
 
@@ -64,8 +64,6 @@
     <div class="shapes-layer" id="shapesLayer"></div>
   </div>
   <canvas id="clickFxCanvas"></canvas>
-
-  
   <nav class="tab-nav" id="tabNav" aria-label="Navigasi utama">
     <div class="tab-nav-track" id="tabNavTrack">
       <div class="tab-thumb" id="tabThumb" aria-hidden="true"></div>
@@ -109,10 +107,49 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         <span>Dev Suite</span>
       </button>
+
+      <button class="tab-item" id="tab-pentest" onclick="goPage('pentest')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7v7c0 5 4 9 10 9s10-4 10-9V7l-10-5z"/></svg>
+        <span>Pentest</span>
+      </button>
     </div>
   </nav>
 
   <main class="page-container">
+
+    <section class="page-view" id="view-pentest">
+      <div class="glass-card">
+        <div class="card-badge">PENTEST TOOL</div>
+        <h2 class="card-title">Strix Pentest Scanner</h2>
+        <p class="card-desc">Gunakan Strix untuk melakukan pemindaian keamanan penuh terhadap target URL. Tool ini mendeteksi celah, header, dan konfigurasi server secara otomatis.</p>
+        <div class="form-group">
+          <label class="form-label" for="strix-url">Target URL</label>
+          <div class="input-with-btn">
+            <input type="text" class="form-input" id="strix-url" placeholder="https://example.com" onkeydown="if(event.key==='Enter') runStrixScan()">
+            <button class="btn-primary" id="strix-btn" onclick="runStrixScan()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7v7c0 5 4 9 10 9s10-4 10-9V7l-10-5z"/></svg>
+              <span>Mulai Scan</span>
+            </button>
+          </div>
+        </div>
+        <div class="loading" id="strix-btn-loading">
+          <div class="loading-spinner"></div>
+          <div class="loading-text" data-i18n="loading_strix">Memindai target dengan Strix... mohon tunggu.</div>
+        </div>
+        <div id="strix-result-box" style="display:none;margin-top:20px;">
+          <div id="strix-visual-result"></div>
+          <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+            <button class="btn-secondary" id="strix-toggle-raw" onclick="toggleStrixRaw()" style="font-size:11.5px;padding:5px 12px;">
+              <span>Tampilkan Raw JSON</span>
+            </button>
+            <button class="btn-secondary" onclick="copyText('strix-result')" style="font-size:11.5px;padding:5px 12px;">
+              <span>Salin Hasil</span>
+            </button>
+          </div>
+          <pre id="strix-result" style="display:none;margin-top:10px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:16px;font-size:12px;overflow:auto;max-height:400px;text-align:left;white-space:pre-wrap;word-break:break-all;"></pre>
+        </div>
+      </div>
+    </section>
 
     <section class="page-view visible" id="view-home">
       <div class="glass-card text-center">
@@ -134,7 +171,7 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </div>
             <div class="tool-title">OSINT &amp; Identity</div>
-            <div class="tool-desc">Sherlock (20+ Medsos), Discord User Lookup, &amp; Database Breach Checker.</div>
+            <div class="tool-desc">Sherlock (30+ Medsos via TrackLu), Cek NIK KTP Indonesia, Discord Lookup, &amp; Breach Checker.</div>
           </div>
 
           <div class="tool-card" onclick="goPage('phonehub', {sub: 'ceknomor'})">
@@ -291,6 +328,10 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <span>Breach Check</span>
         </button>
+        <button class="subtab-btn" id="btn-sub-osint-nik" onclick="switchSubTab('osint', 'nik')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><line x1="15" y1="8" x2="17" y2="8"/><line x1="15" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+          <span>Cek NIK KTP</span>
+        </button>
       </div>
 
       <!-- Pane 1: Sherlock -->
@@ -403,6 +444,82 @@
           </div>
         </div>
       </div>
+
+      <!-- Pane 4: NIK KTP Indonesia (Resource: osint-indonesia-v3) -->
+      <div class="subtab-pane" id="subpane-osint-nik">
+        <div class="glass-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <div class="card-badge" style="margin:0;">OSINT INDONESIA V3</div>
+            <span style="font-size:11px;font-weight:600;color:var(--gray-400);background:var(--gray-100);padding:3px 8px;border-radius:6px;border:1px solid var(--gray-200);">Dukcapil Algorithm &amp; Wilayah DB</span>
+          </div>
+          <h2 class="card-title">Cek &amp; Bedah NIK KTP Indonesia</h2>
+          <p class="card-desc">Dekonstruksi 16-digit NIK KTP resmi untuk melacak Provinsi asal, Kabupaten/Kota, Kecamatan, Tanggal Lahir, Usia, Jenis Kelamin, Shio, Zodiak, dan Google Dorking arsip kependudukan.</p>
+          <div class="form-group">
+            <label class="form-label">Nomor Induk Kependudukan (16 Digit)</label>
+            <div class="input-with-btn">
+              <input type="text" class="form-input" id="nik-input" placeholder="Contoh: 3275124308050003" maxlength="25" onkeydown="if(event.key==='Enter') runNikLookup()">
+              <button class="btn-primary" id="nik-btn" onclick="runNikLookup()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Bedah NIK</span>
+              </button>
+            </div>
+            <div style="font-size:11px;color:var(--gray-400);margin-top:6px;display:flex;align-items:center;gap:5px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>Algoritma cerdas mengenali formula tanggal lahir perempuan (tanggal + 40) dan wilayah 38 provinsi di Indonesia.</span>
+            </div>
+          </div>
+          <div class="loading" id="nik-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Membedah formula NIK, memetakan kode wilayah, &amp; merangkai dork kependudukan...</div>
+          </div>
+          <div id="nik-result-box" style="display:none;margin-top:16px;">
+            <div class="phone-result-card" style="margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <div style="font-size:12px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Nomor Induk Kependudukan Terverifikasi</div>
+                  <div style="font-size:22px;font-weight:800;letter-spacing:1.5px;color:var(--black);font-family:monospace;" id="nik-res-number">--</div>
+                </div>
+                <span class="phone-tag-badge legit" id="nik-res-gender">Laki-laki</span>
+              </div>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom:16px;">
+              <div class="stat-card">
+                <div class="stat-label">Provinsi Asal</div>
+                <div class="stat-val" id="nik-res-prov" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Kabupaten / Kota</div>
+                <div class="stat-val" id="nik-res-kab" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Kecamatan (Kode)</div>
+                <div class="stat-val" id="nik-res-kec" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Tanggal Lahir</div>
+                <div class="stat-val" id="nik-res-dob" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Estimasi Usia</div>
+                <div class="stat-val" id="nik-res-age" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Zodiak &amp; Shio</div>
+                <div class="stat-val" id="nik-res-astrology" style="font-size:14px;">--</div>
+              </div>
+            </div>
+
+            <div style="margin-top:18px;">
+              <div style="font-size:13px;font-weight:700;color:var(--gray-800);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>OSINT Verification &amp; Public Records Dorking (osint-indonesia-v3):</span>
+              </div>
+              <div class="dork-grid" id="nik-dork-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="page-view" id="view-phonehub">
@@ -420,19 +537,19 @@
       <!-- Subpane 1: Cek Nomor -->
       <div class="subtab-pane active" id="subpane-phone-ceknomor">
         <div class="glass-card">
-        <div class="card-badge">INTELIJEN NOMOR</div>
+        <div class="card-badge">INTELIJEN NOMOR MULTI-ENGINE</div>
         <h2 class="card-title">Cek Nomor Telepon</h2>
-        <p class="card-desc">Identifikasi operator, format internasional, dan nomor serupa menggunakan Kaspersky WhoCallsID.</p>
+        <p class="card-desc">Sistem deteksi nomor bertingkat: Kaspersky WhoCallsID, GhostIntel v2.5, GhostTrack, OSINT Indonesia v3, PhoneInfoga, dan PhoneOsint.</p>
 
         <div class="form-group">
           <label class="form-label" for="cn-nomor">Nomor Telepon Target</label>
-          <input type="tel" id="cn-nomor" class="form-input" placeholder="Nomor telepon target">
+          <input type="tel" id="cn-nomor" class="form-input" placeholder="Contoh: 081234567890 atau +6281234567890">
         </div>
         <button class="btn-primary" id="cn-btn" onclick="cekNomor()">Cek Nomor Sekarang</button>
 
         <div class="result-box" id="cn-result">
           <div class="result-header">
-            <span class="result-title">HASIL DETEKSI NOMOR</span>
+            <span class="result-title">HASIL DETEKSI MULTI-ENGINE</span>
             <div style="display:flex;gap:6px;">
               <button class="btn-secondary" id="cn-toggle-json" onclick="toggleJsonView('cn')">Data Mentah (JSON)</button>
               <button class="btn-secondary" onclick="copyText('cn-output')">Salin JSON</button>
@@ -442,7 +559,7 @@
           <div id="cn-formatted-wrap">
             <div class="info-grid" style="margin-top:10px;">
               <div class="info-item">
-                <div class="info-label">Nomor Lengkap</div>
+                <div class="info-label">Nomor Target</div>
                 <div class="info-val" id="cn-val-number">-</div>
               </div>
               <div class="info-item">
@@ -450,15 +567,39 @@
                 <div class="info-val" id="cn-val-operator">-</div>
               </div>
               <div class="info-item">
+                <div class="info-label">Sumber Deteksi</div>
+                <div class="info-val" id="cn-val-source" style="font-size:12px;color:var(--primary);">-</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Tipe Saluran</div>
+                <div class="info-val" id="cn-val-type">-</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Lokasi / Wilayah</div>
+                <div class="info-val" id="cn-val-geo">-</div>
+              </div>
+              <div class="info-item">
                 <div class="info-label">Format Tampilan</div>
                 <div class="info-val" id="cn-val-format">-</div>
               </div>
-              <div class="info-item">
-                <div class="info-label">Kode Negara</div>
-                <div class="info-val" id="cn-val-code">-</div>
-              </div>
             </div>
 
+            <!-- Direct Action Messaging Links -->
+            <div id="cn-actions-bar" class="direct-actions-bar" style="display:none;"></div>
+
+            <!-- Pipeline Multi-Engine Resources Section -->
+            <div style="margin-top:16px;text-align:left;">
+              <div class="chips-title" style="display:flex;align-items:center;gap:6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                STATUS & KONTRIBUSI RESOURCE (MULTI-ENGINE):
+              </div>
+              <div class="resource-grid" id="cn-resources-grid"></div>
+            </div>
+
+            <!-- OSINT Recon & Dork Matrix Section -->
+            <div id="cn-dorks-container" style="margin-top:16px;display:none;"></div>
+
+            <!-- Similar Numbers List -->
             <div class="chips-container" id="cn-similar-wrap" style="display:none;">
               <div class="chips-title">Nomor Serupa Terdeteksi:</div>
               <div class="chips-list" id="cn-similar-list"></div>
@@ -810,26 +951,43 @@
             <div class="loading-text">Menghubungi IP database &amp; menghitung skor risiko...</div>
           </div>
           <div id="ipintel-result-box" style="display:none;margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+              <span class="card-badge" id="ipintel-engine-badge" style="margin:0;">Engine: GhostTrack (ipwho.is) + GhostIntel</span>
+              <span id="ipintel-asn-badge" style="font-size:11px;font-weight:700;color:var(--gray-500);background:var(--gray-100);padding:3px 8px;border-radius:6px;border:1px solid var(--gray-200);">ASN: --</span>
+            </div>
             <div class="stats-grid">
               <div class="stat-card">
-                <div class="stat-label">Negara &amp; Kota</div>
-                <div class="stat-val" id="ipintel-loc" style="font-size:15px;">--</div>
+                <div class="stat-label">Negara &amp; Lokasi</div>
+                <div class="stat-val" id="ipintel-loc" style="font-size:14px;">--</div>
               </div>
               <div class="stat-card">
-                <div class="stat-label">ISP &amp; Organisasi</div>
-                <div class="stat-val" id="ipintel-isp" style="font-size:15px;">--</div>
+                <div class="stat-label">ISP / Provider</div>
+                <div class="stat-val" id="ipintel-isp" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Zona Waktu (Timezone)</div>
+                <div class="stat-val" id="ipintel-tz" style="font-size:14px;">--</div>
               </div>
               <div class="stat-card">
                 <div class="stat-label">Tipe Jaringan</div>
-                <div class="stat-val" id="ipintel-type" style="font-size:15px;">--</div>
+                <div class="stat-val" id="ipintel-type" style="font-size:14px;">--</div>
               </div>
               <div class="stat-card">
-                <div class="stat-label">Tingkat Risiko</div>
-                <div class="stat-val" id="ipintel-risk" style="font-size:15px;">--</div>
+                <div class="stat-label">Tingkat Risiko Fraud</div>
+                <div class="stat-val" id="ipintel-risk" style="font-size:14px;">--</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Ibukota &amp; Kode Telepon</div>
+                <div class="stat-val" id="ipintel-extra" style="font-size:14px;">--</div>
               </div>
             </div>
-            <div style="margin-top:14px;text-align:center;">
-              <a id="ipintel-map-btn" href="#" target="_blank" class="btn-secondary" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Buka di Google Maps</a>
+            <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+              <a id="ipintel-map-btn" href="#" target="_blank" class="btn-secondary" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Buka Google Maps
+              </a>
+              <a id="ipintel-sat-btn" href="#" target="_blank" class="btn-secondary" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Tampilan Satelit HD
+              </a>
             </div>
           </div>
         </div>
@@ -1372,7 +1530,7 @@
             <label class="form-label" for="b64-decode-input">String Base64 / Data URI</label>
             <textarea id="b64-decode-input" class="form-textarea" rows="4" placeholder="Tempel data Base64 di sini..."></textarea>
           </div>
-          <button class="btn-primary" onclick="handleBase64Decode()">Decode Sekarang</button>
+          <button class="btn-primary" id="b64-dec-btn" onclick="handleBase64Decode()">Decode Sekarang</button>
           <div class="result-box" id="b64-decode-result">
             <div class="result-header">
               <span class="result-title">Hasil File</span>
@@ -1490,7 +1648,7 @@
               <label class="form-label">Pesan Rahasia yang Ingin Disembunyikan</label>
               <textarea class="form-textarea" id="steg-text-input" rows="3" placeholder="Ketik pesan rahasia di sini..."></textarea>
             </div>
-            <button class="btn-primary" onclick="runStegEncode()" style="width:100%;">Tanamkan Pesan ke PNG</button>
+            <button class="btn-primary" id="steg-enc-btn" onclick="runStegEncode()" style="width:100%;">Tanamkan Pesan ke PNG</button>
             <div id="steg-enc-result" style="display:none;margin-top:14px;text-align:center;">
               <div class="chips-title" style="margin-bottom:8px;">Gambar dengan Pesan Rahasia Siap:</div>
               <img id="steg-enc-img" style="max-width:200px;border-radius:12px;border:1.5px solid var(--gray-200);"><br>
@@ -1505,7 +1663,7 @@
                 <div class="file-upload-title" id="steg-dec-filename">Pilih File PNG Rahasia</div>
               </div>
             </div>
-            <button class="btn-primary" onclick="runStegDecode()" style="width:100%;">Ekstrak Pesan Rahasia</button>
+            <button class="btn-primary" id="steg-dec-btn" onclick="runStegDecode()" style="width:100%;">Ekstrak Pesan Rahasia</button>
             <div id="steg-dec-result" style="display:none;margin-top:14px;">
               <div class="chips-title" style="margin-bottom:6px;">Isi Pesan Rahasia yang Ditemukan:</div>
               <div class="result-code" id="steg-dec-output" style="white-space:pre-wrap;"></div>
@@ -1520,7 +1678,7 @@
           <div class="card-badge">AUDIT PRIVASI</div>
           <h2 class="card-title">Browser Fingerprint &amp; Leak Audit</h2>
           <p class="card-desc">Audit sidik jari hardware &amp; grafis unik yang dibocorkan browsermu ke internet bahkan saat menggunakan VPN.</p>
-          <button class="btn-primary" onclick="runFingerprintAudit()" style="width:100%;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Jalankan Audit Sidik Jari</button>
+          <button class="btn-primary" id="fp-btn" onclick="runFingerprintAudit()" style="width:100%;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> <span>Jalankan Audit Sidik Jari</span></button>
           <div id="fp-result-box" style="display:none;">
             <div class="stats-grid">
               <div class="stat-card">
@@ -1581,6 +1739,6 @@
 
   <script src="js/liquidGL.js?v=1.1"></script>
   <script src="js/loader.js?v=1.6"></script>
-  <script src="js/app.js?v=2.8"></script>
+  <script src="js/app.js?v=3.0"></script>
 </body>
 </html>

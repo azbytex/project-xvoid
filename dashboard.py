@@ -30,12 +30,13 @@ import requests
 
 
 if sys.platform == "win32":
-    if hasattr(sys.stdout, "reconfigure"):
-        try:
-            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-        except Exception:
-            pass
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            getattr(sys.stdout, "reconfigure")(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            getattr(sys.stderr, "reconfigure")(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 try:
     from rich import box
@@ -60,7 +61,7 @@ except ImportError:
     raise SystemExit(1)
 
 APP_NAME = "PROJECT-XVOID"
-APP_VERSION = "1.2"
+APP_VERSION = "1.3"
 DEBUG = False
 
 DEFAULT_TIMEOUT = 20
@@ -915,7 +916,7 @@ class LeviathanService:
         data = payload.get("data")
         if not isinstance(data, dict):
             raise ServiceError("Field data dari API TikTok tidak valid.")
-        result: dict[str, str] = {}
+        result: dict[str, Any] = {}
         field_mapping = (
             ("no_watermark_link", "video_url"),
             ("no_watermark_link_hd", "video_hd_url"),
@@ -1397,36 +1398,60 @@ class LeviathanService:
         )
 
     def cek_nomor(self, nomor: str, lang: str = "id", region: str = "ID") -> dict[str, Any]:
-        """Cek info nomor telepon menggunakan Kaspersky WhoCallsID API."""
-        # Normalize nomor: 08xx -> 628xx
-        n = "".join(c for c in nomor if c.isdigit())
-        if n.startswith("0"):
-            n = "62" + n[1:]
-        elif n.startswith("620"):
-            n = "62" + n[3:]
+        """Cek info nomor telepon menggunakan sistem bertingkat multi-engine:
+        1. Kaspersky WhoCallsID (live query & similar numbers)
+        2. GhostIntel v2.5 (multi-country provider database & handle variations)
+        3. GhostTrack (carrier lib, geocoder ID, timezone, calling formats)
+        4. OSINT-Indonesia-v3 (telco prefix database & Indonesian dorks)
+        5. PhoneInfoga (virtual/disposable SMS burner audit & reputation dorks)
+        6. PhoneOsint (deep messaging links, gateways & master dork matrix)
+        """
+        def _call_kaspersky(raw_num: str) -> dict[str, Any]:
+            n = "".join(c for c in raw_num if c.isdigit())
+            if n.startswith("0"):
+                n = "62" + n[1:]
+            elif n.startswith("620"):
+                n = "62" + n[3:]
+            try:
+                info_url = f"{CEK_NOMOR_BASE_URL}/v2/number"
+                info_res = self.http.session.get(
+                    info_url,
+                    params={"language": lang, "number": n},
+                    headers=CEK_NOMOR_HEADERS,
+                    timeout=DEFAULT_TIMEOUT,
+                )
+                info_data = info_res.json() if info_res.ok else {}
+            except Exception:
+                info_data = {}
+            try:
+                similar_url = f"{CEK_NOMOR_BASE_URL}/similar-numbers"
+                sim_res = self.http.session.get(
+                    similar_url,
+                    params={"region": region, "number": n},
+                    headers=CEK_NOMOR_HEADERS,
+                    timeout=DEFAULT_TIMEOUT,
+                )
+                similar_data = sim_res.json() if sim_res.ok else {}
+            except Exception:
+                similar_data = {}
+            return {"nomor_normalized": n, "info": info_data, "similar": similar_data}
+
         try:
-            info_url = f"{CEK_NOMOR_BASE_URL}/v2/number"
-            info_res = self.http.session.get(
-                info_url,
-                params={"language": lang, "number": n},
-                headers=CEK_NOMOR_HEADERS,
-                timeout=DEFAULT_TIMEOUT,
-            )
-            info_data = info_res.json() if info_res.ok else {}
+            from phone_intel import MultiEnginePhoneScanner
+            result = MultiEnginePhoneScanner.scan(nomor, kaspersky_func=_call_kaspersky, default_region=region)
+            # Ensure backward-compatible info dictionary
+            result["info"] = {
+                "operator": [result.get("operator", "Tidak diketahui")],
+                "display_format": result.get("display_format", nomor),
+                "international_code": result.get("country_code", 62),
+                "region": result.get("location", ""),
+                "line_type": result.get("line_type", "")
+            }
+            return result
         except Exception:
-            info_data = {}
-        try:
-            similar_url = f"{CEK_NOMOR_BASE_URL}/similar-numbers"
-            sim_res = self.http.session.get(
-                similar_url,
-                params={"region": region, "number": n},
-                headers=CEK_NOMOR_HEADERS,
-                timeout=DEFAULT_TIMEOUT,
-            )
-            similar_data = sim_res.json() if sim_res.ok else {}
-        except Exception:
-            similar_data = {}
-        return {"nomor_normalized": n, "info": info_data, "similar": similar_data}
+            # Fallback to direct Kaspersky if phone_intel fails
+            raw_k = _call_kaspersky(nomor)
+            return raw_k
 
     def scan_github_repo(self, repo_url: str) -> dict[str, Any]:
         """Scan repository GitHub menggunakan ScanRepo API."""
@@ -1539,21 +1564,20 @@ class LeviathanService:
                     tls_ver = ssock.version()
                     cipher_info = ssock.cipher()
                     has_ssl = True
-
-                    issuer_dict = dict(x[0] for x in cert.get('issuer', []))
-                    subject_dict = dict(x[0] for x in cert.get('subject', []))
+                    issuer_dict = dict(x[0] for x in cert.get('issuer', [])) if cert else {}
+                    subject_dict = dict(x[0] for x in cert.get('subject', [])) if cert else {}
 
                     issuer_name = issuer_dict.get('organizationName') or issuer_dict.get('commonName') or 'Tidak diketahui'
                     common_name = subject_dict.get('commonName') or hostname
 
-                    not_before = cert.get('notBefore', '')
-                    not_after = cert.get('notAfter', '')
+                    not_before = cert.get('notBefore', '') if cert else ''
+                    not_after = cert.get('notAfter', '') if cert else ''
 
                     if not_after:
                         expire_dt = datetime.datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
-                        days_left = (expire_dt - datetime.datetime.utcnow()).days
+                        days_left = (expire_dt - datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)).days
 
-                    sans = [v for k, v in cert.get('subjectAltName', []) if k == 'DNS']
+                    sans = [v for k, v in cert.get('subjectAltName', []) if k == 'DNS'] if cert else []
 
                     ssl_info = {
                         "valid": True,
@@ -1765,7 +1789,7 @@ class LeviathanService:
     # ─── OSINT & THREAT INTELLIGENCE SUITE ───────────────────────
 
     def sherlock_username(self, username: str) -> dict[str, Any]:
-        """Scan major social media and dev platforms concurrently for a username with strict validation."""
+        """Scan major social media and dev platforms concurrently for a username with multi-engine attribution (GhostTrack TrackLu + GhostIntel)."""
         u = username.strip().lstrip("@")
         if not u:
             raise ServiceError("Username tidak boleh kosong.")
@@ -1775,22 +1799,43 @@ class LeviathanService:
             raise ServiceError("Username hanya boleh mengandung huruf, angka, titik, strip, atau underscore.")
 
         sites = [
-            {"name": "GitHub", "cat": "Dev", "url": f"https://github.com/{u}", "check_url": f"https://api.github.com/users/{u}", "type": "github"},
-            {"name": "GitLab", "cat": "Dev", "url": f"https://gitlab.com/{u}", "check_url": f"https://gitlab.com/api/v4/users?username={u}", "type": "gitlab"},
-            {"name": "Reddit", "cat": "Social", "url": f"https://reddit.com/user/{u}", "check_url": f"https://reddit.com/user/{u}/about.json", "type": "reddit"},
-            {"name": "Chess.com", "cat": "Gaming", "url": f"https://www.chess.com/member/{u}", "check_url": f"https://api.chess.com/pub/player/{u}", "type": "chess"},
-            {"name": "DockerHub", "cat": "Dev", "url": f"https://hub.docker.com/u/{u}", "check_url": f"https://hub.docker.com/v2/users/{u}", "type": "dockerhub"},
-            {"name": "Dev.to", "cat": "Dev", "url": f"https://dev.to/{u}", "check_url": f"https://dev.to/api/users/by_username?url={u}", "type": "devto"},
-            {"name": "Keybase", "cat": "Crypto", "url": f"https://keybase.io/{u}", "check_url": f"https://keybase.io/_/api/1.0/user/lookup.json?usernames={u}", "type": "keybase"},
-            {"name": "HackerNews", "cat": "Tech", "url": f"https://news.ycombinator.com/user?id={u}", "check_url": f"https://hacker-news.firebaseio.com/v0/user/{u}.json", "type": "hackernews"},
-            {"name": "Steam", "cat": "Gaming", "url": f"https://steamcommunity.com/id/{u}", "check_url": f"https://steamcommunity.com/id/{u}", "type": "steam"},
-            {"name": "Telegram", "cat": "Messaging", "url": f"https://t.me/{u}", "check_url": f"https://t.me/{u}", "type": "telegram"},
-            {"name": "Pastebin", "cat": "Dev", "url": f"https://pastebin.com/u/{u}", "check_url": f"https://pastebin.com/u/{u}", "type": "pastebin"},
-            {"name": "Linktree", "cat": "Social", "url": f"https://linktr.ee/{u}", "check_url": f"https://linktr.ee/{u}", "type": "linktree"},
+            # Dev & Code Platforms (GhostIntel & Sherlock)
+            {"name": "GitHub", "cat": "Dev", "url": f"https://github.com/{u}", "check_url": f"https://api.github.com/users/{u}", "type": "github", "source": "GhostTrack / GhostIntel"},
+            {"name": "GitLab", "cat": "Dev", "url": f"https://gitlab.com/{u}", "check_url": f"https://gitlab.com/api/v4/users?username={u}", "type": "gitlab", "source": "GhostIntel"},
+            {"name": "DockerHub", "cat": "Dev", "url": f"https://hub.docker.com/u/{u}", "check_url": f"https://hub.docker.com/v2/users/{u}", "type": "dockerhub", "source": "GhostIntel"},
+            {"name": "Dev.to", "cat": "Dev", "url": f"https://dev.to/{u}", "check_url": f"https://dev.to/api/users/by_username?url={u}", "type": "devto", "source": "GhostIntel"},
+            {"name": "Codeberg", "cat": "Dev", "url": f"https://codeberg.org/{u}", "check_url": f"https://codeberg.org/api/v1/users/{u}", "type": "codeberg", "source": "GhostIntel"},
+            {"name": "Pastebin", "cat": "Dev", "url": f"https://pastebin.com/u/{u}", "check_url": f"https://pastebin.com/u/{u}", "type": "pastebin", "source": "GhostIntel"},
+            {"name": "HackerRank", "cat": "Coding", "url": f"https://www.hackerrank.com/profile/{u}", "check_url": f"https://www.hackerrank.com/rest/hackers/{u}", "type": "hackerrank", "source": "GhostIntel"},
+            {"name": "LeetCode", "cat": "Coding", "url": f"https://leetcode.com/u/{u}/", "check_url": f"https://leetcode-stats-api.herokuapp.com/{u}", "type": "leetcode", "source": "GhostIntel"},
+            {"name": "Replit", "cat": "Dev", "url": f"https://replit.com/@{u}", "check_url": f"https://replit.com/@{u}", "type": "generic", "source": "GhostIntel"},
+            {"name": "Codepen", "cat": "Dev", "url": f"https://codepen.io/{u}", "check_url": f"https://codepen.io/{u}", "type": "generic", "source": "GhostIntel"},
+
+            # Social & Media (GhostTrack TrackLu + GhostIntel)
+            {"name": "Reddit", "cat": "Social", "url": f"https://reddit.com/user/{u}", "check_url": f"https://reddit.com/user/{u}/about.json", "type": "reddit", "source": "GhostIntel / TrackLu"},
+            {"name": "Telegram", "cat": "Messaging", "url": f"https://t.me/{u}", "check_url": f"https://t.me/{u}", "type": "telegram", "source": "GhostTrack (TrackLu)"},
+            {"name": "YouTube", "cat": "Media", "url": f"https://www.youtube.com/@{u}", "check_url": f"https://www.youtube.com/@{u}", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "SoundCloud", "cat": "Audio", "url": f"https://soundcloud.com/{u}", "check_url": f"https://soundcloud.com/{u}", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Pinterest", "cat": "Social", "url": f"https://www.pinterest.com/{u}/", "check_url": f"https://www.pinterest.com/{u}/", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Tumblr", "cat": "Blog", "url": f"https://{u}.tumblr.com", "check_url": f"https://{u}.tumblr.com", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Twitch", "cat": "Streaming", "url": f"https://www.twitch.tv/{u}", "check_url": f"https://www.twitch.tv/{u}", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Medium", "cat": "Blog", "url": f"https://medium.com/@{u}", "check_url": f"https://medium.com/@{u}", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Quora", "cat": "Forum", "url": f"https://www.quora.com/profile/{u}", "check_url": f"https://www.quora.com/profile/{u}", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Dribbble", "cat": "Design", "url": f"https://dribbble.com/{u}", "check_url": f"https://dribbble.com/{u}", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Behance", "cat": "Design", "url": f"https://www.behance.net/{u}", "check_url": f"https://www.behance.net/{u}", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Linktree", "cat": "Social", "url": f"https://linktr.ee/{u}", "check_url": f"https://linktr.ee/{u}", "type": "linktree", "source": "Sherlock Core"},
+
+            # Tech, Gaming & Security (GhostTrack + GhostIntel)
+            {"name": "Steam", "cat": "Gaming", "url": f"https://steamcommunity.com/id/{u}", "check_url": f"https://steamcommunity.com/id/{u}", "type": "steam", "source": "GhostIntel"},
+            {"name": "Chess.com", "cat": "Gaming", "url": f"https://www.chess.com/member/{u}", "check_url": f"https://api.chess.com/pub/player/{u}", "type": "chess", "source": "Sherlock Core"},
+            {"name": "Keybase", "cat": "Security", "url": f"https://keybase.io/{u}", "check_url": f"https://keybase.io/_/api/1.0/user/lookup.json?usernames={u}", "type": "keybase", "source": "GhostIntel"},
+            {"name": "HackerNews", "cat": "Tech", "url": f"https://news.ycombinator.com/user?id={u}", "check_url": f"https://hacker-news.firebaseio.com/v0/user/{u}.json", "type": "hackernews", "source": "GhostIntel"},
+            {"name": "Product Hunt", "cat": "Tech", "url": f"https://www.producthunt.com/@{u}", "check_url": f"https://www.producthunt.com/@{u}", "type": "generic", "source": "GhostTrack (TrackLu)"},
+            {"name": "Kaskus", "cat": "Forum ID", "url": f"https://kaskus.co.id/profile/{u}", "check_url": f"https://kaskus.co.id/profile/{u}", "type": "generic", "source": "GhostIntel (ID)"}
         ]
 
         def _probe(site):
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
             try:
                 c_url = site["check_url"]
                 res = requests.get(c_url, headers=headers, timeout=3.5, allow_redirects=True)
@@ -1824,13 +1869,31 @@ class LeviathanService:
                     found = (res.status_code == 200 and "Not Found (#404)" not in res.text and "Pastebin.com - Page Removed" not in res.text)
                 elif st == "linktree":
                     found = (res.status_code == 200 and "Page Not Found" not in res.text and "404" not in res.text and len(res.text) > 1000)
+                elif st == "codeberg":
+                    found = (res.status_code == 200 and "id" in res.text)
+                elif st == "hackerrank":
+                    found = (res.status_code == 200 and "model" in res.json())
+                elif st == "leetcode":
+                    found = (res.status_code == 200 and res.json().get("status") == "success")
+                elif st == "generic":
+                    if res.status_code == 200:
+                        lower_txt = res.text.lower()[:4000]
+                        not_found_patterns = [
+                            "404 not found", "page not found", "user not found", "account not found",
+                            "doesn't exist", "profile not found", "halaman tidak ditemukan",
+                            "this user does not exist", "the page you requested could not be found"
+                        ]
+                        found = not any(p in lower_txt for p in not_found_patterns)
+                    else:
+                        found = False
 
                 return {
                     "name": site["name"],
                     "category": site["cat"],
                     "url": site["url"],
                     "found": bool(found),
-                    "status": "claimed" if found else "available"
+                    "status": "claimed" if found else "available",
+                    "source": site.get("source", "Sherlock Core")
                 }
             except Exception:
                 return {
@@ -1838,10 +1901,11 @@ class LeviathanService:
                     "category": site["cat"],
                     "url": site["url"],
                     "found": False,
-                    "status": "unreachable"
+                    "status": "unreachable",
+                    "source": site.get("source", "Sherlock Core")
                 }
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
             results = list(executor.map(_probe, sites))
 
         found_count = sum(1 for r in results if r["found"])
@@ -1850,8 +1914,14 @@ class LeviathanService:
             "total_scanned": len(results),
             "found_count": found_count,
             "results": results,
-            "status": "success"
+            "status": "success",
+            "engines_used": ["GhostTrack (TrackLu)", "GhostIntel SocialDB", "Sherlock Core"]
         }
+
+    def parse_nik_id(self, nik: str) -> dict[str, Any]:
+        """Decode and audit Indonesian NIK KTP (Resource: osint-indonesia-v3)."""
+        import nik_intel
+        return nik_intel.parse_nik_indonesia(nik)
 
     def discord_lookup(self, user_id: str) -> dict[str, Any]:
         """Decode Discord Snowflake ID and compute exact creation timestamp and metadata."""
@@ -2147,65 +2217,121 @@ class LeviathanService:
         }
 
     def ip_intelligence(self, target_ip: str) -> dict[str, Any]:
-        """Get IP Geolocation, ISP, ASN, and Threat/Proxy/VPN risk score."""
+        """Get deep IP Geolocation, ISP, ASN, and Threat/Proxy/VPN risk score using GhostTrack (ipwho.is) and GhostIntel."""
         ip = target_ip.strip()
         if not ip:
             raise ServiceError("Alamat IP target tidak boleh kosong.")
 
-        url = f"http://ip-api.com/json/{ip}?fields=status,message,continent,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,isp,org,as,mobile,proxy,hosting,query"
+        # Primary engine: ipwho.is (from GhostTrack)
+        data_who: dict[str, Any] = {}
         try:
-            res = requests.get(url, timeout=5)
-            data = res.json()
-            if data.get("status") != "success":
-                raise ServiceError(f"Lookup IP gagal: {data.get('message', 'Invalid IP')}")
+            r_who = requests.get(f"http://ipwho.is/{ip}", timeout=4)
+            if r_who.ok:
+                resp_json = r_who.json()
+                if resp_json.get("success", True):
+                    data_who = resp_json
+        except Exception:
+            data_who = {}
 
-            is_proxy = data.get("proxy", False)
-            is_hosting = data.get("hosting", False)
-            is_mobile = data.get("mobile", False)
+        # Secondary fallback: ip-api.com
+        data_api: dict[str, Any] = {}
+        try:
+            r_api = requests.get(f"http://ip-api.com/json/{ip}?fields=status,message,continent,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,isp,org,as,mobile,proxy,hosting,query", timeout=4)
+            if r_api.ok:
+                resp_json = r_api.json()
+                if resp_json.get("status") == "success":
+                    data_api = resp_json
+        except Exception:
+            data_api = {}
 
-            risk_score = 10
-            threat_type = "Residential (Aman)"
-            if is_proxy:
-                risk_score += 55
-                threat_type = "VPN / Anonymous Proxy"
-            if is_hosting:
-                risk_score += 30
-                threat_type = "Datacenter / Cloud Server"
-            if is_mobile:
-                risk_score += 5
+        if not data_who and not data_api:
+            raise ServiceError(f"Lookup IP '{ip}' gagal di kedua engine (ipwho.is & ip-api). Periksa format IP target.")
 
-            risk_level = "RENDAH"
-            if risk_score >= 70:
-                risk_level = "TINGGI (Kemungkinan VPN/Proxy)"
-            elif risk_score >= 40:
-                risk_level = "SEDANG (Datacenter/Cloud)"
+        # Merge fields intelligently
+        country = data_who.get("country") or data_api.get("country", "Unknown")
+        country_code = data_who.get("country_code") or data_api.get("countryCode", "")
+        region = data_who.get("region") or data_api.get("regionName", "")
+        city = data_who.get("city") or data_api.get("city", "")
+        postal = data_who.get("postal") or data_api.get("zip", "-")
+        lat = data_who.get("latitude") if data_who.get("latitude") is not None else data_api.get("lat")
+        lon = data_who.get("longitude") if data_who.get("longitude") is not None else data_api.get("lon")
 
-            return {
-                "status": "success",
-                "ip": data.get("query"),
-                "country": data.get("country"),
-                "country_code": data.get("countryCode"),
-                "region": data.get("regionName"),
-                "city": data.get("city"),
-                "zip": data.get("zip"),
-                "lat": data.get("lat"),
-                "lon": data.get("lon"),
-                "timezone": data.get("timezone"),
-                "isp": data.get("isp"),
-                "org": data.get("org"),
-                "asn": data.get("as"),
-                "is_proxy": is_proxy,
-                "is_hosting": is_hosting,
-                "is_mobile": is_mobile,
-                "risk_score": risk_score,
-                "risk_level": risk_level,
-                "threat_type": threat_type,
-                "maps_url": f"https://www.google.com/maps?q={data.get('lat')},{data.get('lon')}"
-            }
-        except Exception as exc:
-            if isinstance(exc, ServiceError):
-                raise
-            raise ServiceError(f"Gagal mengambil data intelligence IP: {exc}")
+        conn = data_who.get("connection", {})
+        isp = conn.get("isp") or data_api.get("isp", "-")
+        org = conn.get("org") or data_api.get("org", "-")
+        asn = conn.get("asn") or data_api.get("as", "-")
+        domain = conn.get("domain", "")
+
+        tz = data_who.get("timezone", {})
+        tz_id = tz.get("id") or data_api.get("timezone", "UTC")
+        tz_utc = tz.get("utc", "")
+        current_time = tz.get("current_time", "")
+
+        flag_emoji = data_who.get("flag", {}).get("emoji", "")
+        capital = data_who.get("capital", "")
+        calling_code = data_who.get("calling_code", "")
+        borders = data_who.get("borders", "")
+        is_eu = data_who.get("is_eu", False)
+
+        is_proxy = data_api.get("proxy", False)
+        is_hosting = data_api.get("hosting", False)
+        is_mobile = data_api.get("mobile", False)
+
+        # Risk scoring
+        risk_score = 10
+        threat_type = "Residential / Broadband (Aman)"
+        if is_proxy:
+            risk_score += 55
+            threat_type = "VPN / Anonymous Proxy"
+        if is_hosting:
+            risk_score += 30
+            threat_type = "Datacenter / Cloud Server"
+        if is_mobile:
+            risk_score += 5
+            threat_type = "Mobile Cellular Network"
+
+        risk_level = "RENDAH"
+        if risk_score >= 70:
+            risk_level = "TINGGI (Kemungkinan VPN/Proxy)"
+        elif risk_score >= 40:
+            risk_level = "SEDANG (Datacenter/Cloud)"
+
+        maps_satellite = f"https://www.google.com/maps/@{lat},{lon},14z/data=!3m1!1e3" if (lat is not None and lon is not None) else "#"
+        maps_standard = f"https://www.google.com/maps?q={lat},{lon}" if (lat is not None and lon is not None) else "#"
+
+        return {
+            "status": "success",
+            "ip": ip,
+            "type": data_who.get("type", "IPv4"),
+            "country": country,
+            "country_code": country_code,
+            "flag_emoji": flag_emoji,
+            "region": region,
+            "city": city,
+            "postal": postal,
+            "capital": capital,
+            "calling_code": calling_code,
+            "borders": borders,
+            "is_eu": is_eu,
+            "lat": lat,
+            "lon": lon,
+            "timezone": tz_id,
+            "timezone_utc": tz_utc,
+            "current_time": current_time,
+            "isp": isp,
+            "org": org,
+            "asn": str(asn),
+            "domain": domain,
+            "is_proxy": is_proxy,
+            "is_hosting": is_hosting,
+            "is_mobile": is_mobile,
+            "risk_score": risk_score,
+            "risk_level": risk_level,
+            "threat_type": threat_type,
+            "maps_url": maps_standard,
+            "maps_satellite": maps_satellite,
+            "engine_attribution": "GhostTrack (IP_Track via ipwho.is) + GhostIntel IP Recon"
+        }
 
     def github_user_profiler(self, username: str) -> dict[str, Any]:
         """Deep analysis of a GitHub user profile and commit history email leakage."""
@@ -2573,35 +2699,84 @@ def menu_xvoid_ai(service: LeviathanService) -> bool:
 
 
 def menu_cek_nomor(service: LeviathanService) -> bool:
-    render_feature_screen("CEK NOMOR", "Kaspersky WhoCallsID Lookup")
+    render_feature_screen("CEK NOMOR", "Multi-Engine Phone Recon & OSINT")
     UI.section("INPUT")
-    nomor = prompt_validated("Nomor Telepon (08xx / 628xx)")
+    nomor = prompt_validated("Nomor Telepon (08xx / +628xx / Internasional)")
     try:
-        with Spinner("Mengecek informasi nomor telepon..."):
+        with Spinner("Mengecek nomor telepon melalui seluruh engine intelijen..."):
             result = service.cek_nomor(nomor)
 
         info = result.get("info") or {}
         similar = result.get("similar") or []
         normalized = result.get("nomor_normalized") or nomor
+        resources = result.get("resources") or {}
+        direct_links = result.get("direct_links") or {}
+        dorks = result.get("dorks") or {}
 
-        UI.section("DETAIL NOMOR")
+        UI.section("RINGKASAN INTELIJEN NOMOR")
         tbl = Table(box=box.ROUNDED, border_style=Colors.PRIMARY, expand=True)
-        tbl.add_column("Field", style=f"bold {Colors.PRIMARY}", width=22)
-        tbl.add_column("Informasi", style=Colors.WHITE)
+        tbl.add_column("Parameter", style=f"bold {Colors.PRIMARY}", width=24)
+        tbl.add_column("Nilai / Hasil Deteksi", style=Colors.WHITE)
 
-        tbl.add_row("Nomor Target", f"+{normalized}")
+        tbl.add_row("Nomor Target (E.164)", str(result.get("e164", f"+{normalized}")))
+        tbl.add_row("Format Tampilan", str(result.get("display_format", "-")))
+        tbl.add_row("Operator / Provider", f"[bold green]{result.get('operator', 'Tidak diketahui')}[/bold green]")
+        tbl.add_row("Sumber Operator", f"[cyan]{result.get('operator_source', '-')}[/cyan]")
+        tbl.add_row("Tipe Saluran", str(result.get("line_type", "Mobile")))
+        tbl.add_row("Wilayah / Geocoder", str(result.get("location", "Indonesia")))
         
-        op = info.get("operator")
-        op_str = ", ".join(op) if isinstance(op, list) else str(op or "Tidak diketahui")
-        tbl.add_row("Operator", op_str)
-
-        tbl.add_row("Format Tampilan", str(info.get("display_format") or "-"))
-        tbl.add_row("Kode Negara", f"+{info.get('international_code', 62)}")
-        if info.get("region"):
-            tbl.add_row("Region", str(info.get("region")))
-
+        tzs = result.get("timezones") or []
+        tbl.add_row("Zona Waktu", ", ".join(tzs) if tzs else "-")
         console.print(tbl)
 
+        # ─── TABEL STATUS RESOURCE MULTI-ENGINE ───
+        if resources:
+            UI.section("STATUS & KONTRIBUSI RESOURCE (MULTI-ENGINE PIPELINE)")
+            res_tbl = Table(box=box.SIMPLE_HEAVY, border_style=Colors.MUTED, expand=True)
+            res_tbl.add_column("Resource Engine", style=f"bold {Colors.PRIMARY}", width=24)
+            res_tbl.add_column("Status", width=12, justify="center")
+            res_tbl.add_column("Kontribusi Data Intelijen", style=Colors.WHITE)
+
+            for key, r_data in resources.items():
+                r_name = r_data.get("name", key)
+                st = r_data.get("status", "HIT")
+                st_badge = f"[green]{st}[/green]" if "HIT" in st else (f"[yellow]{st}[/yellow]" if "PARTIAL" in st or "APPLIED" in st else f"[dim]{st}[/dim]")
+                
+                # Format ringkasan
+                summary_parts = []
+                if "operator" in r_data and r_data["operator"]:
+                    summary_parts.append(f"Op: {r_data['operator']}")
+                if "provider_db_match" in r_data and r_data["provider_db_match"] != "Unknown":
+                    summary_parts.append(f"DB: {r_data['provider_db_match']}")
+                if "carrier" in r_data and r_data["carrier"] != "Unknown":
+                    summary_parts.append(f"Carrier: {r_data['carrier']}")
+                if "telco_provider" in r_data:
+                    summary_parts.append(f"Prefix: {r_data.get('prefix_detected')} ({r_data['telco_provider']})")
+                if "disposable_services_audited" in r_data:
+                    summary_parts.append(f"Audit {r_data['disposable_services_audited']} provider burner/disposable")
+                if "direct_messaging_links" in r_data:
+                    summary_parts.append(f"{r_data['direct_messaging_links']} deep links & {r_data.get('osint_dorks_count', 0)} dorks")
+
+                desc = " | ".join(summary_parts) if summary_parts else "Analisis nomor selesai"
+                res_tbl.add_row(r_name, st_badge, desc)
+
+            console.print(res_tbl)
+
+        # ─── DIRECT MESSAGING ACTION LINKS ───
+        if direct_links:
+            UI.section("TAUTAN KONTAK LANGSUNG (DIRECT RECON)")
+            msg_tbl = Table(box=box.MINIMAL, border_style=Colors.MUTED, expand=True)
+            msg_tbl.add_column("Platform", width=14, style="bold cyan")
+            msg_tbl.add_column("URL Direct Action", style=Colors.MUTED)
+            if "whatsapp" in direct_links:
+                msg_tbl.add_row("WhatsApp", direct_links["whatsapp"])
+            if "telegram" in direct_links:
+                msg_tbl.add_row("Telegram", direct_links["telegram"])
+            if "viber" in direct_links:
+                msg_tbl.add_row("Viber", direct_links["viber"])
+            console.print(msg_tbl)
+
+        # ─── SIMILAR NUMBERS (KASPERSKY) ───
         if isinstance(similar, list) and len(similar) > 0:
             UI.section("NOMOR SERUPA (SIMILAR NUMBERS)")
             sim_tbl = Table(box=box.SIMPLE_HEAVY, border_style=Colors.MUTED, expand=True)
