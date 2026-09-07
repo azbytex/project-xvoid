@@ -3471,6 +3471,7 @@ function setSmsPlatformFilter(platformId) {
   renderSmsInboxMessages();
 }
 
+// ─── 4. TEMP VIRTUAL SMS NUMBERS ───
 async function loadTempSmsNumbers() {
   if (tempSmsLoaded) return;
   const listEl = document.getElementById('sms-num-list');
@@ -3479,13 +3480,28 @@ async function loadTempSmsNumbers() {
 
   renderSmsPlatformFilters();
 
+  // Remove renderSmsPlatformFilters from here since filter bar is gone
+  // (just keep the empty call to avoid errors, no-op if element doesn't exist)
+
   try {
     const res = await fetch('/api/phone/tempsms/numbers', { method: 'POST' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Gagal memuat nomor virtual');
 
+    // Allow only US and UK numbers
+    const allowed = ['us', 'gb'];
+    const filtered = (data.numbers || []).filter(item => {
+      const code = (item.country_code || item.flag || '').toLowerCase();
+      return allowed.includes(code);
+    });
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div style="color:var(--gray-500);font-size:12px;padding:12px 4px;">Tidak ada nomor virtual tersedia untuk negara yang diizinkan.</div>';
+      return;
+    }
+
     listEl.innerHTML = '';
-    data.numbers.forEach((item, idx) => {
+    filtered.forEach((item, idx) => {
       const ccode = (item.country_code || item.flag || 'un').toLowerCase();
       const isWarn = item.country_code === 'id';
       const el = document.createElement('div');
@@ -3513,12 +3529,15 @@ async function loadTempSmsNumbers() {
       listEl.appendChild(el);
     });
 
+    // Update jalur count label
+    const jalurEl = document.getElementById('sms-jalur-count');
+    if (jalurEl) jalurEl.textContent = `${filtered.length} Jalur Aktif`;
+
     tempSmsLoaded = true;
-    if (data.numbers.length > 0) {
-      selectTempSmsNumber(data.numbers[0].number, listEl.children[0]);
-    }
+    // Auto-select first allowed number
+    selectTempSmsNumber(filtered[0].number, listEl.children[0]);
   } catch (err) {
-    listEl.innerHTML = `<div style="color:var(--error);font-size:12px;padding:8px;">${err.message}</div>`;
+    showToast(err.message, true);
   }
 }
 
@@ -3559,7 +3578,6 @@ async function reloadSmsInbox() {
     if (!res.ok) throw new Error(data.error || 'Gagal memuat inbox');
 
     currentSmsMessages = data.messages || [];
-    renderSmsPlatformFilters();
     renderSmsInboxMessages();
     showToast('Inbox SMS berhasil diperbarui!');
   } catch (err) {
@@ -3576,56 +3594,15 @@ function renderSmsInboxMessages() {
 
   if (!currentSmsMessages || currentSmsMessages.length === 0) {
     box.innerHTML = `
-      <div style="padding:24px;text-align:center;color:var(--gray-400);font-size:13px;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;">
-        Belum ada SMS masuk pada nomor ini dalam beberapa menit terakhir. Kirim kode OTP dari aplikasi target Anda lalu klik <strong>Perbarui SMS</strong>.
+      <div style="padding:28px 20px;text-align:center;color:var(--gray-400);font-size:13px;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;">
+        Belum ada SMS masuk pada nomor ini. Kirim kode OTP dari aplikasi target lalu klik <strong>Perbarui SMS</strong>.
       </div>
     `;
     return;
   }
 
-  // Filter by platform if selected
-  let filtered = currentSmsMessages;
-  if (selectedSmsPlatform !== 'all') {
-    const key = selectedSmsPlatform.toLowerCase();
-    filtered = currentSmsMessages.filter(m => {
-      const from = (m.from || '').toLowerCase();
-      const txt = (m.text || '').toLowerCase();
-      if (key === 'tiktok') return from.includes('tiktok') || from.includes('byteplus') || from.includes('bytedance') || txt.includes('tiktok') || txt.includes('豆包');
-      if (key === 'google') return from.includes('google') || from.includes('gmail') || from.includes('g-') || txt.includes('google');
-      if (key === 'whatsapp') return from.includes('whatsapp') || from.includes('wa') || txt.includes('whatsapp');
-      if (key === 'telegram') return from.includes('telegram') || txt.includes('telegram');
-      if (key === 'steam') return from.includes('steam') || txt.includes('steam');
-      if (key === 'netflix') return from.includes('netflix') || txt.includes('netflix');
-      if (key === 'discord') return from.includes('discord') || txt.includes('discord');
-      if (key === 'tinder') return from.includes('tinder') || txt.includes('tinder');
-      if (key === 'paypal') return from.includes('paypal') || from.includes('22100') || txt.includes('paypal');
-      if (key === 'facebook') return from.includes('facebook') || from.includes('meta') || txt.includes('facebook') || txt.includes('instagram');
-      return from.includes(key) || txt.includes(key);
-    });
-  }
-
-  if (filtered.length === 0) {
-    const targetP = SMS_PLATFORMS.find(p => p.id === selectedSmsPlatform);
-    box.innerHTML = `
-      <div style="padding:28px 20px;text-align:center;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;background:var(--gray-50,#f8fafc);">
-        <div style="width:44px;height:44px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;background:#ffffff;border-radius:10px;border:1px solid var(--gray-200,#e2e8f0);box-shadow:0 2px 6px rgba(0,0,0,0.05);">
-          ${targetP ? targetP.icon : ''}
-        </div>
-        <div style="font-size:14px;font-weight:700;color:var(--gray-900,#0f172a);margin-bottom:4px;">
-          Belum Ada SMS Masuk dari ${targetP ? targetP.name : 'Platform Ini'}
-        </div>
-        <div style="font-size:12px;color:var(--gray-500,#64748b);line-height:1.5;max-width:340px;margin:0 auto;">
-          Kirim kode verifikasi dari aplikasi ${targetP ? targetP.name : ''} ke nomor aktif ini, kemudian tekan tombol <strong>Perbarui SMS</strong> di atas.
-        </div>
-        <button class="btn-secondary" onclick="setSmsPlatformFilter('all')" style="margin-top:12px;font-size:11px;padding:5px 12px;display:inline-flex;align-items:center;gap:4px;">
-          <span>Tampilkan Semua Layanan (${currentSmsMessages.length})</span>
-        </button>
-      </div>
-    `;
-    return;
-  }
-
-  filtered.forEach(m => {
+  // Show ALL messages — no platform filter
+  currentSmsMessages.forEach(m => {
     const brandLogo = getSmsBrandLogo(m.from);
     const hasCode = Boolean(m.code && m.code.trim().length >= 3);
     const item = document.createElement('div');
@@ -3634,9 +3611,7 @@ function renderSmsInboxMessages() {
     let otpBlock = '';
     if (hasCode) {
       const rawCode = m.code.trim();
-      // Space out 6-digit codes (e.g. 525 472)
       const displayCode = rawCode.length === 6 ? `${rawCode.slice(0,3)} ${rawCode.slice(3)}` : rawCode;
-
       otpBlock = `
         <div class="sms-otp-hero">
           <div class="sms-otp-left">
@@ -3662,9 +3637,7 @@ function renderSmsInboxMessages() {
         </div>
         <div class="sms-time-badge">${m.time_ago || 'Baru saja'}</div>
       </div>
-
       <div class="sms-msg-text">${m.text || ''}</div>
-
       ${otpBlock}
     `;
     box.appendChild(item);

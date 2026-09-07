@@ -611,33 +611,25 @@
           </div>
 
           <div class="sms-layout">
+            <!-- Left: number list -->
             <div>
               <div class="chips-title" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
                 <span>PILIH NOMOR VIRTUAL:</span>
-                <span style="font-size:11px;font-weight:600;color:var(--gray-500,#64748b);">9 Jalur Aktif</span>
+                <span id="sms-jalur-count" style="font-size:11px;font-weight:600;color:var(--gray-500,#64748b);">— Jalur</span>
               </div>
               <div class="sms-num-list" id="sms-num-list"></div>
             </div>
+            <!-- Right: inbox -->
             <div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <div class="chips-title">INBOX MASUK (<span id="sms-active-num-label" style="color:var(--black);font-family:'Space Grotesk',monospace;font-weight:700;">Pilih Nomor</span>):</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div class="chips-title">INBOX (<span id="sms-active-num-label" style="color:var(--black);font-family:'Space Grotesk',monospace;font-weight:700;">Pilih Nomor</span>)</div>
                 <button class="btn-secondary" onclick="reloadSmsInbox()" id="sms-reload-btn" style="padding:5px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px;font-weight:600;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                   <span>Perbarui SMS</span>
                 </button>
               </div>
-
-              <!-- Platform Logo Filter Bar (Icon Only) -->
-              <div class="sms-platform-bar">
-                <div class="sms-platform-header">
-                  <div class="sms-platform-title">FILTER LOGO PLATFORM:</div>
-                  <div id="sms-filter-count" style="font-size:11px;color:var(--gray-500,#64748b);font-weight:600;">Semua Layanan</div>
-                </div>
-                <div class="sms-platform-list" id="sms-platform-list"></div>
-              </div>
-
               <div class="sms-inbox-container" id="sms-inbox-container">
-                <div style="padding:28px 20px;text-align:center;color:var(--gray-400);font-size:13px;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;">Pilih salah satu nomor di sebelah kiri untuk membaca pesan SMS masuk secara live.</div>
+                <div style="padding:32px 20px;text-align:center;color:var(--gray-400);font-size:13px;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;">Pilih salah satu nomor di sebelah kiri untuk membaca pesan SMS masuk secara live.</div>
               </div>
             </div>
           </div>
