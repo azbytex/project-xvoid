@@ -1,37 +1,49 @@
-# ⟡ PROJECT-XVOID
+<div align="center">
 
-> **"Knowledge is power — use it to learn, not to harm."**
+<img src="./web/logo.png" width="650">
 
-**PROJECT-XVOID** is an intelligence & security research toolkit built for **education, experimentation, and authorized testing**.
+<br>
 
-### ⚡ Features
+### INTELLIGENCE · OSINT · SECURITY
 
-* 🪪 **NIK Intel** — NIK structure & regional analysis
-* 📱 **Phone Intel** — phone number metadata & analysis
-* 🦅 **Strix Engine** — web security assessment
-* 🌐 **Web Dashboard** — simple interface for all engines
-* 🔌 **API** — modular backend & engine integration
+<p>
+  <img src="https://img.shields.io/badge/PYTHON-111111?style=flat-square&logo=python&logoColor=white">
+  <img src="https://img.shields.io/badge/OSINT-111111?style=flat-square&logo=search&logoColor=white">
+  <img src="https://img.shields.io/badge/SECURITY-111111?style=flat-square&logo=shield&logoColor=white">
+  <img src="https://img.shields.io/badge/API-111111?style=flat-square&logo=fastapi&logoColor=white">
+  <img src="https://img.shields.io/badge/STATUS-ACTIVE-111111?style=flat-square">
+</p>
 
-### 🛠️ Built With
+<br>
 
-`Python` · `REST API` · `Web` · `OSINT` · `Security`
+> **“Explore to understand. Understand to protect.”**
 
-### 🎯 Purpose
+</div>
 
-Built for **learning, security research, and educational purposes**.
+---
 
-> **"Understand how it works. Learn how to secure it."**
+## ◈ About
 
-### ⚠️ Responsible Use
+**PROJECT-XVOID** is a modular toolkit for **education, research, experimentation, and authorized security testing.**
 
-Use XVOID only on systems and data you **own or have permission to test**.
+### ⚡ Modules
+
+| | Module | Purpose |
+|---|---|---|
+| ◈ | **NIK Intel** | NIK structure & regional analysis |
+| ◈ | **Phone Intel** | Phone metadata & number analysis |
+| ◈ | **Strix Engine** | Web security assessment |
+| ◈ | **Dashboard** | Unified interface |
+| ◈ | **API** | Engine integration |
 
 ---
 
 <div align="center">
 
-**⟡ PROJECT-XVOID**
+`LEARN` · `RESEARCH` · `ANALYZE` · `SECURE`
 
-*Learn • Research • Secure*
+<br><br>
+
+<sub>⟡ PROJECT-XVOID · Built for knowledge, not harm.</sub>
 
 </div>
