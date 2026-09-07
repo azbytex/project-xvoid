@@ -11,4 +11,4 @@ import server
 
 class handler(server.BaseApiHandler):
     """Vercel Serverless Function entrypoint."""
-    pass
+    pass 

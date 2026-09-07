@@ -429,4 +429,4 @@ def run_native_pentest(target_url: str, timeout: int = 15) -> dict:
         "open_ports": open_ports,
         "sensitive_files": sensitive_files,
         "tech_stack": tech_stack
-    }
+    } 

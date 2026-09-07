@@ -4225,4 +4225,4 @@
 
     return { lenis, locomotiveScroll: loco };
   };
-})();
+})(); 

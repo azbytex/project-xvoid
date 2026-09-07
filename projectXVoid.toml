@@ -13,4 +13,4 @@ dependencies = [
 ]
 
 [project.scripts]
-project-xvoid = "dashboard:main"
+project-xvoid = "dashboard:main" 

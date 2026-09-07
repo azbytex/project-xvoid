@@ -410,4 +410,4 @@ def parse_nik_indonesia(nik_input: str) -> Dict[str, Any]:
         "shio": shio_sign,
         "dorks": dork_links,
         "engine_attribution": "osint-indonesia-v3 (Dukcapil Algorithm & Administrative Wilayah Decoder)"
-    }
+    } 

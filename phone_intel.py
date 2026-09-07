@@ -423,4 +423,4 @@ class MultiEnginePhoneScanner:
             },
             "resources": resources,
             "timestamp": datetime.now().isoformat()
-        }
+        } 
