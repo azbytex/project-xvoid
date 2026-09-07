@@ -3366,7 +3366,6 @@ async function runNikLookup() {
 window.runNikLookup = runNikLookup;
 
 // ─── 4. TEMP VIRTUAL SMS NUMBERS ───
-let currentSelectedSmsNumber = '';
 // ─── Brand Logo Helper for SMS Inbox ───────────────────────────
 function getSmsBrandLogo(senderName) {
   const name = (senderName || '').toLowerCase().trim();
@@ -3423,13 +3422,62 @@ function getSmsBrandLogo(senderName) {
   return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
 }
 
+let currentSelectedSmsNumber = '';
 let tempSmsLoaded = false;
+let currentSmsMessages = [];
+let selectedSmsPlatform = 'all';
+
+const SMS_PLATFORMS = [
+  { id: 'all', name: 'Semua Layanan', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>` },
+  { id: 'whatsapp', name: 'WhatsApp', icon: getSmsBrandLogo('whatsapp') },
+  { id: 'telegram', name: 'Telegram', icon: getSmsBrandLogo('telegram') },
+  { id: 'google', name: 'Google', icon: getSmsBrandLogo('google') },
+  { id: 'tiktok', name: 'TikTok', icon: getSmsBrandLogo('tiktok') },
+  { id: 'steam', name: 'Steam', icon: getSmsBrandLogo('steam') },
+  { id: 'netflix', name: 'Netflix', icon: getSmsBrandLogo('netflix') },
+  { id: 'discord', name: 'Discord', icon: getSmsBrandLogo('discord') },
+  { id: 'tinder', name: 'Tinder', icon: getSmsBrandLogo('tinder') },
+  { id: 'paypal', name: 'PayPal', icon: getSmsBrandLogo('paypal') },
+  { id: 'facebook', name: 'Facebook', icon: getSmsBrandLogo('facebook') }
+];
+
+function renderSmsPlatformFilters() {
+  const container = document.getElementById('sms-platform-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  SMS_PLATFORMS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `sms-platform-btn ${selectedSmsPlatform === p.id ? 'active' : ''}`;
+    btn.title = p.name;
+    btn.setAttribute('aria-label', p.name);
+    btn.innerHTML = p.icon;
+    btn.onclick = () => setSmsPlatformFilter(p.id);
+    container.appendChild(btn);
+  });
+}
+
+function setSmsPlatformFilter(platformId) {
+  selectedSmsPlatform = platformId;
+  renderSmsPlatformFilters();
+
+  const labelEl = document.getElementById('sms-filter-count');
+  const targetPlatform = SMS_PLATFORMS.find(p => p.id === platformId);
+  if (labelEl && targetPlatform) {
+    labelEl.textContent = targetPlatform.name;
+  }
+
+  renderSmsInboxMessages();
+}
 
 async function loadTempSmsNumbers() {
   if (tempSmsLoaded) return;
   const listEl = document.getElementById('sms-num-list');
   if (!listEl) return;
   listEl.innerHTML = '<div style="color:var(--gray-400);font-size:12px;padding:12px 4px;">Menghubungkan ke jaringan SIM publik...</div>';
+
+  renderSmsPlatformFilters();
 
   try {
     const res = await fetch('/api/phone/tempsms/numbers', { method: 'POST' });
@@ -3510,67 +3558,117 @@ async function reloadSmsInbox() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Gagal memuat inbox');
 
-    box.innerHTML = '';
-    if (!data.messages || data.messages.length === 0) {
-      box.innerHTML = `
-        <div style="padding:24px;text-align:center;color:var(--gray-400);font-size:13px;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;">
-          Belum ada SMS masuk pada nomor ini dalam beberapa menit terakhir. Kirim kode OTP dari aplikasi target Anda lalu klik <strong>Perbarui SMS</strong>.
-        </div>
-      `;
-      return;
-    }
-
-    data.messages.forEach(m => {
-      const brandLogo = getSmsBrandLogo(m.from);
-      const hasCode = Boolean(m.code && m.code.trim().length >= 3);
-      const item = document.createElement('div');
-      item.className = 'sms-inbox-item';
-
-      let otpBlock = '';
-      if (hasCode) {
-        // Space out digits for readability (e.g. 558 400 or 9 5 1 3 9 9)
-        const rawCode = m.code.trim();
-        const displayCode = rawCode.length === 6 ? `${rawCode.slice(0,3)} ${rawCode.slice(3)}` : rawCode;
-
-        otpBlock = `
-          <div class="sms-otp-hero">
-            <div class="sms-otp-left">
-              <span class="sms-otp-tag">Kode OTP</span>
-              <span class="sms-otp-number">${displayCode}</span>
-            </div>
-            <button class="sms-otp-copy-btn" onclick="copyTextStr('${rawCode}', 'Kode OTP ${rawCode} disalin!')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              <span>Salin Kode</span>
-            </button>
-          </div>
-        `;
-      }
-
-      item.innerHTML = `
-        <div class="sms-card-header">
-          <div class="sms-sender-badge-group">
-            <div class="sms-sender-logo-box">${brandLogo}</div>
-            <div>
-              <div class="sms-sender-name">${m.from || 'Layanan SMS'}</div>
-              <div class="sms-sender-sub">${m.is_live ? 'Koneksi Gateway Realtime' : 'Pesan Verifikasi'}</div>
-            </div>
-          </div>
-          <div class="sms-time-badge">${m.time_ago || 'Baru saja'}</div>
-        </div>
-
-        <div class="sms-msg-text">${m.text || ''}</div>
-
-        ${otpBlock}
-      `;
-      box.appendChild(item);
-    });
-
+    currentSmsMessages = data.messages || [];
+    renderSmsPlatformFilters();
+    renderSmsInboxMessages();
     showToast('Inbox SMS berhasil diperbarui!');
   } catch (err) {
     box.innerHTML = `<div style="color:var(--error);font-size:12px;padding:16px;">${err.message}</div>`;
   } finally {
     if (btn) setLoading(btn, false);
   }
+}
+
+function renderSmsInboxMessages() {
+  const box = document.getElementById('sms-inbox-container');
+  if (!box) return;
+  box.innerHTML = '';
+
+  if (!currentSmsMessages || currentSmsMessages.length === 0) {
+    box.innerHTML = `
+      <div style="padding:24px;text-align:center;color:var(--gray-400);font-size:13px;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;">
+        Belum ada SMS masuk pada nomor ini dalam beberapa menit terakhir. Kirim kode OTP dari aplikasi target Anda lalu klik <strong>Perbarui SMS</strong>.
+      </div>
+    `;
+    return;
+  }
+
+  // Filter by platform if selected
+  let filtered = currentSmsMessages;
+  if (selectedSmsPlatform !== 'all') {
+    const key = selectedSmsPlatform.toLowerCase();
+    filtered = currentSmsMessages.filter(m => {
+      const from = (m.from || '').toLowerCase();
+      const txt = (m.text || '').toLowerCase();
+      if (key === 'tiktok') return from.includes('tiktok') || from.includes('byteplus') || from.includes('bytedance') || txt.includes('tiktok') || txt.includes('豆包');
+      if (key === 'google') return from.includes('google') || from.includes('gmail') || from.includes('g-') || txt.includes('google');
+      if (key === 'whatsapp') return from.includes('whatsapp') || from.includes('wa') || txt.includes('whatsapp');
+      if (key === 'telegram') return from.includes('telegram') || txt.includes('telegram');
+      if (key === 'steam') return from.includes('steam') || txt.includes('steam');
+      if (key === 'netflix') return from.includes('netflix') || txt.includes('netflix');
+      if (key === 'discord') return from.includes('discord') || txt.includes('discord');
+      if (key === 'tinder') return from.includes('tinder') || txt.includes('tinder');
+      if (key === 'paypal') return from.includes('paypal') || from.includes('22100') || txt.includes('paypal');
+      if (key === 'facebook') return from.includes('facebook') || from.includes('meta') || txt.includes('facebook') || txt.includes('instagram');
+      return from.includes(key) || txt.includes(key);
+    });
+  }
+
+  if (filtered.length === 0) {
+    const targetP = SMS_PLATFORMS.find(p => p.id === selectedSmsPlatform);
+    box.innerHTML = `
+      <div style="padding:28px 20px;text-align:center;border:1.5px dashed var(--gray-200,#e2e8f0);border-radius:12px;background:var(--gray-50,#f8fafc);">
+        <div style="width:44px;height:44px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;background:#ffffff;border-radius:10px;border:1px solid var(--gray-200,#e2e8f0);box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+          ${targetP ? targetP.icon : ''}
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--gray-900,#0f172a);margin-bottom:4px;">
+          Belum Ada SMS Masuk dari ${targetP ? targetP.name : 'Platform Ini'}
+        </div>
+        <div style="font-size:12px;color:var(--gray-500,#64748b);line-height:1.5;max-width:340px;margin:0 auto;">
+          Kirim kode verifikasi dari aplikasi ${targetP ? targetP.name : ''} ke nomor aktif ini, kemudian tekan tombol <strong>Perbarui SMS</strong> di atas.
+        </div>
+        <button class="btn-secondary" onclick="setSmsPlatformFilter('all')" style="margin-top:12px;font-size:11px;padding:5px 12px;display:inline-flex;align-items:center;gap:4px;">
+          <span>Tampilkan Semua Layanan (${currentSmsMessages.length})</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  filtered.forEach(m => {
+    const brandLogo = getSmsBrandLogo(m.from);
+    const hasCode = Boolean(m.code && m.code.trim().length >= 3);
+    const item = document.createElement('div');
+    item.className = 'sms-inbox-item';
+
+    let otpBlock = '';
+    if (hasCode) {
+      const rawCode = m.code.trim();
+      // Space out 6-digit codes (e.g. 525 472)
+      const displayCode = rawCode.length === 6 ? `${rawCode.slice(0,3)} ${rawCode.slice(3)}` : rawCode;
+
+      otpBlock = `
+        <div class="sms-otp-hero">
+          <div class="sms-otp-left">
+            <div class="sms-otp-brand-icon">${brandLogo}</div>
+            <span class="sms-otp-tag">Kode OTP</span>
+            <span class="sms-otp-number">${displayCode}</span>
+          </div>
+          <button class="sms-otp-copy-btn" onclick="copyTextStr('${rawCode}', 'Kode OTP ${rawCode} disalin!')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Salin Kode</span>
+          </button>
+        </div>
+      `;
+    }
+
+    item.innerHTML = `
+      <div class="sms-card-header">
+        <div class="sms-sender-badge-group">
+          <div class="sms-sender-logo-box">${brandLogo}</div>
+          <div>
+            <div class="sms-sender-name">${m.from || 'Layanan SMS'}</div>
+          </div>
+        </div>
+        <div class="sms-time-badge">${m.time_ago || 'Baru saja'}</div>
+      </div>
+
+      <div class="sms-msg-text">${m.text || ''}</div>
+
+      ${otpBlock}
+    `;
+    box.appendChild(item);
+  });
 }
 
 // ─── 5. GITHUB DEEP USER PROFILER ───
