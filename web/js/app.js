@@ -128,7 +128,9 @@ function setLoading(buttonId, show, customLabel) {
   }
   if (show) {
     btn.disabled = true;
-    btn.classList.add('loading', 'is-loading');
+    btn.classList.add('is-loading');
+    btn.classList.remove('loading');
+    btn.style.display = 'inline-flex';
     if (!btn.dataset.origHtml) {
       btn.dataset.origHtml = btn.innerHTML;
     }
@@ -137,7 +139,8 @@ function setLoading(buttonId, show, customLabel) {
     btn.innerHTML = `<span class="spinner" style="display:inline-block;margin-right:7px;vertical-align:middle;"></span><span>${label}</span>`;
   } else {
     btn.disabled = false;
-    btn.classList.remove('loading', 'is-loading');
+    btn.classList.remove('is-loading', 'loading');
+    btn.style.display = '';
     if (btn.dataset.origHtml) {
       btn.innerHTML = btn.dataset.origHtml;
       delete btn.dataset.origHtml;

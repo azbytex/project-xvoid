@@ -1716,19 +1716,21 @@ body.ai-fullscreen-active #clickFxCanvas {
   border-top-color: var(--black, #111114);
 }
 
-.btn-primary.loading,
 .btn-primary.is-loading,
-.btn-secondary.loading,
 .btn-secondary.is-loading,
-button.loading,
 button.is-loading {
   pointer-events: none;
   cursor: wait !important;
   opacity: 0.88;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Sembunyikan container teks memindai statis agar UI bersih dan feedback fokus pada tombol */
-.loading,
+div.loading,
+p.loading,
+span.loading-text,
 .loading-text,
 .loading-spinner,
 #strix-btn-loading,
