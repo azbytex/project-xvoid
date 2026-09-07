@@ -800,9 +800,9 @@
 
         <div class="form-group">
           <label class="form-label" for="wi-input">Domain atau URL Target</label>
-          <div style="display:flex;gap:8px;">
-            <input type="text" class="form-input" id="wi-input" placeholder="Domain atau URL target" onkeydown="if(event.key==='Enter') inspectWeb()">
-            <button class="btn-primary" id="wi-submit-btn" onclick="inspectWeb()" style="white-space:nowrap;min-width:140px;">
+          <div class="input-with-btn">
+            <input type="text" class="form-input" id="wi-input" placeholder="contoh.com" onkeydown="if(event.key==='Enter') inspectWeb()">
+            <button class="btn-primary" id="wi-submit-btn" onclick="inspectWeb()">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
               <span>Audit Domain</span>
             </button>
@@ -1202,9 +1202,9 @@
 
         <div class="form-group">
           <label class="form-label" for="tt-url">Tautan / URL Video atau Audio</label>
-          <div style="display:flex;gap:8px;">
-            <input type="url" id="tt-url" class="form-input" placeholder="Tempel link TikTok, Instagram, YouTube, X (Twitter), Facebook..." onkeydown="if(event.key==='Enter') fetchTikTok()">
-            <button class="btn-primary" id="tt-btn" onclick="fetchTikTok()" style="white-space:nowrap;min-width:140px;">
+          <div class="input-with-btn">
+            <input type="url" id="tt-url" class="form-input" placeholder="Link TikTok, Instagram, YouTube..." onkeydown="if(event.key==='Enter') fetchTikTok()">
+            <button class="btn-primary" id="tt-btn" onclick="fetchTikTok()">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>Unduh Media</span>
             </button>
