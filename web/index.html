@@ -156,11 +156,11 @@
         <div style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;">
           <img src="logo.png" alt="Project-XVoid" class="xv-brand-logo-img">
         </div>
-        <div class="card-badge">
+        <div class="card-badge" onclick="openChangelogModal()" style="cursor:pointer;" title="Klik untuk melihat catatan rilis & pembaruan">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
-          Project-XVOID v1.3
+          Project-XVOID v1.3 · <span style="text-decoration:underline;text-underline-offset:2px;">Lihat Update</span>
         </div>
         <h1 class="card-title">Modular Cyber &amp; Dev Suite</h1>
         <p class="card-desc">Toolkit komprehensif terintegrasi: OSINT Sherlock, Discord Lookup, Temp Virtual SMS, Subdomain Recon, Port Scanner, IP Threat Intel, AI Media Lab, Alight Motion, &amp; Dev Utilities.</p>
@@ -1731,6 +1731,112 @@
             Unduh Gambar HD
           </a>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Catatan Pembaruan (Changelog) -->
+  <div class="changelog-modal" id="changelogModal" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+    <div class="changelog-backdrop" onclick="closeChangelogModal()"></div>
+    <div class="changelog-dialog" onclick="event.stopPropagation()">
+      <div class="changelog-header">
+        <div class="changelog-header-brand">
+          <div class="changelog-icon-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
+          <div>
+            <div class="changelog-badge-top">RIWAYAT PEMBARUAN</div>
+            <h3 class="changelog-title" id="changelogTitle">Catatan Rilis Project-XVOID</h3>
+          </div>
+        </div>
+        <button type="button" class="changelog-close-btn" onclick="closeChangelogModal()" aria-label="Tutup" title="Tutup">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="changelog-body">
+        <!-- Version 1.3 -->
+        <div class="changelog-timeline-item current">
+          <div class="changelog-timeline-dot"></div>
+          <div class="changelog-ver-header">
+            <span class="changelog-ver-title">Versi 1.3</span>
+            <span class="changelog-ver-pill latest">TERBARU / PATCH 1.3</span>
+          </div>
+          <div class="changelog-ver-desc">Pembaruan modul Offensive Pentest, lokalisasi Bahasa Indonesia penuh, dan peningkatan animasi interaktif.</div>
+          <ul class="changelog-features-list">
+            <li><span>🛡️</span><div><strong>Strix Pentest Scanner:</strong> Pemindaian kerentanan otonom dengan audit port database publik (MySQL, Postgres, Redis, FTP), simulasi CORS arbitrary origin injection, probe file sensitif (<code>.git</code> &amp; <code>.env</code>), dan skor keamanan A–F.</div></li>
+            <li><span>🇮🇩</span><div><strong>Full Indonesian Localization:</strong> Seluruh 9 tab utama, submenu formulir, status feedback, dan laporan analitik kini sepenuhnya berbahasa Indonesia.</div></li>
+            <li><span>⚡</span><div><strong>Indikator Loading Aktif:</strong> Semua tombol aksi pada setiap tab kini memiliki animasi spinner responsif saat memproses data.</div></li>
+            <li><span>🌐</span><div><strong>Penanganan Resolusi DNS Ramah:</strong> Penjelasan informatif dan solutif jika URL target tidak aktif di DNS internet.</div></li>
+          </ul>
+        </div>
+
+        <!-- Version 1.2 -->
+        <div class="changelog-timeline-item">
+          <div class="changelog-timeline-dot"></div>
+          <div class="changelog-ver-header">
+            <span class="changelog-ver-title">Versi 1.2</span>
+            <span class="changelog-ver-pill">STABIL</span>
+          </div>
+          <div class="changelog-ver-desc">Integrasi intelijen identitas lokal, nomor telepon, dan antarmuka dinamis modern.</div>
+          <ul class="changelog-features-list">
+            <li><span>🔍</span><div><strong>OSINT NIK Intelligence:</strong> Verifikasi dan ekstraksi wilayah administratif (Provinsi, Kota/Kab, Kecamatan), tanggal lahir, jenis kelamin, dan nomor urut dari NIK KTP.</div></li>
+            <li><span>📱</span><div><strong>Phone &amp; SMS Intelligence:</strong> Pelacakan data operator seluler Indonesia, normalisasi format E.164, dan integrasi WhatsApp/Telegram direct messaging.</div></li>
+            <li><span>🎨</span><div><strong>Liquid Glassmorphism:</strong> Pembaruan desain visual antarmuka modern dengan background interaktif canvas dan fluid gradients.</div></li>
+            <li><span>🎬</span><div><strong>Universal Media Downloader:</strong> Pengambilan media video &amp; audio multi-platform tanpa watermark.</div></li>
+          </ul>
+        </div>
+
+        <!-- Version 1.1 -->
+        <div class="changelog-timeline-item">
+          <div class="changelog-timeline-dot"></div>
+          <div class="changelog-ver-header">
+            <span class="changelog-ver-title">Versi 1.1</span>
+            <span class="changelog-ver-pill">PENINGKATAN</span>
+          </div>
+          <div class="changelog-ver-desc">Penambahan audit kebocoran privasi browser, steganografi, dan utilitas developer.</div>
+          <ul class="changelog-features-list">
+            <li><span>🕵️</span><div><strong>Browser Fingerprint Audit:</strong> Deteksi kebocoran hardware browser (Canvas hash, GPU unmasked, WebGL, dan WebRTC local IP leak).</div></li>
+            <li><span>🖼️</span><div><strong>Steganografi Gambar PNG:</strong> Penanaman dan ekstraksi pesan teks rahasia ke dalam pixel gambar tanpa merusak kualitas visual.</div></li>
+            <li><span>⚡</span><div><strong>Alight Motion Magic Link:</strong> Generator dan verifikasi tautan magic link Alight Motion.</div></li>
+            <li><span>📦</span><div><strong>Web to APK &amp; Web to ZIP:</strong> Pembuat paket aplikasi Android dan pengunduh source code website offline ZIP.</div></li>
+          </ul>
+        </div>
+
+        <!-- Version 1.0 -->
+        <div class="changelog-timeline-item">
+          <div class="changelog-timeline-dot"></div>
+          <div class="changelog-ver-header">
+            <span class="changelog-ver-title">Versi 1.0</span>
+            <span class="changelog-ver-pill">GENESIS</span>
+          </div>
+          <div class="changelog-ver-desc">Peluncuran perdana arsitektur PROJECT-XVOID suite.</div>
+          <ul class="changelog-features-list">
+            <li><span>🚀</span><div><strong>PROJECT-XVOID Core:</strong> Fondasi sistem modular cyber intelligence dan developer toolkit.</div></li>
+            <li><span>🤖</span><div><strong>XVoid AI Assistant:</strong> Asisten pintar percakapan untuk bantuan coding dan investigasi siber.</div></li>
+            <li><span>🔎</span><div><strong>OSINT Sherlock:</strong> Pelacakan keberadaan username target di puluhan platform jejaring sosial secara simultan.</div></li>
+            <li><span>🌐</span><div><strong>Network Recon:</strong> Pemindaian subdomain, TCP port scanner, dan IP Threat Intelligence.</div></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="changelog-footer">
+        <label class="changelog-checkbox-wrap">
+          <input type="checkbox" id="chkDontShowChangelog">
+          <span>Jangan tampilkan otomatis lagi</span>
+        </label>
+        <button type="button" class="btn-primary" onclick="closeChangelogModal()" style="padding:8px 20px;display:inline-flex;align-items:center;gap:8px;">
+          <span>Mulai Eksplorasi</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
       </div>
     </div>
   </div>

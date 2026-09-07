@@ -324,6 +324,68 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyTranslations();
 });
 
+// ─── CHANGELOG / WHAT'S NEW MODAL CONTROLLER ───
+function openChangelogModal() {
+  const m = document.getElementById('changelogModal');
+  if (m) {
+    m.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeChangelogModal() {
+  const m = document.getElementById('changelogModal');
+  const chk = document.getElementById('chkDontShowChangelog');
+  if (chk && chk.checked) {
+    try {
+      localStorage.setItem('xvoid_changelog_dismissed_v13', 'true');
+    } catch (e) {}
+  }
+  if (m) {
+    m.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+}
+
+window.openChangelogModal = openChangelogModal;
+window.closeChangelogModal = closeChangelogModal;
+
+// Automatically trigger changelog popup after welcome intro animation completes
+(function initChangelogPopup() {
+  let hasTriggered = false;
+  const triggerModal = () => {
+    if (hasTriggered) return;
+    hasTriggered = true;
+    let dismissed = false;
+    try {
+      dismissed = localStorage.getItem('xvoid_changelog_dismissed_v13') === 'true';
+    } catch (e) {}
+    if (!dismissed) {
+      setTimeout(() => {
+        openChangelogModal();
+      }, 550);
+    }
+  };
+
+  // Event from loader.js when welcome animation is done
+  window.addEventListener('xvoidLoaderDone', triggerModal, { once: true });
+
+  // Escape key handler
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const m = document.getElementById('changelogModal');
+      if (m && m.classList.contains('show')) {
+        closeChangelogModal();
+      }
+    }
+  });
+
+  // Fallback if loader already completed before this script attached
+  if (window.XVoidLoader && typeof window.XVoidLoader.isDone === 'function' && window.XVoidLoader.isDone()) {
+    triggerModal();
+  }
+})();
+
 let currentActiveThumbX = 0;
 let currentActiveThumbW = 0;
 
