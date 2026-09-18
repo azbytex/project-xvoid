@@ -1,3 +1,30 @@
+// ─── SMART API RESOLVER FOR FILE:// AND LOCALHOST ───
+const API_BASE = (function () {
+  if (typeof window !== 'undefined' && window.location) {
+    if (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') {
+      return 'http://127.0.0.1:3000';
+    }
+  }
+  return '';
+})();
+
+async function safeFetch(url, options = {}) {
+  const finalUrl = url.startsWith('http') ? url : (API_BASE + url);
+  try {
+    const res = await fetch(finalUrl, options);
+    return res;
+  } catch (err) {
+    if (err && (err.name === 'TypeError' || String(err).includes('fetch') || String(err).includes('NetworkError'))) {
+      if (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:') {
+        throw new Error("Backend server belum aktif di http://127.0.0.1:3000. Jalankan 'python server.py' di terminal.");
+      } else {
+        throw new Error("Gagal terhubung ke backend. Pastikan server lokal 'python server.py' sedang berjalan.");
+      }
+    }
+    throw err;
+  }
+}
+
 (function() {
   document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; }, { capture: true });
   document.addEventListener('keydown', function(e) {
@@ -92,7 +119,7 @@ let translations = {};
 
 async function loadTranslations(lang = 'id') {
   try {
-    const resp = await fetch(`./i18n/${lang}.json`);
+    const resp = await safeFetch(`/i18n/${lang}.json`);
     translations = await resp.json();
   } catch (e) {
     console.error('Failed to load translations:', e);
@@ -219,7 +246,7 @@ function renderStrixResult(data) {
       }
     </style>
 
-    <div style="background:var(--gray-50,#f8fafc);border:1.5px solid var(--gray-200,#e2e8f0);border-radius:18px;padding:20px 20px 16px;margin-bottom:16px;overflow:hidden;">
+    <div style="background:#131318;border:1px solid #292932;border-radius:14px;padding:22px 20px;margin-bottom:18px;overflow:hidden;">
 
       <!-- TOP ROW: ring + host info + severity pills -->
       <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
@@ -271,38 +298,38 @@ function renderStrixResult(data) {
 
         <!-- Host info + grade label -->
         <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
             <span style="
               font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
-              padding:3px 9px;border-radius:6px;
+              padding:3px 10px;border-radius:6px;
               background:linear-gradient(135deg,${gi.color1}22,${gi.color2}22);
               color:${gi.color1};border:1px solid ${gi.color1}44;
             ">${gi.letter} — ${gi.label}</span>
           </div>
-          <div style="font-size:15px;font-weight:700;color:var(--gray-900,#0f172a);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          <div style="font-size:16px;font-weight:700;color:#F4F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-mono, monospace);">
             ${data.host || data.target || 'Target Host'}
           </div>
-          <div style="font-size:11.5px;color:var(--gray-500,#64748b);margin-top:3px;line-height:1.5;">
-            <span>IP: <strong style="color:var(--gray-700,#334155)">${data.ip || 'CDN/Hidden'}</strong></span>
+          <div style="font-size:12px;color:#94a3b8;margin-top:4px;line-height:1.6;">
+            <span>IP: <strong style="color:#F4F4F6;">${data.ip || 'CDN/Hidden'}</strong></span>
             &nbsp;·&nbsp;
-            <span>Waktu: <strong style="color:var(--gray-700,#334155)">${data.scan_time || '?'} dtk</strong></span>
+            <span>Waktu: <strong style="color:#F4F4F6;">${data.scan_time || '?'} dtk</strong></span>
             &nbsp;·&nbsp;
-            <span style="color:var(--gray-400,#94a3b8)">${data.scanner || 'Strix Engine'}</span>
+            <span style="color:#A8A1FF;font-weight:600;">${data.scanner || 'Strix Engine'}</span>
           </div>
         </div>
 
-        <!-- Severity pills -->
+        <!-- Severity pills in dark studio aesthetic -->
         <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0;">
-          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:#fee2e2;color:#b91c1c;font-weight:700;border:1px solid #fca5a5;">${stats.CRITICAL||0} Critical</span>
-          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:#ffedd5;color:#c2410c;font-weight:700;border:1px solid #fdba74;">${stats.HIGH||0} High</span>
-          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:#fef3c7;color:#b45309;font-weight:700;border:1px solid #fcd34d;">${stats.MEDIUM||0} Med</span>
-          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:#e0f2fe;color:#0369a1;font-weight:700;border:1px solid #7dd3fc;">${stats.LOW||0} Low</span>
+          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:rgba(239,68,68,0.15);color:#f87171;font-weight:700;border:1px solid rgba(239,68,68,0.35);">${stats.CRITICAL||0} Critical</span>
+          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:rgba(249,115,22,0.15);color:#fb923c;font-weight:700;border:1px solid rgba(249,115,22,0.35);">${stats.HIGH||0} High</span>
+          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:rgba(245,158,11,0.15);color:#fbbf24;font-weight:700;border:1px solid rgba(245,158,11,0.35);">${stats.MEDIUM||0} Med</span>
+          <span style="font-size:11px;padding:3px 11px;border-radius:20px;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:700;border:1px solid rgba(56,189,248,0.35);">${stats.LOW||0} Low</span>
         </div>
       </div>
 
       <!-- Score bar -->
-      <div style="margin-top:14px;">
-        <div style="height:6px;border-radius:99px;background:var(--gray-200,#e2e8f0);overflow:hidden;">
+      <div style="margin-top:16px;">
+        <div style="height:6px;border-radius:99px;background:#22222B;overflow:hidden;">
           <div style="
             height:100%;width:${score}%;
             background:linear-gradient(90deg,${gi.color1},${gi.color2});
@@ -311,41 +338,41 @@ function renderStrixResult(data) {
             box-shadow: 0 0 8px ${gi.glow};
           "></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray-400,#94a3b8);margin-top:4px;font-weight:600;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#94a3b8;margin-top:5px;font-weight:600;">
           <span>0</span><span>A+ ≥ 95</span><span>100</span>
         </div>
       </div>
 
       <!-- Summary -->
-      <div style="margin-top:10px;font-size:12.5px;color:var(--gray-600,#475569);line-height:1.5;padding:10px 12px;background:${gi.color1}0d;border-radius:8px;border-left:3px solid ${gi.color1};">${summary}</div>
+      <div style="margin-top:12px;font-size:13px;color:#E8E7E3;line-height:1.55;padding:11px 14px;background:rgba(255,255,255,0.03);border:1px solid #292932;border-radius:8px;border-left:3px solid ${gi.color1};">${summary}</div>
     </div>
   `;
 
   // Vulnerability Cards
   if (vulns.length > 0) {
-    html += `<div style="font-size:13.5px;font-weight:700;color:var(--gray-900,#0f172a);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Temuan Kerentanan & Celah Keamanan (${vulns.length})
+    html += `<div style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8A1FF" stroke-width="2.2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      TEMUAN KERENTANAN & CELAH KEAMANAN (${vulns.length})
     </div>`;
 
     vulns.forEach(v => {
       const sev = (v.severity || 'INFO').toUpperCase();
-      let badgeStyle = 'background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;';
-      if (sev === 'CRITICAL') badgeStyle = 'background:#fee2e2;color:#991b1b;border:1px solid #f87171;';
-      else if (sev === 'HIGH') badgeStyle = 'background:#ffedd5;color:#9a3412;border:1px solid #fb923c;';
-      else if (sev === 'MEDIUM') badgeStyle = 'background:#fef3c7;color:#92400e;border:1px solid #fcd34d;';
-      else if (sev === 'LOW') badgeStyle = 'background:#e0f2fe;color:#075985;border:1px solid #7dd3fc;';
+      let badgeStyle = 'background:rgba(255,255,255,0.06);color:#cbd5e1;border:1px solid rgba(255,255,255,0.15);';
+      if (sev === 'CRITICAL') badgeStyle = 'background:rgba(239,68,68,0.18);color:#f87171;border:1px solid rgba(239,68,68,0.4);';
+      else if (sev === 'HIGH') badgeStyle = 'background:rgba(249,115,22,0.18);color:#fb923c;border:1px solid rgba(249,115,22,0.4);';
+      else if (sev === 'MEDIUM') badgeStyle = 'background:rgba(245,158,11,0.18);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);';
+      else if (sev === 'LOW') badgeStyle = 'background:rgba(56,189,248,0.18);color:#38bdf8;border:1px solid rgba(56,189,248,0.4);';
 
       html += `
-        <div style="background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <span style="font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:4px;${badgeStyle}">${sev}</span>
-            <span style="font-size:13px;font-weight:700;color:var(--gray-900,#0f172a);">${v.title || 'Vulnerability'}</span>
+        <div style="background:#18181E;border:1px solid #292932;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+            <span style="font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:4px;${badgeStyle}">${sev}</span>
+            <span style="font-size:13.5px;font-weight:600;color:#F4F4F6;">${v.title || 'Vulnerability'}</span>
           </div>
-          <div style="font-size:12px;color:var(--gray-600,#475569);margin-bottom:8px;line-height:1.45;">${v.description || ''}</div>
+          <div style="font-size:12.5px;color:#cbd5e1;margin-bottom:8px;line-height:1.55;">${v.description || ''}</div>
           ${v.remediation ? `
-            <div style="background:rgba(16,185,129,0.08);border-left:3px solid #10b981;border-radius:4px;padding:6px 10px;font-size:11.5px;color:#065f46;">
-              <strong>Rekomendasi Perbaikan:</strong> ${v.remediation}
+            <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-left:3px solid #10b981;border-radius:6px;padding:8px 12px;font-size:12px;color:#6ee7b7;line-height:1.5;">
+              <strong style="color:#a7f3d0;">Rekomendasi Perbaikan:</strong> ${v.remediation}
             </div>
           ` : ''}
         </div>
@@ -353,7 +380,7 @@ function renderStrixResult(data) {
     });
   } else {
     html += `
-      <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:14px;color:#065f46;font-size:12.5px;margin-bottom:12px;">
+      <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:14px 16px;color:#6ee7b7;font-size:13px;margin-bottom:12px;">
         ✓ Tidak ditemukan celah keamanan kritis atau tinggi pada target pemindaian.
       </div>
     `;
@@ -362,17 +389,17 @@ function renderStrixResult(data) {
   // Security Headers Grid
   if (data.security_headers && Object.keys(data.security_headers).length > 0) {
     html += `
-      <div style="margin-top:14px;">
-        <div style="font-size:13px;font-weight:700;color:var(--gray-900,#0f172a);margin-bottom:8px;">Audit HTTP Security Headers:</div>
+      <div style="margin-top:16px;">
+        <div style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:9px;">AUDIT HTTP SECURITY HEADERS:</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:8px;">
     `;
     for (const [hdr, present] of Object.entries(data.security_headers)) {
       if (hdr === 'CORS_Wildcard') continue;
       const ok = Boolean(present);
       html += `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:8px;font-size:11.5px;">
-          <span style="font-weight:600;color:var(--gray-800,#1e293b);">${hdr}</span>
-          <span style="font-weight:700;color:${ok ? '#10b981' : '#ef4444'};">${ok ? '✓ Terpasang' : '✗ Tidak Ada'}</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#18181E;border:1px solid #292932;border-radius:8px;font-size:12px;">
+          <span style="font-weight:600;color:#F4F4F6;">${hdr}</span>
+          <span style="font-weight:700;color:${ok ? '#34d399' : '#f87171'};">${ok ? '✓ Terpasang' : '✗ Tidak Ada'}</span>
         </div>
       `;
     }
@@ -382,13 +409,13 @@ function renderStrixResult(data) {
   // Open Ports Recon
   if (data.open_ports && data.open_ports.length > 0) {
     html += `
-      <div style="margin-top:14px;">
-        <div style="font-size:13px;font-weight:700;color:var(--gray-900,#0f172a);margin-bottom:8px;">Port Layanan Aktif:</div>
+      <div style="margin-top:16px;">
+        <div style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:9px;">PORT LAYANAN AKTIF:</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
     `;
     data.open_ports.forEach(p => {
       html += `
-        <span style="font-size:11.5px;padding:4px 10px;border-radius:6px;background:var(--gray-100,#f1f5f9);border:1px solid var(--gray-300,#cbd5e1);color:var(--gray-800,#1e293b);font-weight:600;">
+        <span style="font-size:12px;padding:5px 12px;border-radius:6px;background:#18181E;border:1px solid #292932;color:#F4F4F6;font-family:var(--font-mono, monospace);font-weight:600;">
           Port ${p.port} (${p.service})
         </span>
       `;
@@ -413,7 +440,7 @@ async function runStrixScan() {
   if (resultPre) { resultPre.textContent = ''; resultPre.style.display = 'none'; }
 
   try {
-    const resp = await fetch('/api/strix/scan', {
+    const resp = await safeFetch('/api/strix/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: target })
@@ -760,17 +787,19 @@ function showToast(message, isError = false) {
     .trim();
 
   const iconSvg = isError
-    ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
-    : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg>`;
+    ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+    : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>`;
 
-  toast.innerHTML = `${iconSvg}<span>${cleanMsg}</span>`;
-  toast.style.background = isError ? 'var(--error)' : 'var(--black)';
+  toast.innerHTML = `${iconSvg}<span style="color:#F4F4F6;font-size:13px;font-weight:500;">${cleanMsg}</span>`;
+  toast.style.background = isError ? 'rgba(239, 68, 68, 0.16)' : '#181822';
+  toast.style.borderColor = isError ? 'rgba(239, 68, 68, 0.45)' : 'rgba(168, 161, 255, 0.35)';
+  toast.style.color = '#F4F4F6';
   toast.classList.add('show');
 
   clearTimeout(toast._hideTimer);
   toast._hideTimer = setTimeout(() => {
     toast.classList.remove('show');
-  }, 3200);
+  }, 3400);
 }
 
 // ─── CUSTOM DROPDOWN (SMOOTH & ZERO-LAG) ───
@@ -1272,7 +1301,7 @@ async function sendMagicLink() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/magiclink/send', {
+    const res = await safeFetch('/api/magiclink/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ version, email })
@@ -1311,7 +1340,7 @@ async function verifyMagicLink() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/magiclink/verify', {
+    const res = await safeFetch('/api/magiclink/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ version, email, link })
@@ -1356,7 +1385,7 @@ async function startWebToApk() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/web2apk/start', {
+    const res = await safeFetch('/api/web2apk/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ appName, websiteUrl, packageName, versionName, versionCode, iconUrl })
@@ -1383,7 +1412,7 @@ async function pollWebToApk(buildId) {
   for (let i = 0; i < 60; i++) {
     await new Promise(r => setTimeout(r, 3000));
     try {
-      const res = await fetch(`/api/web2apk/status?build_id=${encodeURIComponent(buildId)}`);
+      const res = await safeFetch(`/api/web2apk/status?build_id=${encodeURIComponent(buildId)}`);
       const data = await res.json();
       const status = data.status || 'processing';
       const dlUrl = data.download_url || data.url;
@@ -1420,7 +1449,7 @@ async function fetchPageSource() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/pagesource', {
+    const res = await safeFetch('/api/pagesource', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
@@ -1452,7 +1481,7 @@ async function convertWebToZip() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/webtozip', {
+    const res = await safeFetch('/api/webtozip', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
@@ -1462,7 +1491,7 @@ async function convertWebToZip() {
 
     const dlLink = document.getElementById('zip-dl-link') || document.getElementById('w2z-download-link');
     const preview = document.getElementById('zip-preview');
-    if (preview) preview.innerHTML = `<div style="font-size:12px;color:var(--gray-700);margin-bottom:8px;">Paket ZIP berhasil dibuat untuk: <strong>${escapeHtml(url)}</strong></div>`;
+    if (preview) preview.innerHTML = `<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">Paket ZIP berhasil dibuat untuk: <strong>${escapeHtml(url)}</strong></div>`;
     if (dlLink) {
       dlLink.href = data.download_url;
       dlLink.style.display = 'inline-flex';
@@ -1581,13 +1610,13 @@ async function sendAiMessage() {
   // Add Thinking AI Bubble
   const aiBubble = document.createElement('div');
   aiBubble.className = 'chat-bubble ai';
-  aiBubble.innerHTML = `<div class="spinner" style="border-top-color:var(--black);width:12px;height:12px;display:inline-block;"></div> Mengetik...`;
+  aiBubble.innerHTML = `<div class="spinner" style="border-top-color:#f8fafc;width:12px;height:12px;display:inline-block;"></div> Mengetik...`;
   msgsContainer.appendChild(aiBubble);
   msgsContainer.scrollTop = msgsContainer.scrollHeight;
 
   try {
     const mode = document.getElementById('ai-model')?.value || 'strom';
-    const res = await fetch('/api/ai/chat', {
+    const res = await safeFetch('/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, sessionId: stromSessionId, mode })
@@ -1828,7 +1857,7 @@ async function fetchTikTok() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/downloader/info', {
+    const res = await safeFetch('/api/downloader/info', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: rawUrl })
@@ -1962,7 +1991,7 @@ async function fetchTikTok() {
                 </span>
               </div>
               <div style="padding:8px 10px;display:flex;flex-direction:column;gap:6px;flex:1;justify-content:space-between;">
-                <div style="font-size:11px;font-weight:600;color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${fn}">
+                <div style="font-size:11px;font-weight:600;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${fn}">
                   ${fn}
                 </div>
                 <a href="${proxyDl}" download="${fn}" class="btn-primary" style="font-size:11px;padding:6px 8px;text-decoration:none;justify-content:center;display:inline-flex;gap:4px;width:100%;" target="_blank">
@@ -2045,7 +2074,7 @@ async function cekNomor() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/ceknomor', {
+    const res = await safeFetch('/api/ceknomor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nomor })
@@ -2101,6 +2130,7 @@ async function cekNomor() {
         hasActions = true;
         actionsBar.innerHTML += `
           <a href="${directLinks.viber}" target="_blank" rel="noopener noreferrer" class="action-btn-pill viber" title="Panggil via Viber">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             Viber Call
           </a>
         `;
@@ -2122,12 +2152,36 @@ async function cekNomor() {
     if (resGrid) {
       resGrid.innerHTML = '';
       const resourceOrder = [
-        { key: 'kaspersky', title: 'Kaspersky WhoCallsID', icon: '🛡️' },
-        { key: 'ghostintel', title: 'GhostIntel v2.5', icon: '👻' },
-        { key: 'ghosttrack', title: 'GhostTrack PhoneGW', icon: '📡' },
-        { key: 'osint_id', title: 'OSINT-Indonesia-v3', icon: '🇮🇩' },
-        { key: 'phoneinfoga', title: 'PhoneInfoga Scanner', icon: '🔍' },
-        { key: 'phoneosint', title: 'PhoneOsint Master', icon: '⚡' }
+        { 
+          key: 'kaspersky', 
+          title: 'Kaspersky WhoCallsID', 
+          icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>` 
+        },
+        { 
+          key: 'ghostintel', 
+          title: 'GhostIntel v2.5', 
+          icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>` 
+        },
+        { 
+          key: 'ghosttrack', 
+          title: 'GhostTrack PhoneGW', 
+          icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>` 
+        },
+        { 
+          key: 'osint_id', 
+          title: 'OSINT-Indonesia-v3', 
+          icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>` 
+        },
+        { 
+          key: 'phoneinfoga', 
+          title: 'PhoneInfoga Scanner', 
+          icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>` 
+        },
+        { 
+          key: 'phoneosint', 
+          title: 'PhoneOsint Master', 
+          icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>` 
+        }
       ];
 
       resourceOrder.forEach(item => {
@@ -2191,7 +2245,7 @@ async function cekNomor() {
         }
         dorksContainer.innerHTML += `
           <div class="dork-category-group">
-            <div class="dork-category-title">🇮🇩 Dork Intelijen Nasional (OSINT-Indonesia-v3):</div>
+            <div class="dork-category-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> DORK INTELIJEN NASIONAL (OSINT-INDONESIA-V3):</div>
             <div class="chips-list">${chipsHtml}</div>
           </div>
         `;
@@ -2211,7 +2265,7 @@ async function cekNomor() {
         }
         dorksContainer.innerHTML += `
           <div class="dork-category-group">
-            <div class="dork-category-title">⚡ Dork Jejak Akun Publik (PhoneOsint & GhostIntel):</div>
+            <div class="dork-category-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> DORK JEJAK AKUN PUBLIK (PHONEOSINT & GHOSTINTEL):</div>
             <div class="chips-list">${chipsHtml}</div>
           </div>
         `;
@@ -2231,7 +2285,7 @@ async function cekNomor() {
         });
         dorksContainer.innerHTML += `
           <div class="dork-category-group">
-            <div class="dork-category-title">🔥 Audit Nomor Sementara / Virtual Burner (PhoneInfoga):</div>
+            <div class="dork-category-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> AUDIT NOMOR SEMENTARA / VIRTUAL BURNER:</div>
             <div class="chips-list">${chipsHtml}</div>
           </div>
         `;
@@ -2251,7 +2305,7 @@ async function cekNomor() {
         }
         dorksContainer.innerHTML += `
           <div class="dork-category-group">
-            <div class="dork-category-title">⚠️ Cek Reputasi, Laporan Spam & Leaks:</div>
+            <div class="dork-category-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> CEK REPUTASI, LAPORAN SPAM & LEAKS:</div>
             <div class="chips-list">${chipsHtml}</div>
           </div>
         `;
@@ -2272,15 +2326,25 @@ async function cekNomor() {
         if (fullNum) {
           const chip = document.createElement('div');
           chip.className = 'phone-chip';
+          chip.setAttribute('role', 'button');
+          chip.setAttribute('tabindex', '0');
           chip.innerHTML = `
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            ${fullNum}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#A8A1FF;flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span class="phone-chip-num">${fullNum}</span>
+            <span class="phone-chip-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Salin
+            </span>
           `;
-          chip.title = 'Klik untuk salin & gunakan';
+          chip.title = `Klik untuk salin nomor ${fullNum} dan terapkan ke kolom pencarian`;
           chip.onclick = () => {
             navigator.clipboard.writeText(fullNum);
-            document.getElementById('cn-nomor').value = fullNum;
-            showToast(`Nomor ${fullNum} disalin`);
+            const input = document.getElementById('cn-nomor');
+            if (input) {
+              input.value = fullNum;
+              input.focus();
+            }
+            showToast(`Nomor ${fullNum} berhasil disalin & diterapkan ke kolom pencarian`);
           };
           simList.appendChild(chip);
         }
@@ -2431,7 +2495,7 @@ function retrySingleCard(idx) {
   card.innerHTML = `
     <div class="gallery-badge-num">#${item.id || idx + 1}</div>
     <div class="gallery-loading-placeholder" id="loader-${idx}">
-      <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:var(--black);"></div>
+      <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#f8fafc;"></div>
       <span>Mencoba memuat ulang #${item.id || idx + 1}...</span>
     </div>
   `;
@@ -2484,7 +2548,7 @@ async function buatGambar() {
     card.innerHTML = `
       <div class="gallery-badge-num">#${i + 1}</div>
       <div class="gallery-loading-placeholder" id="loader-${i}">
-        <div class="spinner" style="width:20px;height:20px;border-width:2.5px;border-top-color:var(--black);"></div>
+        <div class="spinner" style="width:20px;height:20px;border-width:2.5px;border-top-color:#f8fafc;"></div>
         <span>Merender #${i + 1}...</span>
       </div>
     `;
@@ -2492,7 +2556,7 @@ async function buatGambar() {
   }
 
   try {
-    const res = await fetch('/api/buatgambar', {
+    const res = await safeFetch('/api/buatgambar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2641,7 +2705,7 @@ async function scanRepo() {
   document.getElementById('sr-badges-wrap').style.display = 'none';
 
   try {
-    const res = await fetch('/api/scanrepo', {
+    const res = await safeFetch('/api/scanrepo', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
@@ -2897,7 +2961,7 @@ async function inspectWeb() {
   document.getElementById('wi-status-badge').className = 'badge';
 
   try {
-    const res = await fetch('/api/webinspect', {
+    const res = await safeFetch('/api/webinspect', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target: validTarget })
@@ -3099,7 +3163,7 @@ async function runSherlock() {
   grid.innerHTML = '';
 
   try {
-    const res = await fetch('/api/osint/sherlock', {
+    const res = await safeFetch('/api/osint/sherlock', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username })
@@ -3122,7 +3186,7 @@ async function runSherlock() {
         <div>
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="font-weight:700;font-size:14px;">${item.name}</span>
-            <span style="font-size:9px;font-weight:600;background:var(--gray-200);color:var(--gray-700);padding:1px 5px;border-radius:4px;">${item.source || 'GhostTrack / GhostIntel'}</span>
+            <span style="font-size:9px;font-weight:600;background:var(--gray-200);color:#94a3b8;padding:1px 5px;border-radius:4px;">${item.source || 'GhostTrack / GhostIntel'}</span>
           </div>
           <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${item.category}</div>
         </div>
@@ -3159,7 +3223,7 @@ async function runDiscordLookup() {
   resBox.style.display = 'none';
 
   try {
-    const res = await fetch('/api/osint/discord', {
+    const res = await safeFetch('/api/osint/discord', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId })
@@ -3212,7 +3276,7 @@ async function runBreachCheck() {
   resBox.style.display = 'none';
 
   try {
-    const res = await fetch('/api/osint/breach', {
+    const res = await safeFetch('/api/osint/breach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query })
@@ -3299,7 +3363,7 @@ async function runNikLookup() {
   if (resBox) resBox.style.display = 'none';
 
   try {
-    const res = await fetch('/api/osint/nik', {
+    const res = await safeFetch('/api/osint/nik', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nik })
@@ -3345,8 +3409,8 @@ async function runNikLookup() {
         a.className = 'dork-item-btn';
         a.innerHTML = `
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <span style="font-weight:700;font-size:13px;color:var(--black);">${d.name}</span>
-            <span style="font-size:10px;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:2px 6px;border-radius:4px;">${d.badge}</span>
+            <span style="font-weight:700;font-size:13px;color:#f8fafc;">${d.name}</span>
+            <span style="font-size:10px;font-weight:700;background:var(--gray-200);color:#94a3b8;padding:2px 6px;border-radius:4px;">${d.badge}</span>
           </div>
           <div style="font-size:11px;color:var(--gray-500);line-height:1.4;">${d.desc}</div>
         `;
@@ -3384,11 +3448,11 @@ function getSmsBrandLogo(senderName) {
   }
   // TikTok / ByteDance / BytePlus / 豆包
   if (name.includes('tiktok') || name.includes('byteplus') || name.includes('bytedance') || name.includes('douyin') || name.includes('豆包')) {
-    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#000000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.89 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.32 0 .62.06.9.16V9.4a6.35 6.35 0 0 0-.9-.07 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.33 6.34 6.34 0 0 0 6.34-6.33V8.84a8.18 8.18 0 0 0 4.76 1.52v-3.4c-.34 0-.69-.09-1-.27z"/></svg>`;
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#f8fafc"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.89 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.32 0 .62.06.9.16V9.4a6.35 6.35 0 0 0-.9-.07 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.33 6.34 6.34 0 0 0 6.34-6.33V8.84a8.18 8.18 0 0 0 4.76 1.52v-3.4c-.34 0-.69-.09-1-.27z"/></svg>`;
   }
   // Steam
   if (name.includes('steam')) {
-    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#171a21"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 14.819C1.942 20.063 6.75 24 12.438 24 19.07 24 24.45 18.62 24.45 11.988 24.45 5.367 19.07 0 11.979 0z"/></svg>`;
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#cbd5e1"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 14.819C1.942 20.063 6.75 24 12.438 24 19.07 24 24.45 18.62 24.45 11.988 24.45 5.367 19.07 0 11.979 0z"/></svg>`;
   }
   // Netflix
   if (name.includes('netflix')) {
@@ -3412,11 +3476,11 @@ function getSmsBrandLogo(senderName) {
   }
   // Apple
   if (name.includes('apple') || name.includes('icloud')) {
-    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#000000"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.85c.66-.8 1.11-1.92.99-3.04-1 .04-2.14.65-2.79 1.43-.59.69-1.08 1.8-1.01 2.9.04.01 1.13.04 2.81-1.29z"/></svg>`;
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#f8fafc"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.85c.66-.8 1.11-1.92.99-3.04-1 .04-2.14.65-2.79 1.43-.59.69-1.08 1.8-1.01 2.9.04.01 1.13.04 2.81-1.29z"/></svg>`;
   }
   // Twitter / X
   if (name.includes('twitter') || name.includes('x.com')) {
-    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#000000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`;
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="#f8fafc"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`;
   }
   // Default SMS envelope
   return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
@@ -3484,7 +3548,7 @@ async function loadTempSmsNumbers() {
   // (just keep the empty call to avoid errors, no-op if element doesn't exist)
 
   try {
-    const res = await fetch('/api/phone/tempsms/numbers', { method: 'POST' });
+    const res = await safeFetch('/api/phone/tempsms/numbers', { method: 'POST' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Gagal memuat nomor virtual');
 
@@ -3569,7 +3633,7 @@ async function reloadSmsInbox() {
   `;
 
   try {
-    const res = await fetch('/api/phone/tempsms/inbox', {
+    const res = await safeFetch('/api/phone/tempsms/inbox', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ number: currentSelectedSmsNumber })
@@ -3662,7 +3726,7 @@ async function runGitHubProfiler() {
   resBox.style.display = 'none';
 
   try {
-    const res = await fetch('/api/github/profiler', {
+    const res = await safeFetch('/api/github/profiler', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username })
@@ -3729,7 +3793,7 @@ async function runSubdomainScan() {
   resBox.style.display = 'none';
 
   try {
-    const res = await fetch('/api/recon/subdomains', {
+    const res = await safeFetch('/api/recon/subdomains', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ domain })
@@ -3777,7 +3841,7 @@ async function runPortScan() {
   grid.innerHTML = '';
 
   try {
-    const res = await fetch('/api/recon/ports', {
+    const res = await safeFetch('/api/recon/ports', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ host })
@@ -3800,7 +3864,7 @@ async function runPortScan() {
             ${p.open ? 'OPEN' : 'CLOSED'}
           </span>
         </div>
-        <div style="font-size:12px;color:var(--gray-800);font-weight:600;">${p.service}</div>
+        <div style="font-size:12px;color:#e2e8f0;font-weight:600;">${p.service}</div>
         <div style="font-size:11px;color:var(--gray-400);">${p.desc}</div>
       `;
       grid.appendChild(card);
@@ -3834,7 +3898,7 @@ async function runIpIntel() {
   resBox.style.display = 'none';
 
   try {
-    const res = await fetch('/api/recon/ipintel', {
+    const res = await safeFetch('/api/recon/ipintel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ip })

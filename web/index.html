@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PROJECT-XVOID — Modular Terminal Toolkit</title>
+  <title>XVoid — Tools for curious builders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="favicon.png">
@@ -23,10 +23,10 @@
     <div class="xv-loader-box" id="xvLoaderBox">
       <div class="xv-loader-header">
         <div class="xv-loader-brand">
-          <img src="favicon.png" alt="XVoid Icon" style="width:20px;height:20px;object-fit:contain;margin-right:6px;filter:drop-shadow(0 0 6px rgba(138,92,246,0.5));">
-          <span class="xv-loader-title">PROJECT-XVOID</span>
+          <img src="favicon.png" alt="XVoid Icon" style="width:20px;height:20px;object-fit:contain;margin-right:6px;">
+          <span class="xv-loader-title">XVOID</span>
         </div>
-        <span class="xv-loader-version">v1.3.5</span>
+        <span class="xv-loader-version">STUDIO</span>
       </div>
       <div class="xv-loader-track-wrap">
         <div class="xv-loader-track">
@@ -34,7 +34,7 @@
           <div class="xv-loader-sheen"></div>
         </div>
         <div class="xv-loader-meta">
-          <span class="xv-loader-status" id="xvStatus">CORE.INITIALIZE</span>
+          <span class="xv-loader-status" id="xvStatus">INITIALIZING WORKSPACE</span>
           <span class="xv-loader-pct" id="xvProgressPct">0%</span>
         </div>
       </div>
@@ -43,12 +43,12 @@
     <div class="xv-intro-box" id="xvIntroBox" aria-hidden="true">
       <div class="xv-intro-pill" id="xvIntroPill">
         <span class="xv-intro-dot"></span>
-        <span class="xv-intro-tag">INITIALIZATION COMPLETE</span>
+        <span class="xv-intro-tag">WORKSPACE READY</span>
       </div>
       <h1 class="xv-intro-title" id="xvIntroTitle">
         <span id="xvTypewriterText"></span><span class="xv-cursor" id="xvCursor" aria-hidden="true">|</span>
       </h1>
-      <p class="xv-intro-sub" id="xvIntroSub">Modular Terminal Toolkit · Systems Operational</p>
+      <p class="xv-intro-sub" id="xvIntroSub">Tools for curious builders · Workspace Ready</p>
       <div class="xv-intro-line" id="xvIntroLine"></div>
     </div>
   </div>
@@ -64,54 +64,60 @@
     <div class="shapes-layer" id="shapesLayer"></div>
   </div>
   <canvas id="clickFxCanvas"></canvas>
-  <nav class="tab-nav" id="tabNav" aria-label="Navigasi utama">
-    <div class="tab-nav-track" id="tabNavTrack">
-      <div class="tab-thumb" id="tabThumb" aria-hidden="true"></div>
+    <nav class="tab-nav" id="tabNav" aria-label="Navigasi utama">
+    <div class="tab-nav-wrapper">
+      <div class="tab-nav-brand" onclick="goPage('home')">
+        <img src="logo.png" alt="XVOID" />
+        <span class="tab-nav-brand-title">XVOID</span>
+      </div>
+      <div class="tab-nav-track" id="tabNavTrack">
+        <div class="tab-thumb" id="tabThumb" aria-hidden="true"></div>
 
-      <button class="tab-item active" id="tab-home" onclick="goPage('home')" aria-current="page">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span>Beranda</span>
-      </button>
+        <button class="tab-item active" id="tab-home" onclick="goPage('home')" aria-current="page">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Beranda</span>
+        </button>
 
-      <button class="tab-item" id="tab-stromai" onclick="goPage('stromai')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span>XVoid AI</span>
-      </button>
+        <button class="tab-item" id="tab-stromai" onclick="goPage('stromai')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>XVoid AI</span>
+        </button>
 
-      <button class="tab-item" id="tab-osint" onclick="goPage('osint')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span>OSINT Hub</span>
-      </button>
+        <button class="tab-item" id="tab-osint" onclick="goPage('osint')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>OSINT Hub</span>
+        </button>
 
-      <button class="tab-item" id="tab-phonehub" onclick="goPage('phonehub')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        <span>Phone &amp; SMS</span>
-      </button>
+        <button class="tab-item" id="tab-phonehub" onclick="goPage('phonehub')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>Phone &amp; SMS</span>
+        </button>
 
-      <button class="tab-item" id="tab-githubsuite" onclick="goPage('githubsuite')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        <span>GitHub Suite</span>
-      </button>
+        <button class="tab-item" id="tab-githubsuite" onclick="goPage('githubsuite')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          <span>GitHub Suite</span>
+        </button>
 
-      <button class="tab-item" id="tab-reconhub" onclick="goPage('reconhub')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        <span>Network Recon</span>
-      </button>
+        <button class="tab-item" id="tab-reconhub" onclick="goPage('reconhub')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>Network Recon</span>
+        </button>
 
-      <button class="tab-item" id="tab-medialab" onclick="goPage('medialab')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <span>Media Lab</span>
-      </button>
+        <button class="tab-item" id="tab-medialab" onclick="goPage('medialab')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>Media Lab</span>
+        </button>
 
-      <button class="tab-item" id="tab-devsuite" onclick="goPage('devsuite')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        <span>Dev Suite</span>
-      </button>
+        <button class="tab-item" id="tab-devsuite" onclick="goPage('devsuite')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span>Dev Suite</span>
+        </button>
 
-      <button class="tab-item" id="tab-pentest" onclick="goPage('pentest')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7v7c0 5 4 9 10 9s10-4 10-9V7l-10-5z"/></svg>
-        <span>Pentest</span>
-      </button>
+        <button class="tab-item" id="tab-pentest" onclick="goPage('pentest')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7v7c0 5 4 9 10 9s10-4 10-9V7l-10-5z"/></svg>
+          <span>Pentest</span>
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -148,78 +154,165 @@
       </div>
     </section>
 
-    <section class="page-view visible" id="view-home">
-      <div class="glass-card text-center">
-        <div style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;">
-          <img src="logo.png" alt="Project-XVoid" class="xv-brand-logo-img">
+        <section class="page-view visible" id="view-home">
+      <!-- Editorial Hero Section -->
+      <header class="studio-hero">
+        <div class="hero-brand-wrap">
+          <img id="main-brand-logo" src="logo.png" alt="XVoid" />
         </div>
-        <div class="card-badge" onclick="openChangelogModal()" style="cursor:pointer;" title="Klik untuk melihat catatan rilis & pembaruan">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
-          Project-XVOID v1.3 · <span style="text-decoration:underline;text-underline-offset:2px;">Lihat Update</span>
-        </div>
-        <h1 class="card-title">Modular Cyber &amp; Dev Suite</h1>
-        <p class="card-desc">Toolkit komprehensif terintegrasi: OSINT Sherlock, Discord Lookup, Temp Virtual SMS, Subdomain Recon, Port Scanner, IP Threat Intel, AI Media Lab, Alight Motion, &amp; Dev Utilities.</p>
+        <h1 class="hero-headline">Tools for curious builders.</h1>
+        <p class="hero-subheadline">A quiet workspace for development, research, media, and everyday digital tools.</p>
+      </header>
 
-        <div class="tools-grid">
-          <div class="tool-card" onclick="goPage('osint', {sub: 'sherlock'})">
-            <div class="tool-icon-wrap">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </div>
-            <div class="tool-title">OSINT &amp; Identity</div>
-            <div class="tool-desc">Sherlock (30+ Medsos via TrackLu), Cek NIK KTP Indonesia, Discord Lookup, &amp; Breach Checker.</div>
-          </div>
+      <!-- Hierarchy: Featured -> Tools -> Utilities -> Labs -->
 
-          <div class="tool-card" onclick="goPage('phonehub', {sub: 'ceknomor'})">
-            <div class="tool-icon-wrap">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            </div>
-            <div class="tool-title">Phone &amp; Temp SMS</div>
-            <div class="tool-desc">Cek Nomor Caller-ID &amp; Nomor Virtual Gratis untuk terima SMS kode OTP.</div>
-          </div>
-
-          <div class="tool-card" onclick="goPage('githubsuite', {sub: 'scanrepo'})">
-            <div class="tool-icon-wrap">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-            </div>
-            <div class="tool-title">GitHub Intel Suite</div>
-            <div class="tool-desc">Audit keamanan repositori &amp; Deep User Profiler (pembongkar email commit).</div>
-          </div>
-
-          <div class="tool-card" onclick="goPage('reconhub', {sub: 'subdomains'})">
-            <div class="tool-icon-wrap">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            </div>
-            <div class="tool-title">Network Recon</div>
-            <div class="tool-desc">Subdomain crt.sh, Audit Keamanan Web &amp; SSL, Port Scanner, &amp; IP Threat Intel.</div>
-          </div>
-
-          <div class="tool-card" onclick="goPage('medialab', {sub: 'gambar'})">
-            <div class="tool-icon-wrap">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </div>
-            <div class="tool-title">Media &amp; Visual Lab</div>
-            <div class="tool-desc">AI Buat Gambar, Universal Downloader, Video to GIF/WebP, &amp; EXIF GPS Map.</div>
-          </div>
-
-          <div class="tool-card" onclick="goPage('devsuite', {sub: 'alightmotion'})">
-            <div class="tool-icon-wrap">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            </div>
-            <div class="tool-title">Alight Motion &amp; Dev</div>
-            <div class="tool-desc">Alight Motion Magic Link, Base64, Web Tools, Steganografi, &amp; Browser Fingerprint.</div>
-          </div>
-
-          <div class="tool-card" onclick="goPage('stromai')">
-            <div class="tool-icon-wrap">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </div>
-            <div class="tool-title">XVoid AI Chat</div>
-            <div class="tool-desc">Asisten cerdas cyber &amp; coding eksklusif dari Project-XVOID.</div>
-          </div>
-        </div>
+      <!-- FEATURED SECTION (Dominant) -->
+      <div class="section-kicker">
+        <span>FEATURED</span>
+        <div class="kicker-line"></div>
       </div>
+
+      <article class="featured-card" onclick="goPage('osint', {sub: 'sherlock'})" role="button" tabindex="0">
+        <div class="featured-card-layout">
+          <div class="featured-card-main">
+            <div class="featured-tag-row">
+              <span class="featured-badge-pill"><span class="pill-dot"></span> OSINT &amp; Identity</span>
+            </div>
+            <h2 class="featured-card-title">Research utilities for digital investigation and identity analysis.</h2>
+            <p class="featured-card-desc">Comprehensive investigative tooling including multi-platform username intelligence across 30+ services, demographic verification, Discord identity inspection, and breach telemetry correlation.</p>
+            <div class="featured-capabilities">
+              <span class="capability-item">Sherlock Multi-Platform</span>
+              <span class="capability-item">Identity Verification</span>
+              <span class="capability-item">Discord Profiler</span>
+              <span class="capability-item">Breach Telemetry</span>
+            </div>
+          </div>
+          <div class="featured-action-col">
+            <span>Explore Suite</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </div>
+        </div>
+      </article>
+
+      <!-- TOOLS SECTION -->
+      <div class="section-kicker">
+        <span>TOOLS</span>
+        <div class="kicker-line"></div>
+      </div>
+
+      <div class="studio-grid">
+        <!-- Phone & Temp SMS -->
+        <article class="studio-card" onclick="goPage('phonehub', {sub: 'ceknomor'})" role="button" tabindex="0">
+          <div>
+            <div class="studio-card-top">
+              <div class="studio-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </div>
+              <svg class="studio-card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </div>
+            <div class="studio-card-kicker">Phone &amp; Temp SMS</div>
+            <h3 class="studio-card-title">Virtual communication tools and verification utilities.</h3>
+            <p class="studio-card-desc">Caller-ID lookup and multi-country virtual temporary numbers for private identity and instant OTP reception.</p>
+          </div>
+          <div class="studio-card-meta">Virtual Numbers &bull; HLR Lookup &bull; SMS Verification</div>
+        </article>
+
+        <!-- GitHub Intel Suite -->
+        <article class="studio-card" onclick="goPage('githubsuite', {sub: 'scanrepo'})" role="button" tabindex="0">
+          <div>
+            <div class="studio-card-top">
+              <div class="studio-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+              </div>
+              <svg class="studio-card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </div>
+            <div class="studio-card-kicker">GitHub Intel Suite</div>
+            <h3 class="studio-card-title">Developer-focused tools for repository and project research.</h3>
+            <p class="studio-card-desc">Automated repository security audit, developer contributor profile extraction, and deep commit author analysis.</p>
+          </div>
+          <div class="studio-card-meta">Repo Audit &bull; Commit Extractor &bull; Profile Intel</div>
+        </article>
+
+        <!-- Network & Infra -->
+        <article class="studio-card" onclick="goPage('reconhub', {sub: 'subdomains'})" role="button" tabindex="0">
+          <div>
+            <div class="studio-card-top">
+              <div class="studio-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <svg class="studio-card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </div>
+            <div class="studio-card-kicker">Network &amp; Infra</div>
+            <h3 class="studio-card-title">Utilities for inspecting network infrastructure and technical metadata.</h3>
+            <p class="studio-card-desc">Subdomain enumeration via certificate transparency, SSL chain validation, low-latency port inspection, and threat telemetry.</p>
+          </div>
+          <div class="studio-card-meta">CRT.sh Recon &bull; SSL Audit &bull; Port Telemetry</div>
+        </article>
+      </div>
+
+      <!-- UTILITIES & LABS SECTION -->
+      <div class="section-kicker">
+        <span>UTILITIES &amp; LABS</span>
+        <div class="kicker-line"></div>
+      </div>
+
+      <div class="studio-grid">
+        <!-- Media Lab & EXIF -->
+        <article class="studio-card" onclick="goPage('medialab', {sub: 'gambar'})" role="button" tabindex="0">
+          <div>
+            <div class="studio-card-top">
+              <div class="studio-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <svg class="studio-card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </div>
+            <div class="studio-card-kicker">Media Lab &amp; EXIF</div>
+            <h3 class="studio-card-title">Visual tools for media generation, conversion, and metadata inspection.</h3>
+            <p class="studio-card-desc">Text-to-image synthesis, multi-format media downloading, client-side transcoding, and EXIF geospatial parsing.</p>
+          </div>
+          <div class="studio-card-meta">AI Generation &bull; EXIF GPS Locator &bull; Media Downloader</div>
+        </article>
+
+        <!-- Alight Motion & Utilities -->
+        <article class="studio-card" onclick="goPage('devsuite', {sub: 'alightmotion'})" role="button" tabindex="0">
+          <div>
+            <div class="studio-card-top">
+              <div class="studio-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              </div>
+              <svg class="studio-card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </div>
+            <div class="studio-card-kicker">Alight Motion &amp; Utilities</div>
+            <h3 class="studio-card-title">Development utilities, base64 workflows, and project links.</h3>
+            <p class="studio-card-desc">Alight Motion Magic Link synthesis, multi-mode base64 encoding, steganography data concealment, and browser fingerprinting.</p>
+          </div>
+          <div class="studio-card-meta">Magic Links &bull; Base64 Utilities &bull; Steganography</div>
+        </article>
+
+        <!-- XVoid AI Neural Chat -->
+        <article class="studio-card" onclick="goPage('stromai')" role="button" tabindex="0">
+          <div>
+            <div class="studio-card-top">
+              <div class="studio-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <svg class="studio-card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </div>
+            <div class="studio-card-kicker">XVoid AI Neural Chat</div>
+            <h3 class="studio-card-title">Quiet conversational intelligence integrated into your workspace.</h3>
+            <p class="studio-card-desc">Specialized digital research, architectural reasoning, and context-aware workspace exploration.</p>
+          </div>
+          <div class="studio-card-meta">Neural Chat &bull; Research Synthesis &bull; Code Analysis</div>
+        </article>
+      </div>
+
+      <!-- Quiet Studio Footer -->
+      <footer class="studio-footer">
+        <div>XVoid Digital Studio &bull; Tools for curious builders</div>
+        <div>
+          <button onclick="openChangelogModal()" style="color:var(--text-muted);background:none;border:none;cursor:pointer;font-family:inherit;font-size:12px;">Release Notes</button>
+        </div>
+      </footer>
     </section>
 
     <section class="page-view" id="view-stromai">
@@ -462,7 +555,7 @@
               <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
                 <div>
                   <div style="font-size:12px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Nomor Induk Kependudukan Terverifikasi</div>
-                  <div style="font-size:22px;font-weight:800;letter-spacing:1.5px;color:var(--black);font-family:monospace;" id="nik-res-number">--</div>
+                  <div style="font-size:22px;font-weight:800;letter-spacing:1.5px;color:#F4F4F6;font-family:monospace;" id="nik-res-number">--</div>
                 </div>
                 <span class="phone-tag-badge legit" id="nik-res-gender">Laki-laki</span>
               </div>
@@ -496,7 +589,7 @@
             </div>
 
             <div style="margin-top:18px;">
-              <div style="font-size:13px;font-weight:700;color:var(--gray-800);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+              <div style="font-size:13px;font-weight:700;color:#E8E7E3;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <span>OSINT Verification &amp; Public Records Dorking (osint-indonesia-v3):</span>
               </div>
@@ -586,7 +679,10 @@
 
             <!-- Similar Numbers List -->
             <div class="chips-container" id="cn-similar-wrap" style="display:none;">
-              <div class="chips-title">Nomor Serupa Terdeteksi:</div>
+              <div class="chips-title" style="display:flex;align-items:center;gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                NOMOR SERUPA TERDETEKSI (KLIK UNTUK SALIN & ANALISIS):
+              </div>
               <div class="chips-list" id="cn-similar-list"></div>
             </div>
           </div>
@@ -622,7 +718,7 @@
             <!-- Right: inbox -->
             <div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <div class="chips-title">INBOX (<span id="sms-active-num-label" style="color:var(--black);font-family:'Space Grotesk',monospace;font-weight:700;">Pilih Nomor</span>)</div>
+                <div class="chips-title">INBOX (<span id="sms-active-num-label" style="color:#F4F4F6;font-family:'Space Grotesk',monospace;font-weight:700;">Pilih Nomor</span>)</div>
                 <button class="btn-secondary" onclick="reloadSmsInbox()" id="sms-reload-btn" style="padding:5px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px;font-weight:600;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                   <span>Perbarui SMS</span>
@@ -1240,8 +1336,8 @@
           </div>
 
           <div style="margin-bottom:14px;text-align:left;">
-            <div id="tt-author" style="font-weight:700;font-size:14.5px;color:var(--black);"></div>
-            <div id="tt-caption" style="font-size:12.5px;color:var(--gray-700);margin-top:4px;line-height:1.45;word-break:break-word;"></div>
+            <div id="tt-author" style="font-weight:700;font-size:14.5px;color:#F4F4F6;"></div>
+            <div id="tt-caption" style="font-size:12.5px;color:#94a3b8;margin-top:4px;line-height:1.45;word-break:break-word;"></div>
             <div id="tt-views" style="font-size:11px;color:var(--gray-500);margin-top:6px;font-weight:600;"></div>
           </div>
 
@@ -1267,8 +1363,8 @@
           <div id="tt-gallery-wrap" style="display:none;margin-top:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-top:12px;border-top:1px solid var(--gray-200);">
               <div style="display:flex;align-items:center;gap:6px;">
-                <span id="tt-gallery-title" style="font-weight:700;font-size:13px;color:var(--black);">Daftar Slide / Foto</span>
-                <span id="tt-gallery-count" class="badge" style="background:var(--gray-200);color:var(--gray-800);font-size:10.5px;">0 Item</span>
+                <span id="tt-gallery-title" style="font-weight:700;font-size:13px;color:#F4F4F6;">Daftar Slide / Foto</span>
+                <span id="tt-gallery-count" class="badge" style="background:var(--gray-200);color:#E8E7E3;font-size:10.5px;">0 Item</span>
               </div>
               <button id="tt-download-all-btn" class="btn-primary" style="font-size:11.5px;padding:6px 12px;font-weight:600;" onclick="downloadAllMediaItems()">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -1417,7 +1513,7 @@
 
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
           <div style="width:22px;height:22px;border-radius:50%;background:var(--black);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">1</div>
-          <span style="font-size:12px;font-weight:700;color:var(--black);">Masukkan Gmail & Kirim Magic Link</span>
+          <span style="font-size:12px;font-weight:700;color:#F4F4F6;">Masukkan Gmail & Kirim Magic Link</span>
         </div>
         <div class="form-group">
           <input type="email" id="ml-email" class="form-input" placeholder="namaakun@gmail.com">
@@ -1426,7 +1522,7 @@
 
         <div id="ml-guide-box" style="display:none;margin-top:16px;background:#f8f8f8;border:1.5px solid var(--gray-200);border-radius:12px;padding:14px;">
           <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;margin-bottom:8px;">Penting — Jangan klik langsung linknya!</div>
-          <ol style="margin-left:16px;font-size:12px;color:var(--gray-700);line-height:1.8;">
+          <ol style="margin-left:16px;font-size:12px;color:#94a3b8;line-height:1.8;">
             <li>Buka <strong>Gmail</strong> di HP Anda.</li>
             <li>Buka email dari <strong>Alight Motion</strong>.</li>
             <li><strong>Tekan & tahan</strong> tombol Sign In / link di email.</li>
@@ -1438,7 +1534,7 @@
         <div id="ml-step-2" style="display:none;margin-top:18px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <div style="width:22px;height:22px;border-radius:50%;background:var(--black);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">2</div>
-            <span style="font-size:12px;font-weight:700;color:var(--black);">Tempel URL Magic Link dari Email</span>
+            <span style="font-size:12px;font-weight:700;color:#F4F4F6;">Tempel URL Magic Link dari Email</span>
           </div>
           <div class="form-group">
             <input type="url" id="ml-link" class="form-input" placeholder="https://alightcreative.com/..." oninput="checkAndAutoVerify(this.value)">
@@ -1747,12 +1843,46 @@
       </div>
 
       <div class="changelog-body">
-        <!-- Version 1.3.5 -->
+        <!-- Version 1.4 -->
         <div class="changelog-timeline-item current">
           <div class="changelog-timeline-dot"></div>
           <div class="changelog-ver-header">
-            <span class="changelog-ver-title">v1.3.5</span>
+            <span class="changelog-ver-title">v1.4</span>
             <span class="changelog-ver-pill latest">TERBARU</span>
+          </div>
+          <ul class="changelog-features-list">
+            <li>
+              <div class="changelog-item-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              </div>
+              <div><strong>Dark Digital Studio UI:</strong> Desain tenang (#0d0d12 / #131318) dengan kontras tajam (#e8e7e3), ikon SVG modern (zero emoji), dan hero logo 260px luminous.</div>
+            </li>
+            <li>
+              <div class="changelog-item-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div><strong>Subdomain Recon Smart Fallback:</strong> Integrasi HackerTarget &amp; crt.sh logs yang cepat tanpa freeze/timeout.</div>
+            </li>
+            <li>
+              <div class="changelog-item-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              </div>
+              <div><strong>Phone Hub &amp; Copy Feedback:</strong> Interaksi klik nomor responsif dengan notifikasi toast otomatis dan audit headers Strix Pentest.</div>
+            </li>
+            <li>
+              <div class="changelog-item-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+              </div>
+              <div><strong>Modular Architecture &amp; Cleanup:</strong> Purge 1.3+ MB file usang, deduplikasi loader CSS, dan sinkronisasi penuh index.html, style.css, app.js.</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Version 1.3.5 -->
+        <div class="changelog-timeline-item">
+          <div class="changelog-timeline-dot"></div>
+          <div class="changelog-ver-header">
+            <span class="changelog-ver-title">v1.3.5</span>
           </div>
           <ul class="changelog-features-list">
             <li>
@@ -1924,9 +2054,22 @@
   </div>
 
   <div class="toast" id="toast"></div>
-
-  <script src="js/liquidGL.js?v=1.1"></script>
   <script src="js/loader.js?v=1.6"></script>
   <script src="js/app.js?v=3.0"></script>
+  <script>
+    // Accessibility: Keyboard Navigation for Home Cards (Enter / Space to activate)
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.featured-card, .studio-card').forEach(function(card) {
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('role', 'button');
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html> 

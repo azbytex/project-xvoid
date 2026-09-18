@@ -34,19 +34,19 @@
 
   const PHASES = [
     // Phase 1: Quick jump to 16%, then "patah pertama agak lama" (1100ms hold)
-    { type: 'jump', targetPct: 16, durationMs: 260, holdMs: 1100, text: 'CORE.KERNEL.INIT' },
+    { type: 'jump', targetPct: 16, durationMs: 260, holdMs: 1100, text: 'INITIALIZING WORKSPACE' },
 
     // Phase 2: "Kedua pelan-pelan" (Slow incremental crawl from 16% to 38%)
-    { type: 'crawl', targetPct: 38, durationMs: 1250, holdMs: 250, text: 'RUNTIME.SUBSYSTEMS' },
+    { type: 'crawl', targetPct: 38, durationMs: 1250, holdMs: 250, text: 'LOADING TOOLS & UTILITIES' },
 
     // Phase 3: "Terus cepat" (Sudden rapid burst from 38% to 76%)
-    { type: 'jump', targetPct: 76, durationMs: 220, holdMs: 450, text: 'LIQUID.SHADERS.COMPILE' },
+    { type: 'jump', targetPct: 76, durationMs: 220, holdMs: 450, text: 'CONNECTING LOCAL ENGINE' },
 
     // Phase 4: "Terus pelan" (Slow creeping progression from 76% to 91%)
-    { type: 'crawl', targetPct: 91, durationMs: 1150, holdMs: 550, text: 'TELEMETRY.SYNC.READY' },
+    { type: 'crawl', targetPct: 91, durationMs: 1150, holdMs: 550, text: 'PREPARING ENVIRONMENT' },
 
     // Phase 5: Final burst to 100% and brief completion hold
-    { type: 'jump', targetPct: 100, durationMs: 240, holdMs: 450, text: 'SYSTEM.READY' }
+    { type: 'jump', targetPct: 100, durationMs: 240, holdMs: 450, text: 'WORKSPACE READY' }
   ];
 
   // Micro crossfade for terminal status text
@@ -175,8 +175,8 @@
     typewriterText.appendChild(prefixSpan);
     typewriterText.appendChild(brandSpan);
 
-    const fullText = 'Welcome to Project XVoid';
-    const brandStartIndex = 'Welcome to '.length; // 11
+    const fullText = 'Tools for curious builders';
+    const brandStartIndex = 'Tools for '.length; // 11
     let charIndex = 0;
 
     function typeNext() {

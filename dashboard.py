@@ -61,7 +61,7 @@ except ImportError:
     raise SystemExit(1)
 
 APP_NAME = "PROJECT-XVOID"
-APP_VERSION = "1.3"
+APP_VERSION = "1.4"
 DEBUG = False
 
 DEFAULT_TIMEOUT = 20
@@ -2237,16 +2237,31 @@ class LeviathanService:
 
 
     def scan_subdomains(self, domain: str) -> dict[str, Any]:
-        """Reconnaissance subdomains via crt.sh Certificate Transparency Logs."""
+        """Reconnaissance subdomains via HackerTarget & crt.sh Certificate Transparency Logs."""
         d = domain.strip().lower().replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
         if not d or "." not in d:
             raise ServiceError("Format domain tidak valid (contoh: target.com).")
 
-        url = f"https://crt.sh/?q=%25.{d}&output=json"
+        subs = set()
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Project-XVoid/1.0"}
+
+        # 1. Fast probe via HackerTarget
         try:
-            res = requests.get(url, headers=headers, timeout=8)
-            subs = set()
+            ht_res = requests.get(f"https://api.hackertarget.com/hostsearch/?q={d}", headers=headers, timeout=5)
+            if ht_res.ok and "error check your search" not in ht_res.text.lower():
+                for line in ht_res.text.splitlines():
+                    parts = line.split(",")
+                    if parts:
+                        sub = parts[0].strip().lower()
+                        if sub and d in sub:
+                            subs.add(sub)
+        except Exception:
+            pass
+
+        # 2. Probe via crt.sh Certificate Transparency
+        try:
+            url = f"https://crt.sh/?q=%25.{d}&output=json"
+            res = requests.get(url, headers=headers, timeout=6)
             if res.ok:
                 try:
                     data = res.json()
@@ -2258,15 +2273,16 @@ class LeviathanService:
                                 subs.add(s)
                 except Exception:
                     pass
-            sorted_subs = sorted(list(subs))
-            return {
-                "status": "success",
-                "domain": d,
-                "total_found": len(sorted_subs),
-                "subdomains": sorted_subs[:250]
-            }
-        except Exception as exc:
-            raise ServiceError(f"Gagal memindai subdomain untuk '{d}': {exc}")
+        except Exception:
+            pass
+
+        sorted_subs = sorted(list(subs))
+        return {
+            "status": "success",
+            "domain": d,
+            "total_found": len(sorted_subs),
+            "subdomains": sorted_subs[:250]
+        }
 
     def scan_ports(self, host: str) -> dict[str, Any]:
         """Fast non-blocking probe of 14 common service ports."""
